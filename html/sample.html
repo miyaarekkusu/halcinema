@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ページタイトル | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+　<link rel="stylesheet" href="../css/chatbot.css">
+  <!-- ページ固有CSSがあればここに追加 -->
+  <!-- <script src="../js/PAGENAME.js" defer></script> -->
+  
+  <style>
+    /* ─── デモ用スタイル（本番では削除） ─── */
+    .demo-section { margin-bottom: 48px; }
+    .demo-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      color: var(--c-text-muted); text-transform: uppercase;
+      margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .color-chip {
+      width: 48px; height: 48px; border-radius: 8px;
+      border: 1px solid var(--c-border); position: relative;
+    }
+    .color-chip::after {
+      content: attr(data-name); position: absolute;
+      bottom: -20px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; color: var(--c-text-muted); white-space: nowrap;
+    }
+    .demo-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .demo-placeholder {
+      background: var(--c-bg-3); border: 1px dashed var(--c-border-em);
+      border-radius: 8px; padding: 40px 20px;
+      text-align: center; color: var(--c-text-muted); font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー（全ページ共通） -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../html/schedule.html">上映スケジュール</a>
+        <a href="../html/movies.html">作品一覧</a>
+        <a href="../html/goods.html">グッズ・物販</a>
+        <a href="../html/event.html">イベント情報</a>
+        <a href="../html/theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ（ここをページごとに書き換える） -->
+  <main class="page-main">
+
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">TOP</a>
+      <span class="breadcrumb-sep"></span>
+      <span>ページ名</span>
+    </nav>
+
+    <h1 class="page-title">PAGE <span>TITLE</span></h1>
+    <p class="page-subtitle">このページの説明文をここに入れます</p>
+
+    <!-- カラーパレット確認 -->
+    <div class="demo-section">
+      <p class="demo-label">カラーパレット</p>
+      <div class="demo-row" style="padding-bottom: 28px;">
+        <div class="color-chip" style="background:#E8212B;" data-name="--c-red"></div>
+        <div class="color-chip" style="background:#0D0F14;" data-name="--c-bg"></div>
+        <div class="color-chip" style="background:#161922;" data-name="--c-bg-2"></div>
+        <div class="color-chip" style="background:#1E2230;" data-name="--c-bg-3"></div>
+        <div class="color-chip" style="background:#252A3A;" data-name="--c-bg-4"></div>
+        <div class="color-chip" style="background:#F0F0F0;" data-name="--c-text"></div>
+        <div class="color-chip" style="background:#9AA0B4;" data-name="--c-text-sub"></div>
+        <div class="color-chip" style="background:#555C72;" data-name="--c-text-muted"></div>
+      </div>
+    </div>
+
+    <!-- ボタン -->
+    <div class="demo-section">
+      <p class="demo-label">ボタン</p>
+      <div class="demo-row">
+        <a href="#" class="btn btn-primary">予約する</a>
+        <a href="#" class="btn btn-secondary">詳細を見る</a>
+        <a href="#" class="btn btn-ghost">キャンセル</a>
+        <a href="#" class="btn btn-primary btn-sm">小サイズ</a>
+        <a href="#" class="btn btn-primary btn-lg">大サイズ</a>
+      </div>
+    </div>
+
+    <!-- バッジ -->
+    <div class="demo-section">
+      <p class="demo-label">バッジ</p>
+      <div class="demo-row">
+        <span class="badge badge-red">上映中</span>
+        <span class="badge badge-dark">公開予定</span>
+        <span class="badge badge-border">字幕</span>
+        <span class="badge badge-border">吹替</span>
+        <span class="badge badge-red">NEW</span>
+      </div>
+    </div>
+
+    <!-- セクション -->
+    <div class="section demo-section">
+      <div class="section-header">
+        <h2 class="section-title">SECTION <span>TITLE</span></h2>
+        <a href="#" class="section-link">すべて見る →</a>
+      </div>
+      <div class="demo-card-grid">
+        <div class="card movie-card">
+          <div style="width:100%;height:100%;background:var(--c-bg-3);display:flex;align-items:center;justify-content:center;aspect-ratio:2/3;">
+            <span class="text-muted text-sm">ポスター画像</span>
+          </div>
+          <div class="movie-card-overlay">
+            <span class="badge badge-red" style="width:fit-content;margin-bottom:6px;">上映中</span>
+            <p class="movie-card-title">映画タイトル</p>
+            <p class="text-sm text-sub">2025 / 120分</p>
+          </div>
+        </div>
+        <div class="card movie-card">
+          <div style="width:100%;height:100%;background:var(--c-bg-3);display:flex;align-items:center;justify-content:center;aspect-ratio:2/3;">
+            <span class="text-muted text-sm">ポスター画像</span>
+          </div>
+          <div class="movie-card-overlay">
+            <span class="badge badge-dark" style="width:fit-content;margin-bottom:6px;">公開予定</span>
+            <p class="movie-card-title">映画タイトル 2</p>
+            <p class="text-sm text-sub">2025 / 95分</p>
+          </div>
+        </div>
+        <div class="demo-placeholder">カードを追加する</div>
+      </div>
+    </div>
+
+    <!-- フォーム -->
+    <div class="demo-section">
+      <p class="demo-label">フォーム要素</p>
+      <div style="max-width: 480px;">
+        <div class="form-group">
+          <label class="form-label" for="s-name">お名前</label>
+          <input class="form-input" type="text" id="s-name" placeholder="山田 太郎">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="s-select">スクリーン選択</label>
+          <select class="form-select" id="s-select">
+            <option>スクリーン 1（大）200席</option>
+            <option>スクリーン 2（中）120席</option>
+            <option>スクリーン 3（小）70席</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="s-msg">メッセージ</label>
+          <textarea class="form-textarea" id="s-msg" placeholder="ご質問・ご要望をご入力ください"></textarea>
+        </div>
+        <button class="btn btn-primary">送信する</button>
+      </div>
+    </div>
+
+    <!-- コンテンツプレースホルダー -->
+    <div class="demo-section">
+      <p class="demo-label">コンテンツエリア</p>
+      <div class="demo-placeholder" style="min-height: 200px;">
+        ここにページ固有のコンテンツを配置します
+      </div>
+    </div>
+
+  </main>
+
+  <!-- フッター（全ページ共通） -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="#">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- JS：common.js のみ（ページ固有JSがあれば下に追加） -->
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+
+</body>
+</html>
