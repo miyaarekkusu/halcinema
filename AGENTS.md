@@ -83,5 +83,6 @@ halcinema/
 
 # 変更記録
 
-common.css、common.js 完成
-チャットボット画面と機能完成
+common.css、common.js 完成<br>
+チャットボット画面と機能完成<br>
+座席選択ページ追加（zaseki.html, zaseki.css, zaseki.js）
