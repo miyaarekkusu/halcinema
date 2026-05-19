@@ -1,0 +1,277 @@
+/* ============================================================
+   zaseki.css — 座席選択ページ専用スタイル
+   ============================================================ */
+
+/* ページ全体をビューポート高さに固定 */
+body:has(.zaseki-layout) {
+  overflow: hidden;
+}
+
+/* ── レイアウト ────────────────────────────────────────────── */
+.zaseki-layout {
+  display: flex;
+  height: calc(100vh - var(--nav-h));
+  overflow: hidden;
+}
+
+/* 3Dキャンバス領域 */
+.zaseki-canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #0D0F14;
+}
+
+.zaseki-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── オーバーレイUI ────────────────────────────────────────── */
+
+/* 操作ガイド */
+.zaseki-guide {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 12px;
+  color: var(--c-text-sub);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fadeGuide 5s ease forwards;
+}
+
+@keyframes fadeGuide {
+  0%   { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 凡例 */
+.zaseki-legend {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  gap: 16px;
+  background: rgba(13, 15, 20, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 10px 16px;
+}
+
+.zaseki-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--c-text-sub);
+}
+
+.zaseki-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.zaseki-dot-available { background: #6a7090; }
+.zaseki-dot-selected  { background: #E8212B; }
+.zaseki-dot-taken     { background: #353845; border: 1px solid rgba(255,255,255,0.08); }
+
+/* ホバーツールチップ */
+.zaseki-tooltip {
+  position: absolute;
+  background: rgba(13, 15, 20, 0.9);
+  border: 1px solid var(--c-border-em);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--c-text);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -120%);
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.zaseki-tooltip.visible {
+  opacity: 1;
+}
+
+/* ── サイドパネル ──────────────────────────────────────────── */
+.zaseki-panel {
+  width: 300px;
+  min-width: 300px;
+  background: var(--c-bg-2);
+  border-left: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+}
+
+.zaseki-panel-section {
+  padding: 20px;
+  border-bottom: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.zaseki-panel-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+
+.zaseki-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zaseki-count-badge {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--c-red);
+  line-height: 1;
+}
+
+/* 上映情報 */
+.zaseki-movie-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.06em;
+}
+
+.zaseki-movie-sub {
+  margin-top: -4px;
+}
+
+/* 座席タグ */
+.zaseki-seat-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 32px;
+}
+
+.zaseki-seat-tag {
+  display: inline-flex;
+  align-items: center;
+  background: var(--c-red-dim);
+  border: 1px solid rgba(232, 33, 43, 0.3);
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-red);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.zaseki-seat-tag:hover {
+  background: rgba(232, 33, 43, 0.25);
+}
+
+.zaseki-empty-msg {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  line-height: 1.5;
+}
+
+/* 料金セクション */
+.zaseki-price-section {
+  gap: 8px;
+}
+
+.zaseki-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--c-text-sub);
+}
+
+.zaseki-price-total {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-text);
+  padding-top: 8px;
+  border-top: 1px solid var(--c-border);
+  margin-top: 4px;
+}
+
+.zaseki-total-price {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--c-red);
+  letter-spacing: 0.04em;
+}
+
+/* 確定セクション */
+.zaseki-confirm-section {
+  margin-top: auto;
+  gap: 10px;
+}
+
+.zaseki-confirm-note {
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* 確定ボタン無効状態 */
+#confirm-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#confirm-btn:disabled:active {
+  transform: none;
+}
+
+/* ── スマホ対応 ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .zaseki-layout {
+    flex-direction: column;
+    height: auto;
+    overflow: auto;
+  }
+
+  body:has(.zaseki-layout) {
+    overflow: auto;
+  }
+
+  .zaseki-canvas-wrap {
+    height: 55vh;
+    min-height: 300px;
+  }
+
+  .zaseki-panel {
+    width: 100%;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid var(--c-border);
+  }
+
+  .zaseki-legend {
+    gap: 10px;
+    padding: 8px 12px;
+  }
+
+  .zaseki-guide {
+    font-size: 11px;
+    padding: 6px 14px;
+  }
+}
