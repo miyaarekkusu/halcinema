@@ -1,0 +1,375 @@
+/* ============================================================
+   HAL CINEMA — index.css
+   トップページ専用スタイル
+   ============================================================ */
+
+/* ── ヒーローセクション ───────────────────────────────────── */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 70% at 50% 80%, rgba(180, 120, 40, 0.25) 0%, transparent 65%),
+    linear-gradient(180deg, #0a0c10 0%, #111420 40%, #0D0F14 100%);
+}
+
+/* シネマスクリーン風の発光エフェクト */
+.hero-bg::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 55%;
+  height: 45%;
+  background: linear-gradient(
+    to top,
+    rgba(200, 150, 60, 0.18) 0%,
+    rgba(180, 130, 50, 0.08) 50%,
+    transparent 100%
+  );
+  border-radius: 50% 50% 0 0 / 30% 30% 0 0;
+  filter: blur(30px);
+}
+
+/* 座席列のシルエット */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 38%;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent calc(8% - 2px),
+    rgba(255,255,255,0.015) calc(8% - 2px),
+    rgba(255,255,255,0.015) 8%
+  );
+  mask-image: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(13,15,20,0.80) 0%,
+    rgba(13,15,20,0.40) 50%,
+    rgba(13,15,20,0.10) 100%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-red);
+  margin-bottom: 16px;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 8vw, 88px);
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: var(--c-text);
+  margin-bottom: 20px;
+}
+
+.hero-title span {
+  color: var(--c-red);
+}
+
+.hero-lead {
+  font-size: 15px;
+  color: var(--c-text-sub);
+  margin-bottom: 36px;
+  max-width: 420px;
+  line-height: 1.8;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── コンテンツラッパー ───────────────────────────────────── */
+.content-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 24px;
+}
+
+/* ── 映画カードの横スクロール行 ──────────────────────────── */
+.movie-row-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.movie-row-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.movie-row-scroll::-webkit-scrollbar-track {
+  background: var(--c-bg-3);
+  border-radius: 2px;
+}
+
+.movie-row-scroll::-webkit-scrollbar-thumb {
+  background: var(--c-bg-4);
+  border-radius: 2px;
+}
+
+.movie-row-scroll .card {
+  flex-shrink: 0;
+  width: 180px;
+  scroll-snap-align: start;
+}
+
+.movie-row-scroll .movie-card {
+  aspect-ratio: 2 / 3;
+  height: 270px;
+  width: 180px;
+}
+
+/* ポスタープレースホルダー */
+.movie-poster-ph {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, var(--c-bg-3) 0%, var(--c-bg-4) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.movie-poster-ph svg {
+  width: 36px;
+  height: 36px;
+  color: var(--c-text-muted);
+  opacity: 0.5;
+}
+
+.movie-poster-ph-label {
+  font-size: 10px;
+  color: var(--c-text-muted);
+  letter-spacing: 0.06em;
+}
+
+/* カード内バッジ（左上） */
+.movie-card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+}
+
+/* オーバーレイの詳細・予約ボタン */
+.movie-card-overlay .btn {
+  margin-top: 8px;
+}
+
+/* ── お知らせ・劇場セレクト グリッド ─────────────────────── */
+.notice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+.notice-card {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notice-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notice-card-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: var(--c-red);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.notice-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.notice-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.notice-item-date {
+  font-size: 11px;
+  color: var(--c-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.notice-item-text {
+  font-size: 13px;
+  color: var(--c-text-sub);
+  line-height: 1.5;
+}
+
+.notice-card-link {
+  font-size: 12px;
+  color: var(--c-text-sub);
+  transition: color 0.2s;
+  align-self: flex-end;
+}
+
+.notice-card-link:hover {
+  color: var(--c-red);
+}
+
+/* 劇場セレクト */
+.theater-select-card {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.theater-select-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theater-select-card-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: var(--c-red);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.theater-option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.theater-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--c-bg-3);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  text-decoration: none;
+}
+
+.theater-option:hover {
+  border-color: var(--c-border-em);
+  background: var(--c-bg-4);
+}
+
+.theater-option-name {
+  font-size: 13px;
+  color: var(--c-text);
+  font-weight: 500;
+}
+
+.theater-option-screens {
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+
+.theater-option-arrow {
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+/* ── スマホ対応 ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .notice-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    height: 420px;
+  }
+
+  .hero-overlay {
+    background: rgba(13,15,20,0.60);
+  }
+
+  .content-wrap {
+    padding: 40px 16px;
+  }
+
+  .notice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>作品一覧 | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/mypage.css">
+  <link rel="stylesheet" href="../css/movies.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../index.html">上映スケジュール</a>
+        <a href="movies.html" class="active">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="mypage.html" class="mypage-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          マイページ
+        </a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="page-main">
+
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">TOP</a>
+      <span class="breadcrumb-sep"></span>
+      <span>作品一覧</span>
+    </nav>
+
+    <h1 class="page-title">作品<span>一覧</span></h1>
+
+    <!-- フィルタータブ -->
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="now">上映中</button>
+      <button class="filter-tab" data-filter="coming">上映予定</button>
+    </div>
+
+    <!-- 映画グリッド -->
+    <div class="movies-grid" id="movies-grid">
+
+      <!-- 上映中 1 -->
+      <div class="movie-grid-item card movie-card" data-status="now">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-red movie-card-badge">上映中</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">映画タイトル 1</p>
+          <p class="text-sm text-sub">2026 / 120分</p>
+          <a href="movie-detail.html" class="btn btn-primary btn-sm">詳細・予約</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">映画タイトル 1</p>
+          <p class="movie-card-info-meta">2026 · 120分</p>
+        </div>
+      </div>
+
+      <!-- 上映中 2 -->
+      <div class="movie-grid-item card movie-card" data-status="now">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-red movie-card-badge">上映中</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">映画タイトル 2</p>
+          <p class="text-sm text-sub">2026 / 98分</p>
+          <a href="movie-detail.html" class="btn btn-primary btn-sm">詳細・予約</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">映画タイトル 2</p>
+          <p class="movie-card-info-meta">2026 · 98分</p>
+        </div>
+      </div>
+
+      <!-- 上映中 3 -->
+      <div class="movie-grid-item card movie-card" data-status="now">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-red movie-card-badge">上映中</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">映画タイトル 3</p>
+          <p class="text-sm text-sub">2026 / 135分</p>
+          <a href="movie-detail.html" class="btn btn-primary btn-sm">詳細・予約</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">映画タイトル 3</p>
+          <p class="movie-card-info-meta">2026 · 135分</p>
+        </div>
+      </div>
+
+      <!-- 上映中 4 -->
+      <div class="movie-grid-item card movie-card" data-status="now">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-red movie-card-badge">上映中</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">映画タイトル 4</p>
+          <p class="text-sm text-sub">2026 / 110分</p>
+          <a href="movie-detail.html" class="btn btn-primary btn-sm">詳細・予約</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">映画タイトル 4</p>
+          <p class="movie-card-info-meta">2026 · 110分</p>
+        </div>
+      </div>
+
+      <!-- 上映中 5 -->
+      <div class="movie-grid-item card movie-card" data-status="now">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-red movie-card-badge">上映中</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">映画タイトル 5</p>
+          <p class="text-sm text-sub">2026 / 88分</p>
+          <a href="movie-detail.html" class="btn btn-primary btn-sm">詳細・予約</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">映画タイトル 5</p>
+          <p class="movie-card-info-meta">2026 · 88分</p>
+        </div>
+      </div>
+
+      <!-- 上映予定 1 -->
+      <div class="movie-grid-item card movie-card" data-status="coming">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-dark movie-card-badge">公開予定</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">近日公開 1</p>
+          <p class="text-sm text-sub">2026.07 公開予定</p>
+          <a href="movie-detail.html" class="btn btn-secondary btn-sm">詳細を見る</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">近日公開 1</p>
+          <p class="movie-card-info-meta">2026.07 公開予定</p>
+        </div>
+      </div>
+
+      <!-- 上映予定 2 -->
+      <div class="movie-grid-item card movie-card" data-status="coming">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-dark movie-card-badge">公開予定</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">近日公開 2</p>
+          <p class="text-sm text-sub">2026.07 公開予定</p>
+          <a href="movie-detail.html" class="btn btn-secondary btn-sm">詳細を見る</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">近日公開 2</p>
+          <p class="movie-card-info-meta">2026.07 公開予定</p>
+        </div>
+      </div>
+
+      <!-- 上映予定 3 -->
+      <div class="movie-grid-item card movie-card" data-status="coming">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-dark movie-card-badge">公開予定</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">近日公開 3</p>
+          <p class="text-sm text-sub">2026.08 公開予定</p>
+          <a href="movie-detail.html" class="btn btn-secondary btn-sm">詳細を見る</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">近日公開 3</p>
+          <p class="movie-card-info-meta">2026.08 公開予定</p>
+        </div>
+      </div>
+
+      <!-- 上映予定 4 -->
+      <div class="movie-grid-item card movie-card" data-status="coming">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-dark movie-card-badge">公開予定</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">近日公開 4</p>
+          <p class="text-sm text-sub">2026.08 公開予定</p>
+          <a href="movie-detail.html" class="btn btn-secondary btn-sm">詳細を見る</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">近日公開 4</p>
+          <p class="movie-card-info-meta">2026.08 公開予定</p>
+        </div>
+      </div>
+
+      <!-- 上映予定 5 -->
+      <div class="movie-grid-item card movie-card" data-status="coming">
+        <div class="movie-poster-ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="3"/>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+          </svg>
+          <span class="movie-poster-ph-label">POSTER</span>
+        </div>
+        <span class="badge badge-dark movie-card-badge">公開予定</span>
+        <div class="movie-card-overlay">
+          <p class="movie-card-title">近日公開 5</p>
+          <p class="text-sm text-sub">2026.09 公開予定</p>
+          <a href="movie-detail.html" class="btn btn-secondary btn-sm">詳細を見る</a>
+        </div>
+        <div class="movie-card-info">
+          <p class="movie-card-info-title">近日公開 5</p>
+          <p class="movie-card-info-meta">2026.09 公開予定</p>
+        </div>
+      </div>
+
+    </div><!-- /movies-grid -->
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script>
+    // フィルタータブ切り替え
+    const tabs  = document.querySelectorAll('.filter-tab');
+    const items = document.querySelectorAll('.movie-grid-item');
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+
+        const filter = tab.dataset.filter;
+        items.forEach(function (item) {
+          item.dataset.hidden = (filter !== 'all' && item.dataset.status !== filter) ? 'true' : 'false';
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

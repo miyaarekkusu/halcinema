@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>作品詳細 | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/mypage.css">
+  <link rel="stylesheet" href="../css/movies.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../index.html">上映スケジュール</a>
+        <a href="movies.html" class="active">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="mypage.html" class="mypage-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          マイページ
+        </a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="page-main">
+
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">TOP</a>
+      <span class="breadcrumb-sep"></span>
+      <a href="movies.html">作品一覧</a>
+      <span class="breadcrumb-sep"></span>
+      <span>作品詳細</span>
+    </nav>
+
+    <h1 class="page-title">作品<span>詳細</span></h1>
+
+    <!-- ─── 作品情報 ─── -->
+    <section class="section">
+      <div class="movie-detail-grid">
+
+        <!-- ポスター -->
+        <div>
+          <div class="movie-detail-poster">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="3"/>
+              <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+            </svg>
+            <span>ポスタービジュアル</span>
+          </div>
+        </div>
+
+        <!-- 情報テキスト -->
+        <div class="movie-detail-info">
+          <div class="movie-detail-badges">
+            <span class="badge badge-red">上映中</span>
+            <span class="badge badge-border">字幕</span>
+            <span class="badge badge-border">吹替</span>
+          </div>
+
+          <div>
+            <h2 class="movie-detail-title">作品名</h2>
+            <p class="movie-detail-title-sub">MOVIE TITLE（英語タイトル）</p>
+          </div>
+
+          <p class="movie-detail-desc">
+            あらすじや作品説明が入ります。あらすじや作品説明が入ります。あらすじや作品説明が入ります。
+            あらすじや作品説明が入ります。あらすじや作品説明が入ります。あらすじや作品説明が入ります。
+            あらすじや作品説明が入ります。あらすじや作品説明が入ります。あらすじや作品説明が入ります。
+            あらすじや作品説明が入ります。あらすじや作品説明が入ります。
+          </p>
+
+          <table class="movie-meta-table">
+            <tr>
+              <th>公開日</th>
+              <td>2026年〇月〇日（〇）</td>
+            </tr>
+            <tr>
+              <th>上映時間</th>
+              <td>120分</td>
+            </tr>
+            <tr>
+              <th>監督</th>
+              <td>監督名</td>
+            </tr>
+            <tr>
+              <th>出演</th>
+              <td>出演者名、出演者名、出演者名</td>
+            </tr>
+            <tr>
+              <th>ジャンル</th>
+              <td>アクション / ドラマ</td>
+            </tr>
+            <tr>
+              <th>レーティング</th>
+              <td>G（全年齢対象）</td>
+            </tr>
+          </table>
+
+          <div class="movie-detail-actions">
+            <a href="#schedule" class="btn btn-primary btn-lg">上映スケジュールへ</a>
+            <a href="#" class="btn btn-secondary btn-lg">お気に入りに追加</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── 予告編動画 ─── -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">予告編<span>動画</span></h2>
+      </div>
+      <div class="trailer-box" id="trailer-box">
+        <div class="trailer-play-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5,3 19,12 5,21"/>
+          </svg>
+        </div>
+      </div>
+      <p class="trailer-label">予告編・特別映像はこちら</p>
+    </section>
+
+    <!-- ─── 上映スケジュール ─── -->
+    <section class="section" id="schedule">
+      <div class="section-header">
+        <h2 class="section-title">映画上映<span>スケジュール</span></h2>
+      </div>
+
+      <div class="schedule-inner">
+
+      <!-- 日付ナビ -->
+      <div class="schedule-nav">
+        <button class="schedule-nav-btn" id="date-prev" aria-label="前の日">&#8249;</button>
+        <div class="schedule-date-tabs" id="date-tabs">
+          <!-- JSで生成 -->
+        </div>
+        <button class="schedule-nav-btn" id="date-next" aria-label="次の日">&#8250;</button>
+      </div>
+
+      <!-- 上映リスト -->
+      <div id="schedule-content">
+
+        <div class="schedule-movie-row">
+          <div class="schedule-movie-header">作品名（字幕版）</div>
+          <div class="schedule-times-wrap">
+            <a href="zaseki.html" class="time-slot">
+              <span class="time-slot-time">8:30</span>
+              <span class="time-slot-end">〜 10:30</span>
+              <span class="time-slot-screen">SC1</span>
+            </a>
+            <a href="zaseki.html" class="time-slot">
+              <span class="time-slot-time">11:00</span>
+              <span class="time-slot-end">〜 13:00</span>
+              <span class="time-slot-screen">SC1</span>
+            </a>
+            <a href="zaseki.html" class="time-slot">
+              <span class="time-slot-time">13:30</span>
+              <span class="time-slot-end">〜 15:30</span>
+              <span class="time-slot-screen">SC2</span>
+            </a>
+            <a href="zaseki.html" class="time-slot">
+              <span class="time-slot-time">16:00</span>
+              <span class="time-slot-end">〜 18:00</span>
+              <span class="time-slot-screen">SC2</span>
+            </a>
+            <div class="time-slot full">
+              <span class="time-slot-time">18:30</span>
+              <span class="time-slot-end">〜 20:30</span>
+              <span class="time-slot-screen">満席</span>
+            </div>
+            <a href="zaseki.html" class="time-slot">
+              <span class="time-slot-time">21:00</span>
+              <span class="time-slot-end">〜 23:00</span>
+              <span class="time-slot-screen">SC1</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="schedule-movie-row">
+          <div class="schedule-movie-header">作品名（吹替版）</div>
+          <div class="schedule-times-wrap">
+            <a href="zaseki.html" class="time-slot">
+              <span class="time-slot-time">9:00</span>
+              <span class="time-slot-end">〜 11:00</span>
+              <span class="time-slot-screen">SC3</span>
+            </a>
+            <a href="zaseki.html" class="time-slot">
+              <span class="time-slot-time">12:00</span>
+              <span class="time-slot-end">〜 14:00</span>
+              <span class="time-slot-screen">SC3</span>
+            </a>
+            <a href="zaseki.html" class="time-slot">
+              <span class="time-slot-time">15:00</span>
+              <span class="time-slot-end">〜 17:00</span>
+              <span class="time-slot-screen">SC4</span>
+            </a>
+            <div class="time-slot full">
+              <span class="time-slot-time">18:00</span>
+              <span class="time-slot-end">〜 20:00</span>
+              <span class="time-slot-screen">満席</span>
+            </div>
+            <a href="zaseki.html" class="time-slot">
+              <span class="time-slot-time">20:30</span>
+              <span class="time-slot-end">〜 22:30</span>
+              <span class="time-slot-screen">SC3</span>
+            </a>
+          </div>
+        </div>
+
+      </div><!-- /schedule-content -->
+
+      <div class="schedule-reserve-wrap">
+        <a href="zaseki.html" class="btn btn-primary btn-lg">予約する</a>
+      </div>
+
+      </div><!-- /schedule-inner -->
+
+    </section>
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script>
+    // ── 日付タブ生成 ──────────────────────────────────────────
+    (function () {
+      const DAY_JA   = ['日','月','火','水','木','金','土'];
+      const tabsEl   = document.getElementById('date-tabs');
+      const prevBtn  = document.getElementById('date-prev');
+      const nextBtn  = document.getElementById('date-next');
+
+      const today    = new Date();
+      const TOTAL    = 14;   // 2週間分
+      const VISIBLE  = 7;    // 一度に表示する日数
+      let   offset   = 0;    // 現在の開始オフセット
+      let   selected = 0;    // 選択中インデックス（today=0）
+
+      function buildDates() {
+        tabsEl.innerHTML = '';
+        const end = Math.min(offset + VISIBLE, TOTAL);
+        for (let i = offset; i < end; i++) {
+          const d   = new Date(today);
+          d.setDate(today.getDate() + i);
+          const tab = document.createElement('button');
+          tab.className = 'schedule-date-tab' + (i === selected ? ' active' : '');
+          tab.dataset.idx = i;
+          tab.innerHTML =
+            '<span class="schedule-date-num">' + (d.getMonth() + 1) + '/' + d.getDate() + '</span>' +
+            '<span class="schedule-date-day">（' + DAY_JA[d.getDay()] + '）</span>';
+          tab.addEventListener('click', function () {
+            selected = parseInt(this.dataset.idx);
+            buildDates();
+          });
+          tabsEl.appendChild(tab);
+        }
+        prevBtn.disabled = (offset === 0);
+        nextBtn.disabled = (offset + VISIBLE >= TOTAL);
+        prevBtn.style.opacity = prevBtn.disabled ? '0.3' : '1';
+        nextBtn.style.opacity = nextBtn.disabled ? '0.3' : '1';
+      }
+
+      prevBtn.addEventListener('click', function () {
+        if (offset > 0) { offset = Math.max(0, offset - VISIBLE); buildDates(); }
+      });
+      nextBtn.addEventListener('click', function () {
+        if (offset + VISIBLE < TOTAL) { offset = Math.min(TOTAL - VISIBLE, offset + VISIBLE); buildDates(); }
+      });
+
+      buildDates();
+    })();
+
+    // ── 予告編クリック ────────────────────────────────────────
+    document.getElementById('trailer-box').addEventListener('click', function () {
+      // 実際の予告編URLをここに設定
+      alert('予告編動画を再生します');
+    });
+  </script>
+
+</body>
+</html>

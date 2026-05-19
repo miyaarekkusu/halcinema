@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マイページ | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/mypage.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../index.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="mypage.html" class="mypage-nav-btn active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          マイページ
+        </a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="page-main">
+
+    <h1 class="page-title">マイ<span>ページ</span></h1>
+
+    <div class="mypage-layout" style="margin-top: 32px;">
+
+      <!-- 左サイドバー -->
+      <aside class="mypage-sidebar">
+        <button class="mypage-tab active" data-panel="ticket">チケット</button>
+        <button class="mypage-tab" data-panel="payment">支払方法</button>
+        <button class="mypage-tab" data-panel="settings">設定</button>
+        <div class="mypage-sidebar-divider"></div>
+        <button class="mypage-logout-btn" id="logout-btn">ログアウト</button>
+      </aside>
+
+      <!-- コンテンツエリア -->
+      <div class="mypage-content">
+
+        <!-- ─── チケット ─── -->
+        <section class="mypage-panel active" id="panel-ticket">
+          <h2 class="mypage-panel-title">チケット</h2>
+
+          <div class="ticket-list">
+
+            <div class="ticket-item">
+              <div class="ticket-poster">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="3"/>
+                  <path d="M7 2v20M17 2v20M2 12h20"/>
+                </svg>
+              </div>
+              <div class="ticket-info">
+                <p class="ticket-title">名探偵ピカチュウ</p>
+                <p class="ticket-meta">
+                  2026年5月20日（水）14:00〜15:52<br>
+                  スクリーン2 / E列 7番・8番
+                </p>
+              </div>
+              <div class="ticket-actions">
+                <span class="badge badge-green">予約済み</span>
+                <a href="#" class="btn btn-ghost btn-sm">詳細</a>
+              </div>
+            </div>
+
+            <div class="ticket-item">
+              <div class="ticket-poster">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="3"/>
+                  <path d="M7 2v20M17 2v20M2 12h20"/>
+                </svg>
+              </div>
+              <div class="ticket-info">
+                <p class="ticket-title">映画タイトル 2</p>
+                <p class="ticket-meta">
+                  2026年5月10日（日）10:00〜12:18<br>
+                  スクリーン1 / G列 12番
+                </p>
+              </div>
+              <div class="ticket-actions">
+                <span class="badge badge-gray">使用済み</span>
+                <a href="#" class="btn btn-ghost btn-sm">詳細</a>
+              </div>
+            </div>
+
+            <div class="ticket-item">
+              <div class="ticket-poster">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="3"/>
+                  <path d="M7 2v20M17 2v20M2 12h20"/>
+                </svg>
+              </div>
+              <div class="ticket-info">
+                <p class="ticket-title">映画タイトル 3</p>
+                <p class="ticket-meta">
+                  2026年4月28日（火）19:00〜21:15<br>
+                  スクリーン3 / C列 4番・5番・6番
+                </p>
+              </div>
+              <div class="ticket-actions">
+                <span class="badge badge-gray">使用済み</span>
+                <a href="#" class="btn btn-ghost btn-sm">詳細</a>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ─── 支払方法 ─── -->
+        <section class="mypage-panel" id="panel-payment">
+          <h2 class="mypage-panel-title">支払方法</h2>
+
+          <div class="payment-list">
+
+            <div class="payment-card-item">
+              <div class="payment-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <div class="payment-card-info">
+                <p class="payment-card-num">•••• •••• •••• 1234</p>
+                <p class="payment-card-expire">有効期限 08 / 28</p>
+              </div>
+              <span class="payment-card-default">デフォルト</span>
+              <button class="btn btn-ghost btn-sm">削除</button>
+            </div>
+
+            <div class="payment-card-item">
+              <div class="payment-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <div class="payment-card-info">
+                <p class="payment-card-num">•••• •••• •••• 5678</p>
+                <p class="payment-card-expire">有効期限 03 / 27</p>
+              </div>
+              <button class="btn btn-ghost btn-sm">削除</button>
+            </div>
+
+          </div>
+
+          <button class="payment-add-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="16"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            カードを追加する
+          </button>
+        </section>
+
+        <!-- ─── 設定 ─── -->
+        <section class="mypage-panel" id="panel-settings">
+          <h2 class="mypage-panel-title">設定</h2>
+
+          <!-- プロフィール -->
+          <div class="settings-section">
+            <div class="settings-section-header">プロフィール</div>
+            <div class="settings-section-body">
+              <div class="settings-row">
+                <span class="settings-row-label">お名前</span>
+                <span class="settings-row-value">山田 太郎</span>
+                <button class="btn btn-secondary btn-sm">編集</button>
+              </div>
+              <div class="settings-row">
+                <span class="settings-row-label">メールアドレス</span>
+                <span class="settings-row-value">example@email.com</span>
+                <button class="btn btn-secondary btn-sm">編集</button>
+              </div>
+              <div class="settings-row">
+                <span class="settings-row-label">電話番号</span>
+                <span class="settings-row-value">090-0000-0000</span>
+                <button class="btn btn-secondary btn-sm">編集</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- パスワード -->
+          <div class="settings-section">
+            <div class="settings-section-header">パスワード</div>
+            <div class="settings-section-body">
+              <div class="settings-row">
+                <span class="settings-row-label">パスワード</span>
+                <span class="settings-row-value">••••••••</span>
+                <button class="btn btn-secondary btn-sm">変更</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 通知設定 -->
+          <div class="settings-section">
+            <div class="settings-section-header">通知設定</div>
+            <div class="settings-section-body">
+              <div class="settings-row">
+                <span class="settings-row-label">メール通知</span>
+                <span class="settings-row-value">上映情報・予約確認を受け取る</span>
+                <button class="btn btn-secondary btn-sm">変更</button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div><!-- /mypage-content -->
+
+    </div><!-- /mypage-layout -->
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script>
+    // タブ切り替え
+    const tabs   = document.querySelectorAll('.mypage-tab');
+    const panels = document.querySelectorAll('.mypage-panel');
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        panels.forEach(function (p) { p.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+      });
+    });
+
+    // ログアウト
+    document.getElementById('logout-btn').addEventListener('click', function () {
+      if (confirm('ログアウトしますか？')) {
+        location.href = '../index.html';
+      }
+    });
+  </script>
+
+</body>
+</html>
