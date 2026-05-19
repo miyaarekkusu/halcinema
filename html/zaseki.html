@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>座席選択 | HAL CINEMA</title>
+
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/zaseki.css">
+
+  <!-- Three.js CDN (importmap) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../html/schedule.html">上映スケジュール</a>
+        <a href="../html/movies.html">作品一覧</a>
+        <a href="../html/goods.html">グッズ・物販</a>
+        <a href="../html/event.html">イベント情報</a>
+        <a href="../html/theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインレイアウト（3D + パネル） -->
+  <div class="zaseki-layout">
+
+    <!-- 3Dキャンバスエリア -->
+    <div class="zaseki-canvas-wrap">
+      <canvas class="webgl"></canvas>
+
+      <!-- 操作ガイド（フェードアウト） -->
+      <div class="zaseki-guide" id="zaseki-guide">
+        <p>ドラッグで視点を変更 ／ スクロールで拡大縮小 ／ 座席をクリックして選択</p>
+      </div>
+
+      <!-- 凡例 -->
+      <div class="zaseki-legend">
+        <div class="zaseki-legend-item">
+          <span class="zaseki-legend-dot zaseki-dot-available"></span>空席
+        </div>
+        <div class="zaseki-legend-item">
+          <span class="zaseki-legend-dot zaseki-dot-selected"></span>選択中
+        </div>
+        <div class="zaseki-legend-item">
+          <span class="zaseki-legend-dot zaseki-dot-taken"></span>満席
+        </div>
+      </div>
+
+      <!-- ホバー時の座席ラベル -->
+      <div class="zaseki-tooltip" id="zaseki-tooltip"></div>
+    </div>
+
+    <!-- サイドパネル -->
+    <aside class="zaseki-panel">
+
+      <!-- 上映情報 -->
+      <div class="zaseki-panel-section">
+        <p class="zaseki-panel-label">上映情報</p>
+        <p class="zaseki-movie-title">スクリーン 1（大）</p>
+        <p class="zaseki-movie-sub text-sub text-sm">200席 ／ 本日 14:00 上映</p>
+      </div>
+
+      <!-- 選択中の座席 -->
+      <div class="zaseki-panel-section">
+        <div class="zaseki-panel-header">
+          <p class="zaseki-panel-label">選択中の座席</p>
+          <span class="zaseki-count-badge" id="selected-count">0</span>席
+        </div>
+        <div class="zaseki-seat-tags" id="selected-list">
+          <p class="zaseki-empty-msg">座席をクリックして選択してください</p>
+        </div>
+      </div>
+
+      <!-- 視点移動 -->
+      <div class="zaseki-panel-section" id="view-section" style="display:none;">
+        <p class="zaseki-panel-label">座席からの眺め</p>
+        <button class="btn btn-secondary btn-sm" id="view-btn" style="width:100%;">
+          この席から見る
+        </button>
+        <button class="btn btn-ghost btn-sm" id="reset-view-btn" style="width:100%;margin-top:6px;">
+          全体を表示に戻す
+        </button>
+      </div>
+
+      <!-- 料金 -->
+      <div class="zaseki-panel-section zaseki-price-section">
+        <div class="zaseki-price-row">
+          <span class="text-sub text-sm">1席あたり</span>
+          <span class="text-sm">¥1,800</span>
+        </div>
+        <div class="zaseki-price-row zaseki-price-total">
+          <span>合計金額</span>
+          <span class="zaseki-total-price">¥<span id="total-price">0</span></span>
+        </div>
+      </div>
+
+      <!-- 確定ボタン -->
+      <div class="zaseki-panel-section zaseki-confirm-section">
+        <button class="btn btn-primary btn-lg" id="confirm-btn" disabled style="width:100%;">
+          予約を確定する
+        </button>
+        <p class="zaseki-confirm-note text-muted text-xs">
+          ※ 選択後、内容確認画面へ進みます
+        </p>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- JS -->
+  <script type="module" src="../js/zaseki.js"></script>
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+
+</body>
+</html>
