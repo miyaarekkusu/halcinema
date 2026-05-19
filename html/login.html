@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/mypage.css">
+  <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../index.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm active">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="mypage.html" class="mypage-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          マイページ
+        </a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="auth-page">
+    <div class="auth-card">
+
+      <!-- ロゴ -->
+      <p class="auth-logo">HAL <span>CINEMA</span></p>
+      <p class="auth-tagline">MEMBER LOGIN</p>
+
+      <h1 class="auth-title">ログイン</h1>
+      <p class="auth-subtitle">会員アカウントでサインインしてください</p>
+
+      <form class="auth-form" action="#" method="post">
+
+        <!-- メールアドレス -->
+        <div class="form-group">
+          <label class="form-label" for="email">メールアドレス</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <input class="form-input" type="email" id="email" name="email"
+              placeholder="example@email.com" autocomplete="email" required>
+          </div>
+        </div>
+
+        <!-- パスワード -->
+        <div class="form-group">
+          <label class="form-label" for="password">パスワード</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input class="form-input" type="password" id="password" name="password"
+              placeholder="パスワードを入力" autocomplete="current-password" required>
+            <button type="button" class="input-toggle" id="toggle-password" aria-label="パスワードを表示">
+              <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- パスワードを忘れた -->
+        <a href="#" class="auth-forgot">パスワードをお忘れですか？</a>
+
+        <!-- ログインを保持 -->
+        <div class="auth-check-row">
+          <input type="checkbox" id="remember" name="remember">
+          <label for="remember">ログイン状態を保持する</label>
+        </div>
+
+        <!-- ログインボタン -->
+        <button type="submit" class="btn btn-primary auth-submit">ログイン</button>
+
+      </form>
+
+      <div class="auth-divider"><span>または</span></div>
+
+      <!-- 会員登録リンク -->
+      <p class="auth-switch">
+        アカウントをお持ちでない方は
+        <a href="register.html">会員登録はこちら</a>
+      </p>
+
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script>
+    // パスワード表示トグル
+    document.getElementById('toggle-password').addEventListener('click', function () {
+      const input = document.getElementById('password');
+      const icon  = document.getElementById('eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = `
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>`;
+      } else {
+        input.type = 'password';
+        icon.innerHTML = `
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>`;
+      }
+    });
+  </script>
+
+</body>
+</html>

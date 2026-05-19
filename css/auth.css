@@ -1,0 +1,219 @@
+/* ============================================================
+   HAL CINEMA — auth.css
+   ログイン・会員登録ページ共通スタイル
+   ============================================================ */
+
+/* ── ページ背景 ───────────────────────────────────────────── */
+.auth-page {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(232, 33, 43, 0.06) 0%, transparent 70%),
+    var(--c-bg);
+}
+
+/* ── 認証カード ───────────────────────────────────────────── */
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  padding: 40px;
+}
+
+.auth-logo {
+  font-family: var(--font-display);
+  font-size: 26px;
+  letter-spacing: 0.12em;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.auth-logo span {
+  color: var(--c-red);
+}
+
+.auth-tagline {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  text-align: center;
+  letter-spacing: 0.06em;
+  margin-bottom: 32px;
+}
+
+.auth-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 4px;
+}
+
+.auth-subtitle {
+  font-size: 13px;
+  color: var(--c-text-sub);
+  margin-bottom: 28px;
+}
+
+/* ── フォーム ─────────────────────────────────────────────── */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.auth-form .form-group {
+  margin-bottom: 16px;
+}
+
+/* 入力欄のアイコン付き */
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap .form-input {
+  padding-left: 40px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--c-text-muted);
+  pointer-events: none;
+}
+
+/* パスワード表示トグル */
+.input-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--c-text-muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.input-toggle:hover {
+  color: var(--c-text-sub);
+}
+
+.input-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* チェックボックス行 */
+.auth-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.auth-check-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--c-red);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.auth-check-row label {
+  font-size: 13px;
+  color: var(--c-text-sub);
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.auth-check-row a {
+  color: var(--c-red);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-check-row a:hover {
+  color: var(--c-red-dark);
+}
+
+/* 忘れたリンク */
+.auth-forgot {
+  font-size: 12px;
+  color: var(--c-text-sub);
+  text-align: right;
+  margin-top: -8px;
+  margin-bottom: 24px;
+  display: block;
+  transition: color 0.2s;
+}
+
+.auth-forgot:hover {
+  color: var(--c-red);
+}
+
+/* 送信ボタン */
+.auth-submit {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* 区切り線 */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--c-border);
+}
+
+.auth-divider span {
+  font-size: 11px;
+  color: var(--c-text-muted);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* ページ切り替えリンク */
+.auth-switch {
+  font-size: 13px;
+  color: var(--c-text-sub);
+  text-align: center;
+}
+
+.auth-switch a {
+  color: var(--c-red);
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.auth-switch a:hover {
+  color: var(--c-red-dark);
+}
+
+/* ── スマホ対応 ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 28px 20px;
+  }
+}

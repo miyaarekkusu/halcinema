@@ -1,0 +1,440 @@
+/* ============================================================
+   HAL CINEMA — mypage.css
+   マイページ専用スタイル
+   ============================================================ */
+
+/* ── ページレイアウト ─────────────────────────────────────── */
+.mypage-layout {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* ── 左サイドバー ─────────────────────────────────────────── */
+.mypage-sidebar {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: sticky;
+  top: calc(var(--nav-h) + 16px);
+}
+
+.mypage-tab {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-text-sub);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.mypage-tab:hover {
+  background: var(--c-bg-4);
+  color: var(--c-text);
+}
+
+.mypage-tab.active {
+  background: var(--c-red);
+  color: #fff;
+}
+
+.mypage-sidebar-divider {
+  height: 1px;
+  background: var(--c-border);
+  margin: 8px 0;
+}
+
+.mypage-logout-btn {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--c-red);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-red);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-top: 4px;
+}
+
+.mypage-logout-btn:hover {
+  background: var(--c-red);
+  color: #fff;
+}
+
+/* ── コンテンツエリア ─────────────────────────────────────── */
+.mypage-content {
+  min-width: 0;
+}
+
+.mypage-panel {
+  display: none;
+}
+
+.mypage-panel.active {
+  display: block;
+}
+
+.mypage-panel-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   チケットタブ
+   ══════════════════════════════════════════════════════════════ */
+
+.ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ticket-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+
+.ticket-item:hover {
+  border-color: var(--c-border-em);
+}
+
+.ticket-poster {
+  width: 52px;
+  height: 72px;
+  background: linear-gradient(160deg, var(--c-bg-3) 0%, var(--c-bg-4) 100%);
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-text-muted);
+}
+
+.ticket-poster svg {
+  width: 22px;
+  height: 22px;
+  opacity: 0.5;
+}
+
+.ticket-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ticket-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ticket-meta {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  line-height: 1.7;
+}
+
+.ticket-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 予約済みバッジ（緑） */
+.badge-green {
+  background: #1a7a40;
+  color: #fff;
+}
+
+/* 使用済みバッジ */
+.badge-gray {
+  background: var(--c-bg-4);
+  color: var(--c-text-muted);
+}
+
+.ticket-empty {
+  text-align: center;
+  padding: 56px 24px;
+  color: var(--c-text-muted);
+  font-size: 14px;
+  background: var(--c-bg-2);
+  border: 1px dashed var(--c-border-em);
+  border-radius: 12px;
+  line-height: 2;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   支払方法タブ
+   ══════════════════════════════════════════════════════════════ */
+
+.payment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.payment-card-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+
+.payment-card-icon {
+  width: 44px;
+  height: 30px;
+  background: var(--c-bg-4);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.payment-card-icon svg {
+  width: 20px;
+  height: 20px;
+  color: var(--c-text-muted);
+}
+
+.payment-card-info {
+  flex: 1;
+}
+
+.payment-card-num {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-text);
+  letter-spacing: 0.08em;
+}
+
+.payment-card-expire {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-top: 2px;
+}
+
+.payment-card-default {
+  font-size: 11px;
+  color: var(--c-red);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.payment-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  background: transparent;
+  border: 1px dashed var(--c-border-em);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--c-text-sub);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.payment-add-btn:hover {
+  border-color: var(--c-red);
+  color: var(--c-red);
+  background: var(--c-red-dim);
+}
+
+.payment-add-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   設定タブ
+   ══════════════════════════════════════════════════════════════ */
+
+.settings-section {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.settings-section-header {
+  padding: 14px 20px;
+  background: var(--c-bg-3);
+  border-bottom: 1px solid var(--c-border);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: 0.04em;
+}
+
+.settings-section-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-row-label {
+  font-size: 13px;
+  color: var(--c-text-muted);
+  flex-shrink: 0;
+  width: 120px;
+}
+
+.settings-row-value {
+  font-size: 14px;
+  color: var(--c-text);
+  flex: 1;
+}
+
+.settings-danger-zone {
+  background: rgba(232, 33, 43, 0.05);
+  border: 1px solid rgba(232, 33, 43, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.settings-danger-text p:first-child {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-red);
+  margin-bottom: 4px;
+}
+
+.settings-danger-text p:last-child {
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+/* ── マイページ ナビボタン（ヘッダー内） ──────────────────── */
+.mypage-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-text-sub);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--c-border-em);
+  background: transparent;
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.mypage-nav-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.mypage-nav-btn:hover {
+  color: var(--c-text);
+  background: var(--c-bg-4);
+  border-color: var(--c-border-em);
+}
+
+.mypage-nav-btn.active {
+  color: var(--c-red);
+  border-color: var(--c-red);
+}
+
+/* ── レスポンシブ ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .mypage-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mypage-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: static;
+  }
+
+  .mypage-tab {
+    flex: 1;
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .mypage-sidebar-divider {
+    width: 100%;
+    height: 1px;
+    margin: 4px 0;
+  }
+
+  .mypage-logout-btn {
+    width: 100%;
+  }
+
+  .ticket-item {
+    flex-wrap: wrap;
+  }
+
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .settings-row-label {
+    width: auto;
+  }
+}
