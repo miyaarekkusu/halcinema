@@ -126,6 +126,14 @@ git commit -m "変更内容をここに書く"
 ```bash
 git push
 ```
+  <!-- 【コピー用】
+  
+git add .
+git commit -m "変更内容をここに書く"
+git push
+  
+   -->
+
 
 コミットメッセージの例：
 

@@ -1,0 +1,416 @@
+/* ============================================================
+   HAL CINEMA — theater.css   v3
+   ============================================================ */
+
+/* ── ヒーロー ──────────────────────────────────────────────── */
+.theater-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--c-bg-3) 0%, var(--c-bg-4) 100%);
+  border-radius: 16px;
+  margin-bottom: 48px;
+  padding: 56px 48px 48px;
+  border: 1px solid var(--c-border);
+}
+.theater-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0.05;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,.5) 40px, rgba(255,255,255,.5) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,.5) 40px, rgba(255,255,255,.5) 41px);
+  pointer-events: none;
+}
+.theater-hero::after {
+  content: '';
+  position: absolute; right: 60px; top: 50%; transform: translateY(-50%);
+  width: 220px; height: 220px;
+  border: 1px solid rgba(232,33,43,.18); border-radius: 50%;
+  pointer-events: none;
+}
+.theater-hero-inner { position: relative; z-index: 2; }
+.theater-hero-label {
+  font-size: 12px; font-weight: 700; letter-spacing: .14em;
+  color: var(--c-red); margin-bottom: 12px; text-transform: uppercase;
+}
+.theater-hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 48px);
+  letter-spacing: .08em; line-height: 1.1;
+  color: var(--c-text); margin-bottom: 10px;
+}
+.theater-hero-address {
+  font-size: 14px; color: var(--c-text-sub);
+  margin-bottom: 24px; display: flex; align-items: center; gap: 6px;
+}
+.theater-hero-address svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--c-red); }
+.theater-hero-badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.theater-status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; padding: 5px 14px;
+  border-radius: 20px;
+  background: rgba(232,33,43,.15); border: 1px solid rgba(232,33,43,.4); color: #ff9999;
+}
+.theater-status-badge::before {
+  content: ''; width: 7px; height: 7px;
+  background: var(--c-red); border-radius: 50%;
+  animation: tpulse 1.8s ease-in-out infinite;
+}
+@keyframes tpulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.45; transform:scale(.65); }
+}
+
+/* 音声再生ボタン */
+.theater-voice-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 500; color: var(--c-text-sub);
+  padding: 5px 14px; border-radius: 20px;
+  border: 1px solid var(--c-border-em);
+  background: rgba(255,255,255,.04);
+  cursor: pointer; transition: color .2s, border-color .2s, background .2s;
+}
+.theater-voice-btn:hover { color: var(--c-text); border-color: var(--c-text-muted); background: var(--c-bg-4); }
+.theater-voice-btn.playing { color: var(--c-red); border-color: rgba(232,33,43,.5); background: rgba(232,33,43,.08); }
+.theater-voice-btn svg { width: 15px; height: 15px; }
+
+/* ── ページ内ナビ ───────────────────────────────────────────── */
+.theater-nav {
+  position: sticky; top: var(--nav-h); z-index: 50;
+  background: rgba(13,15,20,.94);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--c-border);
+  margin: 0 -24px 56px; padding: 0 24px;
+}
+.theater-nav-inner { display: flex; }
+.theater-nav-item {
+  font-size: 15px; font-weight: 700; color: var(--c-text-muted);
+  padding: 18px 22px; border-bottom: 3px solid transparent;
+  cursor: pointer; transition: color .2s, border-color .2s;
+  letter-spacing: .04em; background: none;
+  border-top: none; border-left: none; border-right: none;
+  font-family: var(--font-body); white-space: nowrap;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+}
+.theater-nav-item:hover { color: var(--c-text-sub); }
+.theater-nav-item.active { color: var(--c-text); border-bottom-color: var(--c-red); }
+.theater-nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ── 数値サマリー ──────────────────────────────────────────── */
+.theater-stats {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 14px;
+  margin-bottom: 56px;
+}
+.theater-stat {
+  background: var(--c-bg-2); border: 1px solid var(--c-border);
+  border-radius: 14px; padding: 28px 20px; text-align: center;
+  transition: border-color .2s, transform .2s;
+}
+.theater-stat:hover { border-color: var(--c-border-em); transform: translateY(-2px); }
+.theater-stat-num {
+  font-family: var(--font-display); font-size: 36px;
+  letter-spacing: .06em; color: var(--c-red); line-height: 1; margin-bottom: 10px;
+}
+.theater-stat-label { font-size: 13px; color: var(--c-text-muted); letter-spacing: .06em; }
+
+/* ── セクション共通 ────────────────────────────────────────── */
+.theater-section {
+  margin-bottom: 96px;
+  scroll-margin-top: calc(var(--nav-h) + 64px);
+  opacity: 0; transform: translateY(32px);
+  transition: opacity .55s var(--ease), transform .55s var(--ease);
+}
+.theater-section.visible { opacity: 1; transform: translateY(0); }
+
+.theater-section-head {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+}
+.theater-section-head::before {
+  content: ''; display: block;
+  width: 5px; height: 32px; background: var(--c-red); border-radius: 3px; flex-shrink: 0;
+}
+/* セクションタイトル：大きく・太く */
+.theater-section-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px); letter-spacing: .08em; color: var(--c-text);
+}
+.theater-section-title span { color: var(--c-red); }
+.theater-section-link {
+  font-size: 13px; color: var(--c-text-sub); margin-left: auto; transition: color .2s;
+}
+.theater-section-link:hover { color: var(--c-red); }
+
+/* ── 概要・会員特典カード ──────────────────────────────────── */
+.theater-overview-card {
+  background: var(--c-bg-2); border: 1px solid var(--c-border);
+  border-radius: 16px; padding: 40px;
+}
+
+/* リード文：やや大きめ・行間広め */
+.theater-overview-lead {
+  font-size: 16px; color: var(--c-text-sub); line-height: 2.1;
+  padding-bottom: 32px; border-bottom: 1px solid var(--c-border); margin-bottom: 36px;
+}
+
+/* 特典グリッド：2列 */
+.theater-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px 32px;
+}
+
+/* 各feature */
+.theater-feature {
+  display: flex; gap: 18px; align-items: flex-start;
+  background: var(--c-bg-3); border: 1px solid var(--c-border);
+  border-radius: 14px; padding: 24px;
+  transition: border-color .2s, background .2s, transform .2s;
+}
+.theater-feature:hover {
+  border-color: var(--c-border-em); background: var(--c-bg-4); transform: translateY(-2px);
+}
+
+.theater-feature-icon {
+  width: 52px; height: 52px; background: var(--c-bg);
+  border: 1px solid var(--c-border); border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; color: var(--c-red);
+  transition: background .2s, border-color .2s;
+}
+.theater-feature:hover .theater-feature-icon {
+  background: rgba(232,33,43,.1); border-color: rgba(232,33,43,.35);
+}
+.theater-feature-icon svg { width: 26px; height: 26px; }
+
+/* feature タイトル：大きく強調 */
+.theater-feature-title {
+  font-size: 17px; font-weight: 700; color: var(--c-text);
+  margin-bottom: 8px; line-height: 1.4; letter-spacing: .02em;
+}
+
+/* feature 説明文：読みやすいサイズ */
+.theater-feature-desc { font-size: 14px; color: var(--c-text-sub); line-height: 1.95; }
+
+/* feature 内のリンクボタン */
+.theater-feature-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 500; color: var(--c-red);
+  margin-top: 10px; transition: gap .2s;
+}
+.theater-feature-link:hover { gap: 10px; }
+.theater-feature-link svg { width: 14px; height: 14px; }
+
+/* ── スクリーンテーブル ──────────────────────────────────── */
+.theater-screen-card {
+  background: var(--c-bg-2); border: 1px solid var(--c-border);
+  border-radius: 14px; overflow: hidden;
+}
+.theater-screen-table { width: 100%; border-collapse: collapse; }
+.theater-screen-table thead tr { background: var(--c-bg-3); }
+.theater-screen-table th {
+  font-size: 12px; font-weight: 700; letter-spacing: .08em;
+  color: var(--c-text-muted); padding: 14px 18px; text-align: left;
+  border-bottom: 1px solid var(--c-border);
+}
+.theater-screen-table th:not(:first-child):not(:nth-child(2)) { text-align: center; }
+.theater-screen-table td {
+  padding: 16px 18px; border-bottom: 1px solid var(--c-border); vertical-align: middle;
+}
+.theater-screen-table tbody tr:last-child td { border-bottom: none; }
+.theater-screen-table tbody tr { transition: background .15s; }
+.theater-screen-table tbody tr:hover { background: var(--c-bg-3); }
+.screen-num-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; background: var(--c-bg-4);
+  border-radius: 7px; font-size: 13px; font-weight: 700; color: var(--c-text);
+}
+.screen-name-text { font-size: 14px; font-weight: 500; color: var(--c-text); }
+.screen-type-text { font-size: 12px; color: var(--c-text-muted); margin-top: 2px; }
+.screen-size-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; padding: 3px 12px; border-radius: 4px; letter-spacing: .04em;
+}
+.screen-size-badge.large { background: rgba(232,33,43,.12); color:#ff9999; border:1px solid rgba(232,33,43,.25); }
+.screen-size-badge.mid   { background: rgba(55,138,221,.1);  color:#7ab8dd; border:1px solid rgba(55,138,221,.25); }
+.screen-size-badge.small { background: var(--c-bg-4); color:var(--c-text-muted); border:1px solid var(--c-border); }
+.screen-seats-num  { font-size: 14px; font-weight: 500; color: var(--c-text); text-align: center; }
+.screen-option-text  { font-size: 12px; color: var(--c-text-muted); text-align: center; }
+.screen-option-imax  { font-size: 12px; font-weight: 700; color: #ff9999; text-align: center; letter-spacing: .06em; }
+.screen-total-row {
+  display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+  padding: 16px 18px; background: var(--c-bg-3); border-top: 1px solid var(--c-border);
+}
+.screen-total-label { font-size: 12px; color: var(--c-text-muted); }
+.screen-total-num { font-family: var(--font-display); font-size: 22px; color: var(--c-red); letter-spacing: .04em; }
+.screen-total-calc { font-size: 12px; color: var(--c-text-muted); }
+
+/* IMAXノート */
+.imax-note {
+  margin-top: 18px; background: rgba(232,33,43,.06);
+  border: 1px solid rgba(232,33,43,.18); border-radius: 12px;
+  padding: 22px 26px; display: flex; gap: 18px; align-items: flex-start;
+}
+.imax-note-icon { font-family: var(--font-display); font-size: 20px; letter-spacing: .06em; color: var(--c-red); flex-shrink: 0; padding-top: 2px; }
+.imax-note-title { font-size: 15px; font-weight: 700; color: var(--c-text); margin-bottom: 8px; }
+.imax-note-desc { font-size: 14px; color: var(--c-text-sub); line-height: 1.9; }
+
+/* ── 施設グリッド ──────────────────────────────────────────── */
+.theater-facility-card {
+  background: var(--c-bg-2); border: 1px solid var(--c-border);
+  border-radius: 14px; padding: 32px;
+}
+.theater-facility-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 14px;
+}
+.theater-facility-item {
+  background: var(--c-bg-3); border: 1px solid var(--c-border);
+  border-radius: 12px; padding: 20px 12px; text-align: center;
+  cursor: pointer; transition: border-color .2s, background .2s, transform .18s;
+  position: relative; user-select: none;
+}
+.theater-facility-item:hover { border-color: var(--c-border-em); background: var(--c-bg-4); transform: translateY(-3px); }
+.theater-facility-item:active { transform: scale(.97); }
+.theater-facility-tap-hint { position: absolute; top: 7px; right: 10px; font-size: 9px; color: var(--c-text-muted); letter-spacing: .04em; }
+.theater-facility-icon { width: 38px; height: 38px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; color: var(--c-text-sub); }
+.theater-facility-icon svg { width: 28px; height: 28px; }
+.theater-facility-icon.accent { color: var(--c-red); }
+.theater-facility-name { font-size: 13px; font-weight: 700; color: var(--c-text-sub); line-height: 1.4; }
+
+/* ── 施設モーダル ──────────────────────────────────────────── */
+.facility-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.7); z-index: 200;
+  align-items: center; justify-content: center; padding: 24px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.facility-modal-overlay.open { display: flex; }
+.facility-modal {
+  background: var(--c-bg-2); border: 1px solid var(--c-border-em);
+  border-radius: 18px; width: 100%; max-width: 500px; overflow: hidden;
+  animation: modal-in .22s var(--ease);
+}
+@keyframes modal-in {
+  from { opacity:0; transform:scale(.92) translateY(10px); }
+  to   { opacity:1; transform:scale(1)   translateY(0); }
+}
+.facility-modal-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 22px 26px; border-bottom: 1px solid var(--c-border); background: var(--c-bg-3);
+}
+.facility-modal-icon {
+  width: 48px; height: 48px; background: var(--c-bg-4); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--c-red);
+}
+.facility-modal-icon svg { width: 26px; height: 26px; }
+.facility-modal-title { font-size: 20px; font-weight: 700; color: var(--c-text); }
+.facility-modal-close {
+  margin-left: auto; width: 34px; height: 34px; background: var(--c-bg-4);
+  border: 1px solid var(--c-border); border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--c-text-sub); flex-shrink: 0; transition: background .2s, color .2s;
+}
+.facility-modal-close:hover { background: var(--c-red); color: #fff; border-color: var(--c-red); }
+.facility-modal-close svg { width: 17px; height: 17px; }
+.facility-modal-body { padding: 26px; }
+.facility-modal-desc { font-size: 14px; color: var(--c-text-sub); line-height: 1.9; margin-bottom: 18px; }
+.facility-modal-details { display: flex; flex-direction: column; gap: 8px; }
+.facility-modal-detail-row {
+  display: flex; gap: 12px; font-size: 14px;
+  padding: 10px 14px; background: var(--c-bg-3); border-radius: 9px; border: 1px solid var(--c-border);
+}
+.facility-modal-detail-label { color: var(--c-text-muted); min-width: 90px; flex-shrink: 0; }
+.facility-modal-detail-value { color: var(--c-text); }
+
+/* ── アクセス・時間 ────────────────────────────────────────── */
+.theater-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.theater-map-card {
+  background: var(--c-bg-2); border: 1px solid var(--c-border);
+  border-radius: 14px; overflow: hidden;
+}
+.theater-map-placeholder {
+  height: 170px; background: #151c2a; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  border-bottom: 1px solid var(--c-border);
+}
+.theater-map-placeholder::before {
+  content: ''; position: absolute; inset: 0; opacity: .1;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 20px,rgba(255,255,255,.35) 20px,rgba(255,255,255,.35) 21px),
+    repeating-linear-gradient(90deg,transparent,transparent 20px,rgba(255,255,255,.35) 20px,rgba(255,255,255,.35) 21px);
+}
+.theater-map-pin { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.theater-map-pin-dot { position: relative; width: 13px; height: 13px; background: var(--c-red); border-radius: 50%; }
+.theater-map-pin-dot::before {
+  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 30px; height: 30px; border: 1px solid rgba(232,33,43,.4); border-radius: 50%;
+}
+.theater-map-pin-label { font-size: 11px; color: var(--c-text-sub); }
+.theater-map-info { padding: 18px 20px; }
+.theater-map-row {
+  display: flex; align-items: flex-start; gap: 9px;
+  font-size: 14px; color: var(--c-text-sub); margin-bottom: 12px;
+}
+.theater-map-row svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 2px; color: var(--c-red); }
+.theater-map-row.access svg { color: var(--c-text-muted); }
+.theater-hours-card {
+  background: var(--c-bg-2); border: 1px solid var(--c-border);
+  border-radius: 14px; padding: 28px;
+}
+.theater-hours-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid var(--c-border); font-size: 15px;
+}
+.theater-hours-row:last-child { border-bottom: none; padding-bottom: 0; }
+.theater-hours-day { color: var(--c-text-sub); }
+.theater-hours-time { color: var(--c-text); font-variant-numeric: tabular-nums; }
+.theater-hours-time.weekend { color: var(--c-red); }
+
+/* ── お知らせ ──────────────────────────────────────────────── */
+.theater-news-card {
+  background: var(--c-bg-2); border: 1px solid var(--c-border); border-radius: 14px; padding: 28px;
+}
+.theater-news-item {
+  display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--c-border);
+}
+.theater-news-item:last-child { border-bottom: none; padding-bottom: 0; }
+.theater-news-date { font-size: 12px; color: var(--c-text-muted); min-width: 84px; padding-top: 2px; letter-spacing: .04em; }
+.theater-news-text { font-size: 14px; color: var(--c-text-sub); line-height: 1.7; }
+
+/* ── CTA ───────────────────────────────────────────────────── */
+.theater-cta {
+  background: linear-gradient(135deg,rgba(232,33,43,.1) 0%,transparent 60%);
+  border: 1px solid rgba(232,33,43,.22);
+  border-radius: 14px; padding: 28px 32px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.theater-cta-text { font-size: 17px; font-weight: 700; color: var(--c-text); margin-bottom: 5px; }
+.theater-cta-sub { font-size: 13px; color: var(--c-text-sub); }
+
+/* ── レスポンシブ ──────────────────────────────────────────── */
+/* ── page-main 幅を広げる上書き ─────────────────────────── */
+.page-main {
+  max-width: 1320px;
+  padding: 48px 40px;
+}
+
+@media (max-width: 1024px) {
+  .page-main { padding: 40px 28px; }
+  .theater-features { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .page-main { padding: 32px 16px; }
+  .theater-hero { padding: 32px 20px 28px; }
+  .theater-hero::after { display: none; }
+  .theater-stats { grid-template-columns: repeat(2,1fr); }
+  .theater-two-col { grid-template-columns: 1fr; }
+  .theater-facility-grid { grid-template-columns: repeat(2,1fr); }
+  .theater-nav { margin: 0 -16px 40px; padding: 0 16px; }
+  .theater-nav-inner { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .theater-nav-item { padding: 14px 16px; font-size: 13px; }
+  .theater-screen-table th:nth-child(3),
+  .theater-screen-table td:nth-child(3) { display: none; }
+  .theater-cta { flex-direction: column; align-items: flex-start; }
+  .theater-overview-card { padding: 24px 20px; }
+  .theater-feature { padding: 18px; }
+}

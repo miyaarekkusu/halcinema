@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>劇場情報 | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/mypage.css">
+  <link rel="stylesheet" href="../css/theater.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../index.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html" class="active">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="mypage.html" class="mypage-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          マイページ
+        </a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+
+    <!-- パンくず -->
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">TOP</a>
+      <span class="breadcrumb-sep"></span>
+      <span>劇場情報</span>
+    </nav>
+
+    <h1 class="page-title">劇場<span>情報</span></h1>
+    <p class="page-subtitle">HAL CINEMA 名古屋亀島 — スパイラルタワーズ B4F</p>
+
+    <!-- ヒーロー -->
+    <div class="theater-hero">
+      <div class="theater-hero-inner">
+        <p class="theater-hero-label">THEATER INFO</p>
+        <h2 class="theater-hero-name">HAL CINEMA 名古屋亀島</h2>
+        <p class="theater-hero-address">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          愛知県名古屋市西区亀島2-2-1 スパイラルタワーズ B4F
+        </p>
+        <div class="theater-hero-badges">
+          <span class="theater-status-badge">営業中</span>
+          <span class="badge badge-border">8スクリーン</span>
+          <span class="badge badge-border">1,500席</span>
+          <span class="badge badge-border">IMAX対応</span>
+          <!-- 音声再生ボタン -->
+          <button class="theater-voice-btn" id="voiceBtn" aria-label="音声ガイダンスを再生">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" id="voiceIcon">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            音声ガイダンス
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ページ内ナビ -->
+    <nav class="theater-nav" aria-label="ページ内ナビゲーション">
+      <div class="theater-nav-inner">
+        <a href="#sec-overview"  class="theater-nav-item active" data-section="sec-overview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          概要
+        </a>
+        <a href="#sec-member"    class="theater-nav-item" data-section="sec-member">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          会員特典
+        </a>
+        <a href="#sec-screen"    class="theater-nav-item" data-section="sec-screen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          スクリーン
+        </a>
+        <a href="#sec-facility"  class="theater-nav-item" data-section="sec-facility">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          施設・設備
+        </a>
+        <a href="#sec-access"    class="theater-nav-item" data-section="sec-access">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          アクセス
+        </a>
+        <a href="#sec-news"      class="theater-nav-item" data-section="sec-news">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          お知らせ
+        </a>
+      </div>
+    </nav>
+
+    <!-- 数値サマリー -->
+    <div class="theater-stats">
+      <div class="theater-stat">
+        <div class="theater-stat-num" data-count="8" data-suffix="">0</div>
+        <div class="theater-stat-label">スクリーン数</div>
+      </div>
+      <div class="theater-stat">
+        <div class="theater-stat-num" data-count="1500" data-suffix="" data-comma="true">0</div>
+        <div class="theater-stat-label">総座席数</div>
+      </div>
+      <div class="theater-stat">
+        <div class="theater-stat-num">10:00</div>
+        <div class="theater-stat-label">開館時間</div>
+      </div>
+      <div class="theater-stat">
+        <div class="theater-stat-num">23:00</div>
+        <div class="theater-stat-label">閉館時間</div>
+      </div>
+    </div>
+
+    <!-- ═══ ① 概要 ═══ -->
+    <section id="sec-overview" class="theater-section">
+      <div class="theater-section-head">
+        <h2 class="theater-section-title">劇場<span>概要</span></h2>
+      </div>
+      <div class="theater-overview-card">
+        <p class="theater-overview-lead">
+          HAL CINEMA 名古屋亀島は、スパイラルタワーズ地下4階に位置する<strong style="color:var(--c-text);font-weight:700;">名古屋最大級のシネマコンプレックス</strong>です。
+          大スクリーン3館（各200席）・中スクリーン2館（各120席）・小スクリーン3館（各70席）の<strong style="color:var(--c-text);font-weight:700;">全8スクリーン・総座席数1,500席</strong>を誇り、
+          最新のIMAX設備を導入した迫力の映像と音響で最高の映画体験をお届けします。
+        </p>
+        <div class="theater-features">
+
+          <div class="theater-feature">
+            <div class="theater-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+            </div>
+            <div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--c-red);margin-bottom:4px;text-transform:uppercase;">Online Reservation</p>
+              <p class="theater-feature-title">Webアプリで簡単チケット予約</p>
+              <p class="theater-feature-desc">スマートフォンのブラウザから座席の選択・決済まですべて完結。窓口に並ぶことなくいつでもどこでも予約が可能で、会員登録でポイントも貯まります。希望の上映回・座席をリアルタイムで確認しながら直感的に選べます。</p>
+            </div>
+          </div>
+
+          <div class="theater-feature">
+            <div class="theater-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h.01M14 17h3M17 14h3M17 17v4M20 17v4"/></svg>
+            </div>
+            <div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--c-red);margin-bottom:4px;text-transform:uppercase;">Digital Ticket & Mobile Order</p>
+              <p class="theater-feature-title">デジタルチケット＆モバイルオーダー</p>
+              <p class="theater-feature-desc">紙のチケット印刷は不要。スマートフォンに表示されるQRコードをかざすだけで入場できます。ポップコーン・ドリンクなどのフードも事前にスマホで注文・決済して劇場カウンターでスムーズに受け取れます。</p>
+            </div>
+          </div>
+
+          <div class="theater-feature">
+            <div class="theater-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+            </div>
+            <div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--c-red);margin-bottom:4px;text-transform:uppercase;">3D Indoor Navigation</p>
+              <p class="theater-feature-title">スマホで3D館内ルート案内</p>
+              <p class="theater-feature-desc">はじめてご来館の方も迷わず座席へたどり着けます。スマートフォンのWebサイトから、Googleマップの3Dナビのような感覚で劇場入口から指定スクリーンの座席まで案内します。地下4階の広い館内でも安心です。</p>
+            </div>
+          </div>
+
+          <div class="theater-feature">
+            <div class="theater-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            </div>
+            <div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--c-red);margin-bottom:4px;text-transform:uppercase;">Voice Guidance</p>
+              <p class="theater-feature-title">音声ガイダンス</p>
+              <p class="theater-feature-desc">視覚障がいのある方やはじめてご来館の方向けに、音声で座席・フロアの情報をガイドします。スマートフォンのWebサイトから起動でき、イヤホンをつなぐだけで利用可能。スタッフに声をかけなくても安心して劇場内を移動できます。</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ ② 会員特典 ═══ -->
+    <section id="sec-member" class="theater-section">
+      <div class="theater-section-head">
+        <h2 class="theater-section-title">会員<span>特典</span></h2>
+      </div>
+      <div class="theater-overview-card">
+        <p class="theater-overview-lead">
+          HAL CINEMAの<strong style="color:var(--c-text);font-weight:700;">会員登録（無料）</strong>で、チケット購入がさらに便利・お得になります。
+          デジタルならではの特典を活用して、映画をもっと楽しんでください。
+        </p>
+        <div class="theater-features">
+
+          <div class="theater-feature">
+            <div class="theater-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--c-red);margin-bottom:4px;text-transform:uppercase;">Point Program</p>
+              <p class="theater-feature-title">ポイントプログラム</p>
+              <p class="theater-feature-desc">チケット購入・フードのモバイルオーダーごとにポイントが貯まります。100円ごとに1pt付与され、500ptから次回チケットの割引に使えます。貯まったポイントはマイページからいつでも確認・利用申請が可能です。</p>
+            </div>
+          </div>
+
+          <div class="theater-feature">
+            <div class="theater-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--c-red);margin-bottom:4px;text-transform:uppercase;">Ticket Collection</p>
+              <p class="theater-feature-title">チケットコレクション</p>
+              <p class="theater-feature-desc">鑑賞したすべての映画のデジタルチケットがマイページに自動保存されます。作品のポスターや鑑賞日・スクリーン情報をコレクションとして振り返れます。思い出の映画体験をいつでも手元に残せるデジタルアルバム機能です。</p>
+            </div>
+          </div>
+
+          <div class="theater-feature">
+            <div class="theater-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            </div>
+            <div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--c-red);margin-bottom:4px;text-transform:uppercase;">Digital Payment</p>
+              <p class="theater-feature-title">デジタル決済でスムーズ入場</p>
+              <p class="theater-feature-desc">クレジットカード・各種QRコード決済・電子マネーに対応。事前に支払い方法を登録しておけば、次回以降はワンタップで購入完了。当日は発行されたQRコードをかざすだけで入場でき、財布を出す手間もありません。</p>
+            </div>
+          </div>
+
+          <div class="theater-feature">
+            <div class="theater-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--c-red);margin-bottom:4px;text-transform:uppercase;">Smart Navigation</p>
+              <p class="theater-feature-title">劇場内をスムーズに移動</p>
+              <p class="theater-feature-desc">会員ログイン状態でWebサイトにアクセスすると、予約情報と連携した専用ナビが起動。入場ゲート・フードカウンター・座席まで、次にやるべきことをステップ形式で案内します。はじめての来館でも迷わず、当日を快適に過ごせます。</p>
+            </div>
+          </div>
+
+          <div class="theater-feature">
+            <div class="theater-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+              <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--c-red);margin-bottom:4px;text-transform:uppercase;">AI Recommendation</p>
+              <p class="theater-feature-title">AIチャットボットで映画おすすめ</p>
+              <p class="theater-feature-desc">「アクションが観たい」「感動できる映画を教えて」など、気分や好みを気軽にチャットで話しかけるだけで、AIがあなたにぴったりの作品をレコメンドします。いつでもすぐに相談できるAIアシスタントです。</p>
+              <a href="chatbot.html" class="theater-feature-link">
+                AIに相談する
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ ③ スクリーン ═══ -->
+    <section id="sec-screen" class="theater-section">
+      <div class="theater-section-head">
+        <h2 class="theater-section-title">スクリーン<span>構成</span></h2>
+      </div>
+      <div class="theater-screen-card">
+        <table class="theater-screen-table">
+          <thead>
+            <tr>
+              <th style="width:52px;">No.</th>
+              <th>名称</th>
+              <th style="width:80px;">区分</th>
+              <th style="width:80px;">座席数</th>
+              <th style="width:80px;">設備</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="screen-num-badge">1</span></td><td><p class="screen-name-text">スクリーン 1</p><p class="screen-type-text">大スクリーン</p></td><td style="text-align:center;"><span class="screen-size-badge large">大</span></td><td style="text-align:center;"><span class="screen-seats-num">200席</span></td><td><p class="screen-option-imax">IMAX</p></td></tr>
+            <tr><td><span class="screen-num-badge">2</span></td><td><p class="screen-name-text">スクリーン 2</p><p class="screen-type-text">大スクリーン</p></td><td style="text-align:center;"><span class="screen-size-badge large">大</span></td><td style="text-align:center;"><span class="screen-seats-num">200席</span></td><td><p class="screen-option-text">—</p></td></tr>
+            <tr><td><span class="screen-num-badge">3</span></td><td><p class="screen-name-text">スクリーン 3</p><p class="screen-type-text">大スクリーン</p></td><td style="text-align:center;"><span class="screen-size-badge large">大</span></td><td style="text-align:center;"><span class="screen-seats-num">200席</span></td><td><p class="screen-option-text">—</p></td></tr>
+            <tr><td><span class="screen-num-badge">4</span></td><td><p class="screen-name-text">スクリーン 4</p><p class="screen-type-text">中スクリーン</p></td><td style="text-align:center;"><span class="screen-size-badge mid">中</span></td><td style="text-align:center;"><span class="screen-seats-num">120席</span></td><td><p class="screen-option-text">—</p></td></tr>
+            <tr><td><span class="screen-num-badge">5</span></td><td><p class="screen-name-text">スクリーン 5</p><p class="screen-type-text">中スクリーン</p></td><td style="text-align:center;"><span class="screen-size-badge mid">中</span></td><td style="text-align:center;"><span class="screen-seats-num">120席</span></td><td><p class="screen-option-text">—</p></td></tr>
+            <tr><td><span class="screen-num-badge">6</span></td><td><p class="screen-name-text">スクリーン 6</p><p class="screen-type-text">小スクリーン</p></td><td style="text-align:center;"><span class="screen-size-badge small">小</span></td><td style="text-align:center;"><span class="screen-seats-num">70席</span></td><td><p class="screen-option-text">—</p></td></tr>
+            <tr><td><span class="screen-num-badge">7</span></td><td><p class="screen-name-text">スクリーン 7</p><p class="screen-type-text">小スクリーン</p></td><td style="text-align:center;"><span class="screen-size-badge small">小</span></td><td style="text-align:center;"><span class="screen-seats-num">70席</span></td><td><p class="screen-option-text">—</p></td></tr>
+            <tr><td><span class="screen-num-badge">8</span></td><td><p class="screen-name-text">スクリーン 8</p><p class="screen-type-text">小スクリーン</p></td><td style="text-align:center;"><span class="screen-size-badge small">小</span></td><td style="text-align:center;"><span class="screen-seats-num">70席</span></td><td><p class="screen-option-text">—</p></td></tr>
+          </tbody>
+        </table>
+        <div class="screen-total-row">
+          <span class="screen-total-label">合計</span>
+          <span class="screen-total-num">1,500席</span>
+          <span class="screen-total-calc">（200×3 + 120×2 + 70×3）</span>
+        </div>
+      </div>
+      <div class="imax-note">
+        <div class="imax-note-icon">IMAX</div>
+        <div>
+          <p class="imax-note-title">IMAXとは</p>
+          <p class="imax-note-desc">IMAXは、通常よりも大きなスクリーンと高精細映像・独自の多チャンネル音響システムを組み合わせた世界最高水準の映画体験フォーマットです。スクリーン1（200席）に導入しており、レーザープロジェクションによる鮮明な映像と立体音響により、映画の世界に完全に没入できる体験をお届けします。IMAX対応作品はチケット予約時に「IMAX」バッジで表示されます。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ ④ 施設・設備 ═══ -->
+    <section id="sec-facility" class="theater-section">
+      <div class="theater-section-head">
+        <h2 class="theater-section-title">施設<span>・</span>設備</h2>
+      </div>
+      <div class="theater-facility-card">
+        <div class="theater-facility-grid">
+
+          <div class="theater-facility-item" data-modal="imax-theater" role="button" tabindex="0" aria-label="IMAXシアターの詳細">
+            <span class="theater-facility-tap-hint">タップ</span>
+            <div class="theater-facility-icon accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <p class="theater-facility-name">IMAXシアター</p>
+          </div>
+
+          <div class="theater-facility-item" data-modal="barrier-free" role="button" tabindex="0" aria-label="バリアフリー対応の詳細">
+            <span class="theater-facility-tap-hint">タップ</span>
+            <div class="theater-facility-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><path d="M10 7H8l-1 5h9l-1-5h-2M8 22v-5l2-3 1 2 3-2v8"/></svg></div>
+            <p class="theater-facility-name">バリアフリー対応</p>
+          </div>
+
+          <div class="theater-facility-item" data-modal="parking" role="button" tabindex="0" aria-label="駐車場の詳細">
+            <span class="theater-facility-tap-hint">タップ</span>
+            <div class="theater-facility-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+            <p class="theater-facility-name">駐車場300台</p>
+          </div>
+
+          <div class="theater-facility-item" data-modal="food" role="button" tabindex="0" aria-label="フードコーナーの詳細">
+            <span class="theater-facility-tap-hint">タップ</span>
+            <div class="theater-facility-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+            <p class="theater-facility-name">フードコーナー</p>
+          </div>
+
+          <div class="theater-facility-item" data-modal="shop" role="button" tabindex="0" aria-label="グッズショップの詳細">
+            <span class="theater-facility-tap-hint">タップ</span>
+            <div class="theater-facility-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+            <p class="theater-facility-name">グッズショップ</p>
+          </div>
+
+          <div class="theater-facility-item" data-modal="wifi" role="button" tabindex="0" aria-label="無料Wi-Fiの詳細">
+            <span class="theater-facility-tap-hint">タップ</span>
+            <div class="theater-facility-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg></div>
+            <p class="theater-facility-name">無料Wi-Fi</p>
+          </div>
+
+          <div class="theater-facility-item" data-modal="baby" role="button" tabindex="0" aria-label="ベビールームの詳細">
+            <span class="theater-facility-tap-hint">タップ</span>
+            <div class="theater-facility-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+            <p class="theater-facility-name">ベビールーム</p>
+          </div>
+
+          <div class="theater-facility-item" data-modal="locker" role="button" tabindex="0" aria-label="コインロッカーの詳細">
+            <span class="theater-facility-tap-hint">タップ</span>
+            <div class="theater-facility-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <p class="theater-facility-name">コインロッカー</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ ⑤ アクセス ═══ -->
+    <section id="sec-access" class="theater-section">
+      <div class="theater-section-head">
+        <h2 class="theater-section-title">アクセス<span>・</span>営業時間</h2>
+      </div>
+      <div class="theater-two-col">
+        <div class="theater-map-card">
+          <div class="theater-map-placeholder">
+            <div class="theater-map-pin">
+              <div class="theater-map-pin-dot"></div>
+              <p class="theater-map-pin-label">HAL CINEMA 亀島</p>
+            </div>
+          </div>
+          <div class="theater-map-info">
+            <div class="theater-map-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>愛知県名古屋市西区亀島2-2-1<br>スパイラルタワーズ B4F</span>
+            </div>
+            <div class="theater-map-row access">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
+              <span>地下鉄東山線・桜通線「名古屋」駅 徒歩5分<br>地下鉄東山線「亀島」駅 徒歩3分</span>
+            </div>
+            <a href="#" class="btn btn-secondary btn-sm" style="margin-top:4px;">Google Mapで開く →</a>
+          </div>
+        </div>
+        <div class="theater-hours-card">
+          <div class="theater-section-head" style="margin-bottom:20px;">
+            <h3 class="theater-section-title" style="font-size:20px;">営業<span>時間</span></h3>
+          </div>
+          <div class="theater-hours-row"><span class="theater-hours-day">月〜木曜日</span><span class="theater-hours-time">10:00 〜 23:00</span></div>
+          <div class="theater-hours-row"><span class="theater-hours-day">金曜日</span><span class="theater-hours-time">10:00 〜 24:00</span></div>
+          <div class="theater-hours-row"><span class="theater-hours-day">土・日・祝日</span><span class="theater-hours-time weekend">9:00 〜 24:00</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ ⑥ お知らせ ═══ -->
+    <section id="sec-news" class="theater-section">
+      <div class="theater-section-head">
+        <h2 class="theater-section-title">劇場からの<span>お知らせ</span></h2>
+        <a href="#" class="theater-section-link">一覧を見る →</a>
+      </div>
+      <div class="theater-news-card">
+        <div class="theater-news-item"><span class="theater-news-date">2026.05.19</span><span class="theater-news-text">スクリーン2リニューアルオープンのお知らせ</span></div>
+        <div class="theater-news-item"><span class="theater-news-date">2026.05.15</span><span class="theater-news-text">シニア・学生割引の適用期間延長について</span></div>
+        <div class="theater-news-item"><span class="theater-news-date">2026.05.10</span><span class="theater-news-text">フードコーナーメニュー変更のご案内</span></div>
+        <div class="theater-news-item"><span class="theater-news-date">2026.05.08</span><span class="theater-news-text">会員ポイント移行完了のご案内</span></div>
+        <div class="theater-news-item"><span class="theater-news-date">2026.05.01</span><span class="theater-news-text">特別試写会チケット先行発売開始のお知らせ</span></div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="theater-cta">
+      <div>
+        <p class="theater-cta-text">上映スケジュールを確認して予約する</p>
+        <p class="theater-cta-sub">最新の上映情報をチェックして、お気に入りの作品を予約しましょう</p>
+      </div>
+      <a href="../index.html" class="btn btn-primary btn-lg">予約する</a>
+    </div>
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">HALシネマは全8スクリーン・1,500席を誇る<br>名古屋最大級のシネマコンプレックスです。</p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- 施設モーダル -->
+  <div class="facility-modal-overlay" id="facilityModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="facility-modal">
+      <div class="facility-modal-header">
+        <div class="facility-modal-icon" id="modalIcon"></div>
+        <p class="facility-modal-title" id="modalTitle"></p>
+        <button class="facility-modal-close" id="modalClose" aria-label="閉じる">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="facility-modal-body">
+        <p class="facility-modal-desc" id="modalDesc"></p>
+        <div class="facility-modal-details" id="modalDetails"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+
+  <script>
+  /* ═══════════════════════════════════════════════
+     1. スクロールイン アニメーション（IntersectionObserver）
+  ═══════════════════════════════════════════════ */
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // 数値カウントアップ（stat内にdata-countがある場合）
+        e.target.querySelectorAll('[data-count]').forEach(countUp);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.theater-section, .theater-stats').forEach(function(el) {
+    io.observe(el);
+  });
+
+  /* ─ 数値カウントアップ ─ */
+  function countUp(el) {
+    var target  = parseInt(el.dataset.count, 10);
+    var comma   = el.dataset.comma === 'true';
+    var duration = 1200;
+    var start    = performance.now();
+    function tick(now) {
+      var p = Math.min((now - start) / duration, 1);
+      var ease = 1 - Math.pow(1 - p, 3);
+      var val  = Math.round(ease * target);
+      el.textContent = comma ? val.toLocaleString() : val;
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ═══════════════════════════════════════════════
+     2. ページ内ナビ スクロール連動アクティブ
+  ═══════════════════════════════════════════════ */
+  var sections = document.querySelectorAll('.theater-section');
+  var navItems = document.querySelectorAll('.theater-nav-item');
+  var NAV_H    = 64 + 58; // site-header + theater-nav
+
+  function updateNav() {
+    var y = window.scrollY + NAV_H + 24;
+    var cur = '';
+    sections.forEach(function(s) { if (s.offsetTop <= y) cur = s.id; });
+    navItems.forEach(function(n) {
+      n.classList.toggle('active', n.dataset.section === cur);
+    });
+  }
+  window.addEventListener('scroll', updateNav, { passive: true });
+  updateNav();
+
+  /* スムーズスクロール */
+  navItems.forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.getElementById(this.dataset.section);
+      if (!target) return;
+      var top = target.getBoundingClientRect().top + window.scrollY - NAV_H - 16;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    });
+  });
+
+  /* ═══════════════════════════════════════════════
+     3. 施設ポップアップ
+  ═══════════════════════════════════════════════ */
+  var facilityData = {
+    'imax-theater': { title:'IMAXシアター', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>', desc:'スクリーン1に導入した最新のIMAXレーザーシステム。通常スクリーンの最大40%大きな画角と12チャンネル立体音響で映画の世界に完全没入できます。IMAX専用の最適化された座席配置で、どの席からも最高の視聴体験が得られます。', details:[{label:'対応スクリーン',value:'スクリーン1（200席）'},{label:'プロジェクター',value:'IMAXレーザー 4Kデュアル'},{label:'音響',value:'12ch立体音響'},{label:'対応コンテンツ',value:'IMAX・IMAX 3D'}] },
+    'barrier-free': { title:'バリアフリー対応', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><path d="M10 7H8l-1 5h9l-1-5h-2M8 22v-5l2-3 1 2 3-2v8"/></svg>', desc:'車いすご利用の方から視覚・聴覚にハンディキャップをお持ちの方まで、すべてのお客様が映画を楽しめるよう館内全体でバリアフリー設計を取り入れています。', details:[{label:'車いすスペース',value:'全スクリーンに設置'},{label:'音声ガイド',value:'専用イヤホン貸出あり'},{label:'字幕スクリーン',value:'対応作品あり'},{label:'エレベーター',value:'B4Fまで完備'}] },
+    'parking':      { title:'駐車場（300台）', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>', desc:'スパイラルタワーズ専用駐車場をご利用いただけます。映画鑑賞のお客様は割引サービスが適用されます。', details:[{label:'収容台数',value:'300台'},{label:'映画割引',value:'2時間無料（¥1,800以上購入）'},{label:'営業時間',value:'9:00〜翌1:00'},{label:'料金',value:'30分 ¥220〜'}] },
+    'food':         { title:'フードコーナー', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>', desc:'ポップコーン・ドリンク・スナックなど豊富なメニューを取り揃えています。モバイルオーダーで事前注文するとカウンターで待たずに受け取れます。', details:[{label:'場所',value:'各フロア入口付近'},{label:'モバイルオーダー',value:'対応（アプリ不要）'},{label:'営業時間',value:'開館〜最終上映終了まで'},{label:'キャッシュレス',value:'QRコード・カード対応'}] },
+    'shop':         { title:'グッズショップ', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>', desc:'上映中作品の公式グッズ・限定コレクション・パンフレットを取り揃えています。映画ファン必見のアイテムが揃っています。', details:[{label:'場所',value:'B4F メインエントランス前'},{label:'取扱い',value:'公式グッズ・パンフレット・限定品'},{label:'営業時間',value:'開館〜閉館まで'},{label:'キャッシュレス',value:'QRコード・カード対応'}] },
+    'wifi':         { title:'無料Wi-Fi', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>', desc:'館内全エリアで無料Wi-Fiをご利用いただけます。スマホでチケット確認やモバイルオーダーをご利用の際にも快適にお使いいただけます。', details:[{label:'SSID',value:'HALCINEMA_FREE'},{label:'エリア',value:'館内全域（スクリーン内除く）'},{label:'速度',value:'最大100Mbps'},{label:'認証',value:'ブラウザ認証（1クリック）'}] },
+    'baby':         { title:'ベビールーム', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', desc:'授乳やおむつ替えに対応したベビールームを完備しています。小さなお子様連れでも安心してお楽しみいただけます。', details:[{label:'場所',value:'B4F インフォメーション横'},{label:'設備',value:'授乳スペース・おむつ交換台'},{label:'利用時間',value:'開館〜閉館（鍵付き個室）'},{label:'キッズ席',value:'一部スクリーンに設定あり'}] },
+    'locker':       { title:'コインロッカー', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>', desc:'荷物を預けて身軽に映画を楽しめるコインロッカーを設置しています。大型スーツケース対応サイズもあります。', details:[{label:'場所',value:'B4F エントランス付近'},{label:'サイズ',value:'小・中・大（スーツケース対応）'},{label:'料金',value:'¥300〜¥600（返却時返金）'},{label:'支払い',value:'100円硬貨 / ICカード対応'}] }
+  };
+
+  var modal      = document.getElementById('facilityModal');
+  var modalTitle = document.getElementById('modalTitle');
+  var modalIcon  = document.getElementById('modalIcon');
+  var modalDesc  = document.getElementById('modalDesc');
+  var modalDets  = document.getElementById('modalDetails');
+
+  function openModal(key) {
+    var d = facilityData[key]; if (!d) return;
+    modalTitle.textContent = d.title;
+    modalIcon.innerHTML    = d.icon;
+    modalDesc.textContent  = d.desc;
+    modalDets.innerHTML = d.details.map(function(r) {
+      return '<div class="facility-modal-detail-row"><span class="facility-modal-detail-label">' + r.label + '</span><span class="facility-modal-detail-value">' + r.value + '</span></div>';
+    }).join('');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
+
+  document.querySelectorAll('.theater-facility-item').forEach(function(el) {
+    el.addEventListener('click', function() { openModal(this.dataset.modal); });
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(this.dataset.modal); }
+    });
+  });
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+  /* ═══════════════════════════════════════════════
+     4. 音声ガイダンスボタン（Web Speech API）
+  ═══════════════════════════════════════════════ */
+  var voiceBtn  = document.getElementById('voiceBtn');
+  var voiceIcon = document.getElementById('voiceIcon');
+  var synth     = window.speechSynthesis;
+  var utterance = null;
+  var playing   = false;
+
+  var guideText = 'HAL CINEMA 名古屋亀島へようこそ。当館はスパイラルタワーズ地下4階に位置します。全8スクリーン、総座席数1,500席のシネマコンプレックスです。スマートフォンのWebサイトからチケット予約、フードのモバイルオーダー、館内ルート案内をご利用いただけます。お楽しみください。';
+
+  var ICON_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+  var ICON_STOP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+
+  voiceBtn.addEventListener('click', function() {
+    if (!synth) { alert('このブラウザは音声読み上げに対応していません。'); return; }
+    if (playing) {
+      synth.cancel();
+      playing = false;
+      voiceBtn.classList.remove('playing');
+      voiceIcon.innerHTML = ICON_PLAY;
+      voiceBtn.querySelector('span') && (voiceBtn.lastChild.textContent = '音声ガイダンス');
+      return;
+    }
+    utterance = new SpeechSynthesisUtterance(guideText);
+    utterance.lang  = 'ja-JP';
+    utterance.rate  = 0.95;
+    utterance.pitch = 1;
+    utterance.onend = function() {
+      playing = false;
+      voiceBtn.classList.remove('playing');
+      voiceIcon.innerHTML = ICON_PLAY;
+    };
+    synth.speak(utterance);
+    playing = true;
+    voiceBtn.classList.add('playing');
+    voiceIcon.innerHTML = ICON_STOP;
+  });
+
+  /* ─ ページ離脱時に読み上げ停止 ─ */
+  window.addEventListener('beforeunload', function() { if (synth) synth.cancel(); });
+  </script>
+
+</body>
+</html>

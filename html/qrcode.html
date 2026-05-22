@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QRコード | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/mypage.css">
+  <link rel="stylesheet" href="../css/qrcode.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../index.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
+        <a href="qrcode.html" class="active">QRコード</a>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="mypage.html" class="mypage-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          マイページ
+        </a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="qr-page-main">
+
+    <!-- パンくず -->
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">TOP</a>
+      <span class="breadcrumb-sep"></span>
+      <span>QRコード</span>
+    </nav>
+
+    <!-- ページヘッダー -->
+    <div class="qr-page-header">
+      <div>
+        <h1 class="page-title">QR<span>コード</span></h1>
+        <p class="qr-page-subtitle">予約済みのチケット・フード注文を表示して入場・受け取りに使えます</p>
+      </div>
+    </div>
+
+    <!-- 予約カードリスト -->
+    <div class="qr-list" id="qrList">
+
+      <!-- ─────────────────────────────────────────
+           カード① 映画あり（上映5日前・余裕あり）
+      ───────────────────────────────────────── -->
+      <div class="qr-card">
+        <div class="qr-card-head">
+          <div class="qr-card-poster">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="3"/>
+              <path d="M7 2v20M17 2v20M2 12h20"/>
+            </svg>
+          </div>
+          <div class="qr-card-info">
+            <p class="qr-card-title">名探偵ピカチュウ</p>
+            <p class="qr-card-meta">
+              2026年5月22日（金）16:00〜17:52<br>
+              スクリーン 2 / E列 7番・8番
+            </p>
+          </div>
+          <div class="qr-card-status">
+            <span class="badge badge-green" style="font-size:12px;padding:4px 12px;">予約済み</span>
+            <!-- カウントダウン：上映まで数時間（JS で更新） -->
+            <div class="qr-countdown safe" id="cd-0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span class="qr-cd-time" id="cd-time-0">--:--:--</span>
+            </div>
+          </div>
+        </div>
+        <div class="qr-card-body">
+          <!-- フードサマリー -->
+          <div class="qr-food-summary">
+            <span class="qr-food-chip"><span class="qr-food-chip-icon">🍿</span>バターポップコーン L ×2</span>
+            <span class="qr-food-chip"><span class="qr-food-chip-icon">🥤</span>コーラ M ×1</span>
+            <span class="qr-food-chip"><span class="qr-food-chip-icon">🍫</span>チョコミルク M ×1</span>
+          </div>
+          <!-- QR表示ボタン（大） -->
+          <button class="qr-show-btn" data-idx="0"
+                  data-title="名探偵ピカチュウ"
+                  data-info="2026年5月22日（金）16:00〜&#10;スクリーン 2 / E列 7番・8番"
+                  data-cd="cd-0"
+                  aria-label="QRコードを表示">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/>
+              <path d="M14 14h.01M14 17h3M17 14h3M17 17v4M20 17v4"/>
+            </svg>
+            QRコードを表示する
+          </button>
+          <!-- 詳細ボタン（小） -->
+          <a href="ticket-detail.html" class="qr-detail-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            予約詳細を見る
+          </a>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────────
+           カード② フードのみ（受取1日14時間前・safe）
+      ───────────────────────────────────────── -->
+      <div class="qr-card">
+        <div class="qr-card-head">
+          <div class="qr-card-poster food-only" aria-hidden="true">🍿</div>
+          <div class="qr-card-info">
+            <p class="qr-card-title">フードのみの注文</p>
+            <p class="qr-card-meta">
+              2026年5月22日（金）フードカウンター受け取り<br>
+              ORDER #HAL-20260522-0099
+            </p>
+          </div>
+          <div class="qr-card-status">
+            <span class="badge badge-green" style="font-size:12px;padding:4px 12px;">受取待ち</span>
+            <div class="qr-countdown urgent" id="cd-1">
+              <span class="qr-cd-dot"></span>
+              <span class="qr-cd-time" id="cd-time-1">--:--:--</span>
+            </div>
+          </div>
+        </div>
+        <div class="qr-card-body">
+          <div class="qr-food-summary">
+            <span class="qr-food-chip"><span class="qr-food-chip-icon">🌭</span>ホットドッグ ×1</span>
+            <span class="qr-food-chip"><span class="qr-food-chip-icon">🥤</span>オレンジジュース L ×2</span>
+          </div>
+          <button class="qr-show-btn" data-idx="1"
+                  data-title="フードのみの注文"
+                  data-info="フードカウンターでご提示ください&#10;ORDER #HAL-20260522-0099"
+                  data-cd="cd-1"
+                  aria-label="QRコードを表示">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/>
+              <path d="M14 14h.01M14 17h3M17 14h3M17 17v4M20 17v4"/>
+            </svg>
+            QRコードを表示する
+          </button>
+          <a href="ticket-detail.html" class="qr-detail-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            予約詳細を見る
+          </a>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────────
+           カード③ 使用済み
+      ───────────────────────────────────────── -->
+      <div class="qr-card">
+        <div class="qr-card-head">
+          <div class="qr-card-poster">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="3"/>
+              <path d="M7 2v20M17 2v20M2 12h20"/>
+            </svg>
+          </div>
+          <div class="qr-card-info">
+            <p class="qr-card-title">映画タイトル 2</p>
+            <p class="qr-card-meta">
+              2026年5月10日（日）10:00〜12:18<br>
+              スクリーン 1 / G列 12番
+            </p>
+          </div>
+          <div class="qr-card-status">
+            <span class="badge badge-gray" style="font-size:12px;padding:4px 12px;">使用済み</span>
+            <div class="qr-countdown expired" id="cd-2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span class="qr-cd-time">使用済み</span>
+            </div>
+          </div>
+        </div>
+        <div class="qr-card-body">
+          <div class="qr-food-summary">
+            <span class="qr-food-none">フード注文なし</span>
+          </div>
+          <button class="qr-show-btn" disabled aria-label="このチケットは使用済みです">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            使用済み
+          </button>
+          <a href="ticket-detail.html" class="qr-detail-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            予約詳細を見る
+          </a>
+        </div>
+      </div>
+
+    </div><!-- /#qrList -->
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- QRコードモーダル -->
+  <div class="qr-overlay" id="qrOverlay" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+    <div class="qr-modal">
+      <div class="qr-modal-header">
+        <p class="qr-modal-title" id="qrModalTitle">入場用QRコード</p>
+        <button class="qr-modal-close" id="qrModalClose" aria-label="閉じる">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="qr-modal-body">
+        <!-- QR SVGモック -->
+        <div class="qr-modal-code" aria-label="QRコード">
+          <svg viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="54" height="54" rx="4" fill="#111"/>
+            <rect x="18" y="18" width="38" height="38" rx="2" fill="#fff"/>
+            <rect x="26" y="26" width="22" height="22" rx="1" fill="#111"/>
+            <rect x="126" y="10" width="54" height="54" rx="4" fill="#111"/>
+            <rect x="134" y="18" width="38" height="38" rx="2" fill="#fff"/>
+            <rect x="142" y="26" width="22" height="22" rx="1" fill="#111"/>
+            <rect x="10" y="126" width="54" height="54" rx="4" fill="#111"/>
+            <rect x="18" y="134" width="38" height="38" rx="2" fill="#fff"/>
+            <rect x="26" y="142" width="22" height="22" rx="1" fill="#111"/>
+            <rect x="78" y="10" width="10" height="10" fill="#111"/>
+            <rect x="92" y="10" width="10" height="10" fill="#111"/>
+            <rect x="106" y="10" width="10" height="10" fill="#111"/>
+            <rect x="78" y="24" width="10" height="10" fill="#111"/>
+            <rect x="106" y="24" width="10" height="10" fill="#111"/>
+            <rect x="92" y="38" width="10" height="10" fill="#111"/>
+            <rect x="106" y="38" width="10" height="10" fill="#111"/>
+            <rect x="78" y="52" width="10" height="10" fill="#111"/>
+            <rect x="106" y="52" width="10" height="10" fill="#111"/>
+            <rect x="10" y="78" width="10" height="10" fill="#111"/>
+            <rect x="24" y="78" width="10" height="10" fill="#111"/>
+            <rect x="52" y="78" width="10" height="10" fill="#111"/>
+            <rect x="66" y="78" width="10" height="10" fill="#111"/>
+            <rect x="78" y="78" width="10" height="10" fill="#111"/>
+            <rect x="92" y="78" width="10" height="10" fill="#111"/>
+            <rect x="120" y="78" width="10" height="10" fill="#111"/>
+            <rect x="148" y="78" width="10" height="10" fill="#111"/>
+            <rect x="170" y="78" width="10" height="10" fill="#111"/>
+            <rect x="10" y="92" width="10" height="10" fill="#111"/>
+            <rect x="38" y="92" width="10" height="10" fill="#111"/>
+            <rect x="66" y="92" width="10" height="10" fill="#111"/>
+            <rect x="92" y="92" width="10" height="10" fill="#111"/>
+            <rect x="120" y="92" width="10" height="10" fill="#111"/>
+            <rect x="134" y="92" width="10" height="10" fill="#111"/>
+            <rect x="162" y="92" width="10" height="10" fill="#111"/>
+            <rect x="10" y="106" width="10" height="10" fill="#111"/>
+            <rect x="24" y="106" width="10" height="10" fill="#111"/>
+            <rect x="52" y="106" width="10" height="10" fill="#111"/>
+            <rect x="78" y="106" width="10" height="10" fill="#111"/>
+            <rect x="106" y="106" width="10" height="10" fill="#111"/>
+            <rect x="134" y="106" width="10" height="10" fill="#111"/>
+            <rect x="170" y="106" width="10" height="10" fill="#111"/>
+            <rect x="78" y="120" width="10" height="10" fill="#111"/>
+            <rect x="92" y="120" width="10" height="10" fill="#111"/>
+            <rect x="120" y="120" width="10" height="10" fill="#111"/>
+            <rect x="148" y="120" width="10" height="10" fill="#111"/>
+            <rect x="78" y="134" width="10" height="10" fill="#111"/>
+            <rect x="106" y="134" width="10" height="10" fill="#111"/>
+            <rect x="134" y="134" width="10" height="10" fill="#111"/>
+            <rect x="162" y="134" width="10" height="10" fill="#111"/>
+            <rect x="78" y="148" width="10" height="10" fill="#111"/>
+            <rect x="92" y="148" width="10" height="10" fill="#111"/>
+            <rect x="120" y="148" width="10" height="10" fill="#111"/>
+            <rect x="148" y="148" width="10" height="10" fill="#111"/>
+            <rect x="78" y="162" width="10" height="10" fill="#111"/>
+            <rect x="106" y="162" width="10" height="10" fill="#111"/>
+            <rect x="134" y="162" width="10" height="10" fill="#111"/>
+            <rect x="170" y="162" width="10" height="10" fill="#111"/>
+          </svg>
+        </div>
+        <p class="qr-modal-movie" id="qrModalMovie"></p>
+        <p class="qr-modal-info"  id="qrModalInfo"></p>
+        <!-- モーダル内カウントダウン -->
+        <div class="qr-modal-countdown safe" id="qrModalCd">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          有効期限まで <span class="qr-modal-cd-val" id="qrModalCdVal">--:--:--</span>
+        </div>
+        <div class="qr-modal-note">
+          ※ 入場ゲート・フードカウンターでこの画面をご提示ください。<br>
+          ※ スクリーンショットは無効です。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+
+  <script>
+  /* ═══════════════════════════════════════════════
+     カウントダウン設定
+     ─ deadlines[i] に上映・受取の締切時刻を設定 ─
+     ─ 本番は API から取得して差し替える          ─
+  ═══════════════════════════════════════════════ */
+  var now = new Date();
+  var MIN  = 60 * 1000;
+  var HOUR = 60 * MIN;
+  var DAY  = 24 * HOUR;
+
+  // カード① : 今から5日と3時間後（サンプル）
+  var deadline0 = new Date(now.getTime() + 5 * DAY + 3 * HOUR);
+  // カード② : 今から1日と14時間後（サンプル）
+  var deadline1 = new Date(now.getTime() + 1 * DAY + 14 * HOUR);
+
+  var deadlines = [deadline0, deadline1];
+
+  /* ─────────────────────────────────────────────
+     時間フォーマット
+       7日以上  : "7日以上"
+       1日以上  : "n日 hh:mm:ss"
+       1日未満  : "hh:mm:ss"
+       0以下    : "00:00:00"
+  ───────────────────────────────────────────── */
+  function fmtTime(ms) {
+    if (ms <= 0) return '00:00:00';
+    if (ms >= 7 * DAY) return '7日以上';
+    var s   = Math.floor(ms / 1000);
+    var d   = Math.floor(s / 86400);
+    var h   = Math.floor((s % 86400) / 3600);
+    var m   = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    var hms = pad(h) + ':' + pad(m) + ':' + pad(sec);
+    return d > 0 ? d + '日 ' + hms : hms;
+  }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  /* ─────────────────────────────────────────────
+     状態判定
+       urgent : 残り 3時間以内
+       safe   : それ以外（有効）
+       expired: 期限切れ
+  ───────────────────────────────────────────── */
+  var URGENT_THRESHOLD = 3 * HOUR;   // 3時間以内で警告
+
+  /* カード単位でカウントダウン DOM を更新 */
+  function updateCard(idx, cdId) {
+    var el   = document.getElementById('cd-time-' + idx);
+    var cdEl = document.getElementById(cdId);
+    if (!el || !cdEl) return;
+
+    var diff = deadlines[idx] - new Date();
+    el.textContent = fmtTime(diff);
+
+    cdEl.classList.remove('safe', 'urgent', 'expired');
+    if (diff <= 0) {
+      el.textContent = '期限切れ';
+      cdEl.classList.add('expired');
+    } else if (diff < URGENT_THRESHOLD) {
+      cdEl.classList.add('urgent');
+    } else {
+      cdEl.classList.add('safe');
+    }
+  }
+
+  /* モーダル内カウントダウン更新 */
+  var currentModalIdx = -1;
+  function updateModalCd() {
+    if (currentModalIdx < 0 || currentModalIdx >= deadlines.length) return;
+    var diff  = deadlines[currentModalIdx] - new Date();
+    var cdVal = document.getElementById('qrModalCdVal');
+    var cdEl  = document.getElementById('qrModalCd');
+    if (!cdVal || !cdEl) return;
+    cdVal.textContent = fmtTime(diff);
+    cdEl.classList.remove('safe');
+    if (diff >= URGENT_THRESHOLD) cdEl.classList.add('safe');
+  }
+
+  /* 1秒ごとに全カードとモーダルを更新 */
+  setInterval(function() {
+    updateCard(0, 'cd-0');
+    updateCard(1, 'cd-1');
+    updateModalCd();
+  }, 1000);
+
+  // 初回即更新
+  updateCard(0, 'cd-0');
+  updateCard(1, 'cd-1');
+
+  /* ═══════════════════════════════════════════════
+     QRモーダル 開閉
+  ═══════════════════════════════════════════════ */
+  var overlay    = document.getElementById('qrOverlay');
+  var modalMovie = document.getElementById('qrModalMovie');
+  var modalInfo  = document.getElementById('qrModalInfo');
+  var modalCd    = document.getElementById('qrModalCd');
+  var modalCdVal = document.getElementById('qrModalCdVal');
+
+  document.querySelectorAll('.qr-show-btn:not(:disabled)').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var idx   = parseInt(this.dataset.idx, 10);
+      var title = this.dataset.title;
+      var info  = this.dataset.info.replace(/&#10;/g, '\n');
+
+      currentModalIdx = idx;
+      modalMovie.textContent = title;
+      modalInfo.innerHTML    = info.replace(/\n/g, '<br>');
+
+      // カウントダウン初期表示
+      var diff = deadlines[idx] - new Date();
+      modalCdVal.textContent = fmtTime(diff);
+      modalCd.classList.remove('safe');
+      if (diff >= URGENT_THRESHOLD) modalCd.classList.add('safe');
+
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    currentModalIdx = -1;
+  }
+
+  document.getElementById('qrModalClose').addEventListener('click', closeModal);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+  </script>
+
+</body>
+</html>
