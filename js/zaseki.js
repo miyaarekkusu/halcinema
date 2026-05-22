@@ -29,6 +29,29 @@ const viewBtn      = document.getElementById('view-btn')
 const resetViewBtn = document.getElementById('reset-view-btn')
 const tooltip      = document.getElementById('zaseki-tooltip')
 
+// ─── URLパラメータから上映情報を反映 ─────────────────────────────────
+;(function () {
+  const p      = new URLSearchParams(location.search)
+  const movie  = p.get('movie')
+  const format = p.get('format')
+  const screen = p.get('screen')
+  const date   = p.get('date')
+  const time   = p.get('time')
+  const endtime = p.get('endtime')
+  if (!movie && !screen) return
+
+  const nameEl  = document.querySelector('.zaseki-movie-name')
+  const titleEl = document.querySelector('.zaseki-movie-title')
+  const subEl   = document.querySelector('.zaseki-movie-sub')
+
+  if (movie)  nameEl.textContent  = movie + (format ? '（' + format + '版）' : '')
+  if (screen) titleEl.textContent = screen
+  const parts = []
+  if (date)    parts.push(date)
+  if (time)    parts.push(time + (endtime ? '〜' + endtime : ''))
+  if (parts.length) subEl.textContent = parts.join(' ／ ')
+})()
+
 // ─── サイズ ────────────────────────────────────────────────────────
 const sizes = { width: 0, height: 0 }
 const updateSizes = () => {
@@ -343,9 +366,18 @@ function updateUI() {
 // 確定ボタン
 confirmBtn.addEventListener('click', () => {
   const selected = seatObjects.filter(s => s.state === STATE_SELECTED)
-  const labels   = selected.map(s => s.label).join(', ')
-  const total    = (selected.length * PRICE_PER_SEAT).toLocaleString()
-  alert(`予約内容\n座席：${labels}\n合計：¥${total}\n\n※ この画面は開発中です。`)
+  const reservationData = {
+    reservationId : 'HAL-' + Date.now() + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0'),
+    movieTitle    : document.querySelector('.zaseki-movie-name').textContent,
+    screenInfo    : document.querySelector('.zaseki-movie-title').textContent,
+    screeningInfo : document.querySelector('.zaseki-movie-sub').textContent,
+    seats         : selected.map(s => s.label),
+    ticketCount   : selected.length,
+    totalAmount   : selected.length * PRICE_PER_SEAT,
+    issuedAt      : new Date().toISOString()
+  }
+  sessionStorage.setItem('reservationData', JSON.stringify(reservationData))
+  location.href = 'payment.html'
 })
 
 // ─── アニメーションループ ──────────────────────────────────────────

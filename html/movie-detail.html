@@ -52,188 +52,9 @@
 
     <h1 class="page-title">作品<span>詳細</span></h1>
 
-    <!-- ─── 作品情報 ─── -->
-    <section class="section">
-      <div class="movie-detail-grid">
-
-        <!-- ポスター -->
-        <div>
-          <div class="movie-detail-poster">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="3"/>
-              <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
-            </svg>
-            <span>ポスタービジュアル</span>
-          </div>
-        </div>
-
-        <!-- 情報テキスト -->
-        <div class="movie-detail-info">
-          <div class="movie-detail-badges">
-            <span class="badge badge-red">上映中</span>
-            <span class="badge badge-border">字幕</span>
-            <span class="badge badge-border">吹替</span>
-          </div>
-
-          <div>
-            <h2 class="movie-detail-title">作品名</h2>
-            <p class="movie-detail-title-sub">MOVIE TITLE（英語タイトル）</p>
-          </div>
-
-          <p class="movie-detail-desc">
-            あらすじや作品説明が入ります。あらすじや作品説明が入ります。あらすじや作品説明が入ります。
-            あらすじや作品説明が入ります。あらすじや作品説明が入ります。あらすじや作品説明が入ります。
-            あらすじや作品説明が入ります。あらすじや作品説明が入ります。あらすじや作品説明が入ります。
-            あらすじや作品説明が入ります。あらすじや作品説明が入ります。
-          </p>
-
-          <table class="movie-meta-table">
-            <tr>
-              <th>公開日</th>
-              <td>2026年〇月〇日（〇）</td>
-            </tr>
-            <tr>
-              <th>上映時間</th>
-              <td>120分</td>
-            </tr>
-            <tr>
-              <th>監督</th>
-              <td>監督名</td>
-            </tr>
-            <tr>
-              <th>出演</th>
-              <td>出演者名、出演者名、出演者名</td>
-            </tr>
-            <tr>
-              <th>ジャンル</th>
-              <td>アクション / ドラマ</td>
-            </tr>
-            <tr>
-              <th>レーティング</th>
-              <td>G（全年齢対象）</td>
-            </tr>
-          </table>
-
-          <div class="movie-detail-actions">
-            <a href="#schedule" class="btn btn-primary btn-lg">上映スケジュールへ</a>
-            <a href="#" class="btn btn-secondary btn-lg">お気に入りに追加</a>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ─── 予告編動画 ─── -->
-    <section class="section">
-      <div class="section-header">
-        <h2 class="section-title">予告編<span>動画</span></h2>
-      </div>
-      <div class="trailer-box" id="trailer-box">
-        <div class="trailer-play-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="5,3 19,12 5,21"/>
-          </svg>
-        </div>
-      </div>
-      <p class="trailer-label">予告編・特別映像はこちら</p>
-    </section>
-
-    <!-- ─── 上映スケジュール ─── -->
-    <section class="section" id="schedule">
-      <div class="section-header">
-        <h2 class="section-title">映画上映<span>スケジュール</span></h2>
-      </div>
-
-      <div class="schedule-inner">
-
-      <!-- 日付ナビ -->
-      <div class="schedule-nav">
-        <button class="schedule-nav-btn" id="date-prev" aria-label="前の日">&#8249;</button>
-        <div class="schedule-date-tabs" id="date-tabs">
-          <!-- JSで生成 -->
-        </div>
-        <button class="schedule-nav-btn" id="date-next" aria-label="次の日">&#8250;</button>
-      </div>
-
-      <!-- 上映リスト -->
-      <div id="schedule-content">
-
-        <div class="schedule-movie-row">
-          <div class="schedule-movie-header">作品名（字幕版）</div>
-          <div class="schedule-times-wrap">
-            <a href="zaseki.html" class="time-slot">
-              <span class="time-slot-time">8:30</span>
-              <span class="time-slot-end">〜 10:30</span>
-              <span class="time-slot-screen">SC1</span>
-            </a>
-            <a href="zaseki.html" class="time-slot">
-              <span class="time-slot-time">11:00</span>
-              <span class="time-slot-end">〜 13:00</span>
-              <span class="time-slot-screen">SC1</span>
-            </a>
-            <a href="zaseki.html" class="time-slot">
-              <span class="time-slot-time">13:30</span>
-              <span class="time-slot-end">〜 15:30</span>
-              <span class="time-slot-screen">SC2</span>
-            </a>
-            <a href="zaseki.html" class="time-slot">
-              <span class="time-slot-time">16:00</span>
-              <span class="time-slot-end">〜 18:00</span>
-              <span class="time-slot-screen">SC2</span>
-            </a>
-            <div class="time-slot full">
-              <span class="time-slot-time">18:30</span>
-              <span class="time-slot-end">〜 20:30</span>
-              <span class="time-slot-screen">満席</span>
-            </div>
-            <a href="zaseki.html" class="time-slot">
-              <span class="time-slot-time">21:00</span>
-              <span class="time-slot-end">〜 23:00</span>
-              <span class="time-slot-screen">SC1</span>
-            </a>
-          </div>
-        </div>
-
-        <div class="schedule-movie-row">
-          <div class="schedule-movie-header">作品名（吹替版）</div>
-          <div class="schedule-times-wrap">
-            <a href="zaseki.html" class="time-slot">
-              <span class="time-slot-time">9:00</span>
-              <span class="time-slot-end">〜 11:00</span>
-              <span class="time-slot-screen">SC3</span>
-            </a>
-            <a href="zaseki.html" class="time-slot">
-              <span class="time-slot-time">12:00</span>
-              <span class="time-slot-end">〜 14:00</span>
-              <span class="time-slot-screen">SC3</span>
-            </a>
-            <a href="zaseki.html" class="time-slot">
-              <span class="time-slot-time">15:00</span>
-              <span class="time-slot-end">〜 17:00</span>
-              <span class="time-slot-screen">SC4</span>
-            </a>
-            <div class="time-slot full">
-              <span class="time-slot-time">18:00</span>
-              <span class="time-slot-end">〜 20:00</span>
-              <span class="time-slot-screen">満席</span>
-            </div>
-            <a href="zaseki.html" class="time-slot">
-              <span class="time-slot-time">20:30</span>
-              <span class="time-slot-end">〜 22:30</span>
-              <span class="time-slot-screen">SC3</span>
-            </a>
-          </div>
-        </div>
-
-      </div><!-- /schedule-content -->
-
-      <div class="schedule-reserve-wrap">
-        <a href="zaseki.html" class="btn btn-primary btn-lg">予約する</a>
-      </div>
-
-      </div><!-- /schedule-inner -->
-
-    </section>
+    <div id="detail-content">
+      <p style="padding:2rem;text-align:center;color:var(--text-muted)">読み込み中...</p>
+    </div>
 
   </main>
 
@@ -260,58 +81,155 @@
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script>
+    var DAY_JA = ['日','月','火','水','木','金','土']
+    var today  = new Date()
+    var TOTAL = 14, VISIBLE = 7
+    var dateOffset = 0, selectedIdx = 0
+    var currentMovie = null
+
     // ── 日付タブ生成 ──────────────────────────────────────────
-    (function () {
-      const DAY_JA   = ['日','月','火','水','木','金','土'];
-      const tabsEl   = document.getElementById('date-tabs');
-      const prevBtn  = document.getElementById('date-prev');
-      const nextBtn  = document.getElementById('date-next');
+    function buildDates() {
+      var tabsEl  = document.getElementById('date-tabs')
+      var prevBtn = document.getElementById('date-prev')
+      var nextBtn = document.getElementById('date-next')
+      if (!tabsEl) return
+      tabsEl.innerHTML = ''
+      for (var i = dateOffset; i < Math.min(dateOffset + VISIBLE, TOTAL); i++) {
+        var d   = new Date(today)
+        d.setDate(today.getDate() + i)
+        var tab = document.createElement('button')
+        tab.className = 'schedule-date-tab' + (i === selectedIdx ? ' active' : '')
+        tab.dataset.idx = i
+        tab.dataset.date = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate()
+        tab.innerHTML = '<span class="schedule-date-num">' + (d.getMonth()+1) + '/' + d.getDate() + '</span>'
+          + '<span class="schedule-date-day">（' + DAY_JA[d.getDay()] + '）</span>'
+        tab.addEventListener('click', function() {
+          selectedIdx = parseInt(this.dataset.idx)
+          buildDates()
+        })
+        tabsEl.appendChild(tab)
+      }
+      prevBtn.disabled = (dateOffset === 0)
+      nextBtn.disabled = (dateOffset + VISIBLE >= TOTAL)
+      prevBtn.style.opacity = prevBtn.disabled ? '0.3' : '1'
+      nextBtn.style.opacity = nextBtn.disabled ? '0.3' : '1'
+    }
 
-      const today    = new Date();
-      const TOTAL    = 14;   // 2週間分
-      const VISIBLE  = 7;    // 一度に表示する日数
-      let   offset   = 0;    // 現在の開始オフセット
-      let   selected = 0;    // 選択中インデックス（today=0）
+    // ── スケジュール描画 ──────────────────────────────────────
+    function buildSchedule(movie) {
+      if (!movie.schedule) return ''
+      var html = ''
+      movie.schedule.screens.forEach(function(sc) {
+        html += '<div class="schedule-movie-row">'
+          + '<div class="schedule-movie-header">' + movie.title + '（' + sc.format + '版）</div>'
+          + '<div class="schedule-times-wrap">'
+        sc.times.forEach(function(t) {
+          if (t.full) {
+            html += '<div class="time-slot full">'
+              + '<span class="time-slot-time">' + t.start + '</span>'
+              + '<span class="time-slot-end">〜 ' + t.end + '</span>'
+              + '<span class="time-slot-screen">満席</span></div>'
+          } else {
+            html += '<a href="#" class="time-slot" data-movie="' + movie.title + '" data-format="' + sc.format + '" data-screen="' + t.screen + '" data-time="' + t.start + '" data-endtime="' + t.end + '">'
+              + '<span class="time-slot-time">' + t.start + '</span>'
+              + '<span class="time-slot-end">〜 ' + t.end + '</span>'
+              + '<span class="time-slot-screen">' + t.screen + '</span></a>'
+          }
+        })
+        html += '</div></div>'
+      })
+      return html
+    }
 
-      function buildDates() {
-        tabsEl.innerHTML = '';
-        const end = Math.min(offset + VISIBLE, TOTAL);
-        for (let i = offset; i < end; i++) {
-          const d   = new Date(today);
-          d.setDate(today.getDate() + i);
-          const tab = document.createElement('button');
-          tab.className = 'schedule-date-tab' + (i === selected ? ' active' : '');
-          tab.dataset.idx = i;
-          tab.innerHTML =
-            '<span class="schedule-date-num">' + (d.getMonth() + 1) + '/' + d.getDate() + '</span>' +
-            '<span class="schedule-date-day">（' + DAY_JA[d.getDay()] + '）</span>';
-          tab.addEventListener('click', function () {
-            selected = parseInt(this.dataset.idx);
-            buildDates();
-          });
-          tabsEl.appendChild(tab);
-        }
-        prevBtn.disabled = (offset === 0);
-        nextBtn.disabled = (offset + VISIBLE >= TOTAL);
-        prevBtn.style.opacity = prevBtn.disabled ? '0.3' : '1';
-        nextBtn.style.opacity = nextBtn.disabled ? '0.3' : '1';
+    // ── 時間スロットのクリック処理 ────────────────────────────
+    function attachSlotHandlers() {
+      document.querySelectorAll('a.time-slot').forEach(function(slot) {
+        slot.addEventListener('click', function(e) {
+          e.preventDefault()
+          var activeTab = document.querySelector('.schedule-date-tab.active')
+          var date = activeTab ? activeTab.dataset.date : ''
+          var params = new URLSearchParams({
+            movie: this.dataset.movie, format: this.dataset.format,
+            screen: this.dataset.screen, time: this.dataset.time,
+            endtime: this.dataset.endtime, date: date
+          })
+          location.href = 'zaseki.html?' + params.toString()
+        })
+      })
+    }
+
+    // ── 詳細ページ描画 ───────────────────────────────────────
+    function renderDetail(movie) {
+      var statusBadge = movie.status === 'now' ? '<span class="badge badge-red">上映中</span>' : '<span class="badge badge-dark">公開予定</span>'
+      var formatBadges = movie.formats.map(function(f) { return '<span class="badge badge-border">' + f + '</span>' }).join('')
+      var scheduleSection = movie.schedule ? (
+        '<section class="section" id="schedule">'
+        + '<div class="section-header"><h2 class="section-title">映画上映<span>スケジュール</span></h2></div>'
+        + '<div class="schedule-inner">'
+        + '<div class="schedule-nav">'
+        + '<button class="schedule-nav-btn" id="date-prev">&#8249;</button>'
+        + '<div class="schedule-date-tabs" id="date-tabs"></div>'
+        + '<button class="schedule-nav-btn" id="date-next">&#8250;</button>'
+        + '</div>'
+        + '<div id="schedule-content">' + buildSchedule(movie) + '</div>'
+        + '<div class="schedule-reserve-wrap"><a href="#schedule" class="btn btn-primary btn-lg">予約する</a></div>'
+        + '</div></section>'
+      ) : ''
+
+      document.getElementById('detail-content').innerHTML =
+        '<section class="section">'
+        + '<div class="movie-detail-grid">'
+        + '<div><div class="movie-detail-poster">'
+        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></svg>'
+        + '<span>ポスタービジュアル</span></div></div>'
+        + '<div class="movie-detail-info">'
+        + '<div class="movie-detail-badges">' + statusBadge + formatBadges + '</div>'
+        + '<div><h2 class="movie-detail-title">' + movie.title + '</h2>'
+        + '<p class="movie-detail-title-sub">' + movie.titleEn + '</p></div>'
+        + '<p class="movie-detail-desc">' + movie.synopsis + '</p>'
+        + '<table class="movie-meta-table">'
+        + '<tr><th>公開日</th><td>' + movie.releaseDate + '</td></tr>'
+        + '<tr><th>上映時間</th><td>' + (movie.duration ? movie.duration + '分' : '未定') + '</td></tr>'
+        + '<tr><th>監督</th><td>' + movie.director + '</td></tr>'
+        + '<tr><th>出演</th><td>' + movie.cast + '</td></tr>'
+        + '<tr><th>ジャンル</th><td>' + movie.genre + '</td></tr>'
+        + '<tr><th>レーティング</th><td>' + movie.rating + '</td></tr>'
+        + '</table>'
+        + '<div class="movie-detail-actions">'
+        + (movie.schedule ? '<a href="#schedule" class="btn btn-primary btn-lg">上映スケジュールへ</a>' : '')
+        + '<a href="#" class="btn btn-secondary btn-lg">お気に入りに追加</a>'
+        + '</div></div></div></section>'
+        + '<section class="section"><div class="section-header"><h2 class="section-title">予告編<span>動画</span></h2></div>'
+        + '<div class="trailer-box" id="trailer-box"><div class="trailer-play-btn"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div></div>'
+        + '<p class="trailer-label">予告編・特別映像はこちら</p></section>'
+        + scheduleSection
+
+      document.getElementById('trailer-box').addEventListener('click', function() {
+        alert('予告編動画を再生します')
+      })
+
+      if (movie.schedule) {
+        buildDates()
+        document.getElementById('date-prev').addEventListener('click', function() {
+          if (dateOffset > 0) { dateOffset = Math.max(0, dateOffset - VISIBLE); buildDates() }
+        })
+        document.getElementById('date-next').addEventListener('click', function() {
+          if (dateOffset + VISIBLE < TOTAL) { dateOffset = Math.min(TOTAL - VISIBLE, dateOffset + VISIBLE); buildDates() }
+        })
+        attachSlotHandlers()
       }
 
-      prevBtn.addEventListener('click', function () {
-        if (offset > 0) { offset = Math.max(0, offset - VISIBLE); buildDates(); }
-      });
-      nextBtn.addEventListener('click', function () {
-        if (offset + VISIBLE < TOTAL) { offset = Math.min(TOTAL - VISIBLE, offset + VISIBLE); buildDates(); }
-      });
+      document.title = movie.title + ' | HAL CINEMA'
+    }
 
-      buildDates();
-    })();
-
-    // ── 予告編クリック ────────────────────────────────────────
-    document.getElementById('trailer-box').addEventListener('click', function () {
-      // 実際の予告編URLをここに設定
-      alert('予告編動画を再生します');
-    });
+    // ── fetch ────────────────────────────────────────────────
+    var movieId = new URLSearchParams(location.search).get('id')
+    fetch('../data/movies.json')
+      .then(function(r) { return r.json() })
+      .then(function(movies) {
+        var movie = movies.find(function(m) { return m.id === movieId }) || movies[0]
+        renderDetail(movie)
+      })
   </script>
 
 </body>

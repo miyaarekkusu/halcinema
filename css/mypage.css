@@ -9,6 +9,7 @@
   grid-template-columns: 180px 1fr;
   gap: 28px;
   align-items: start;
+  min-height: calc(100vh - var(--nav-h) - 120px);
 }
 
 /* ── 左サイドバー ─────────────────────────────────────────── */
@@ -88,6 +89,7 @@
 
 .mypage-panel.active {
   display: block;
+  min-height: 400px;
 }
 
 .mypage-panel-title {

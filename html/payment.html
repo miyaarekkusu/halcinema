@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>決済 | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/payment.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../index.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="payment-wrap">
+
+      <!-- ステップ表示 -->
+      <div class="payment-steps">
+        <div class="payment-step">
+          <span class="payment-step-num">1</span>
+          <span>座席選択</span>
+        </div>
+        <div class="payment-step-line"></div>
+        <div class="payment-step active">
+          <span class="payment-step-num">2</span>
+          <span>決済</span>
+        </div>
+        <div class="payment-step-line"></div>
+        <div class="payment-step">
+          <span class="payment-step-num">3</span>
+          <span>チケット発行</span>
+        </div>
+      </div>
+
+      <div class="payment-layout">
+
+        <!-- ─── 左パネル：合計 + 支払方法 ─── -->
+        <div class="payment-summary-panel">
+
+          <!-- 合計金額 -->
+          <div class="payment-total-box">
+            <p class="payment-total-label">合計</p>
+            <p class="payment-total-amount">
+              <span id="total-yen">0</span>
+              <small>円（税込）</small>
+            </p>
+          </div>
+
+          <!-- ポイント割引 -->
+          <div class="payment-points-section">
+            <button class="payment-points-toggle" id="points-toggle" type="button">
+              <span class="payment-points-toggle-name">HALCINEMAポイントを使う</span>
+              <span class="payment-points-badge">1450Pt</span>
+              <span class="payment-points-arrow" id="points-arrow">▼</span>
+            </button>
+            <div class="payment-points-body" id="points-body" style="display:none;">
+              <div class="payment-points-info-row">
+                <span>保有ポイント</span>
+                <strong>1450 Pt</strong>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="points-input">利用ポイント</label>
+                <input class="form-input" type="number" id="points-input"
+                  min="0" max="1450" placeholder="0" step="1">
+              </div>
+              <div class="payment-discount-row">
+                <span>割引額</span>
+                <span class="payment-discount-amount" id="discount-display">- 0 円</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 予約内容サマリー -->
+          <div>
+            <p class="payment-method-label" style="margin-bottom:10px;">予約内容</p>
+            <div id="reservation-summary" style="font-size:13px;color:var(--c-text-sub);line-height:1.8;"></div>
+          </div>
+
+          <!-- 支払方法 -->
+          <div>
+            <p class="payment-method-label" style="margin-bottom:12px;">決済方法を選択してください</p>
+            <div class="payment-methods" id="payment-methods">
+
+              <label class="payment-method-item selected" data-method="card">
+                <input type="radio" name="method" value="card" checked>
+                <span class="payment-method-name">クレジットカード</span>
+              </label>
+
+              <label class="payment-method-item" data-method="paypay">
+                <input type="radio" name="method" value="paypay">
+                <span class="payment-method-name">PayPay</span>
+              </label>
+
+              <label class="payment-method-item" data-method="paypal">
+                <input type="radio" name="method" value="paypal">
+                <span class="payment-method-name">PayPal</span>
+              </label>
+
+              <label class="payment-method-item" data-method="cash">
+                <input type="radio" name="method" value="cash">
+                <span class="payment-method-name">映画館で現金払い</span>
+              </label>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── 右パネル：カード入力フォーム ─── -->
+        <div class="payment-card-panel" id="card-panel">
+
+          <div class="payment-card-panel-header">
+            <span class="payment-panel-logo">HAL <span>CINEMA</span></span>
+            <div class="payment-card-logos">
+              <span class="payment-card-logo-badge">VISA</span>
+              <span class="payment-card-logo-badge">MC</span>
+              <span class="payment-card-logo-badge">JCB</span>
+            </div>
+          </div>
+
+          <p class="payment-card-title">カード情報を入力</p>
+
+          <div class="form-group">
+            <label class="form-label" for="card-number">カード番号</label>
+            <input class="form-input" type="text" id="card-number"
+              placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="card-name">カード名義</label>
+            <input class="form-input" type="text" id="card-name"
+              placeholder="TARO YAMADA" autocomplete="cc-name"
+              style="text-transform:uppercase;">
+          </div>
+
+          <div class="payment-card-row">
+            <div class="form-group">
+              <label class="form-label" for="card-expiry">有効期限</label>
+              <input class="form-input" type="text" id="card-expiry"
+                placeholder="MM / YY" maxlength="7" autocomplete="cc-exp">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="card-cvc">セキュリティコード</label>
+              <input class="form-input" type="text" id="card-cvc"
+                placeholder="123" maxlength="4" autocomplete="cc-csc">
+            </div>
+          </div>
+
+          <div class="payment-card-warning">
+            カード番号・有効期限・セキュリティコードが一致していることを確認してから次へ進んでください。
+          </div>
+
+          <label class="payment-save-label">
+            <input type="checkbox" id="save-card">
+            このカードを登録する
+          </label>
+
+          <p class="payment-ssl-note">🔒 SSL により暗号化されています</p>
+
+        </div>
+
+        <!-- 他の支払方法パネル（カード以外選択時に表示） -->
+        <div class="payment-method-panel" id="other-panel" style="display:none;">
+          <p id="other-panel-text">選択した決済方法の手続き画面へ移動します</p>
+        </div>
+
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="payment-actions">
+        <button class="btn btn-ghost btn-lg" id="back-btn">戻る</button>
+        <button class="btn btn-primary btn-lg" id="next-btn">次へ</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script>
+    // ── sessionStorage から予約情報を読み込む ─────────────────
+    var reservation  = JSON.parse(sessionStorage.getItem('reservationData') || '{}')
+    var baseAmount   = reservation.totalAmount || 0
+    var pointsUsed   = 0
+    var POINT_BALANCE = 1450
+
+    function updateTotal() {
+      var final = Math.max(0, baseAmount - pointsUsed)
+      document.getElementById('total-yen').textContent = final.toLocaleString()
+    }
+
+    updateTotal()
+
+    if (reservation.movieTitle || reservation.seats) {
+      var lines = []
+      if (reservation.movieTitle)    lines.push(reservation.movieTitle)
+      if (reservation.screenInfo)    lines.push(reservation.screenInfo)
+      if (reservation.screeningInfo) lines.push(reservation.screeningInfo)
+      if (reservation.seats)         lines.push('座席：' + reservation.seats.join('・'))
+      if (reservation.ticketCount)   lines.push(reservation.ticketCount + '枚')
+      document.getElementById('reservation-summary').innerHTML =
+        lines.map(function(l) { return '<p>' + l + '</p>' }).join('')
+    }
+
+    // ── ポイント割引トグル ────────────────────────────────────
+    var pointsToggle = document.getElementById('points-toggle')
+    var pointsBody   = document.getElementById('points-body')
+    var pointsArrow  = document.getElementById('points-arrow')
+    var pointsInput  = document.getElementById('points-input')
+
+    pointsToggle.addEventListener('click', function() {
+      var open = pointsBody.style.display === 'none'
+      pointsBody.style.display = open ? '' : 'none'
+      pointsArrow.classList.toggle('open', open)
+      pointsToggle.classList.toggle('active', open)
+    })
+
+    pointsInput.addEventListener('input', function() {
+      var val = parseInt(this.value) || 0
+      val = Math.max(0, Math.min(val, POINT_BALANCE, baseAmount))
+      this.value = val
+      pointsUsed = val
+      document.getElementById('discount-display').textContent = '- ' + val.toLocaleString() + ' 円'
+      updateTotal()
+    })
+
+    // ── 支払方法の切り替え ────────────────────────────────────
+    var cardPanel  = document.getElementById('card-panel')
+    var otherPanel = document.getElementById('other-panel')
+    var otherText  = document.getElementById('other-panel-text')
+
+    var methodMessages = {
+      paypay : 'PayPay アプリでのお支払い画面へ移動します',
+      paypal : 'PayPal のお支払い画面へ移動します',
+      cash   : '映画館窓口でのお支払いになります。\nチケット発行後、受付にてお支払いください。'
+    }
+
+    document.querySelectorAll('.payment-method-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.payment-method-item').forEach(function(i) {
+          i.classList.remove('selected')
+        })
+        this.classList.add('selected')
+        var method = this.dataset.method
+        if (method === 'card') {
+          cardPanel.style.display  = ''
+          otherPanel.style.display = 'none'
+        } else {
+          cardPanel.style.display  = 'none'
+          otherPanel.style.display = ''
+          otherText.textContent    = methodMessages[method] || ''
+        }
+      })
+    })
+
+    // ── カード番号の自動スペース区切り ────────────────────────
+    document.getElementById('card-number').addEventListener('input', function() {
+      var v = this.value.replace(/\D/g, '').slice(0, 16)
+      this.value = v.replace(/(.{4})/g, '$1 ').trim()
+    })
+
+    // ── 有効期限の自動スラッシュ ──────────────────────────────
+    document.getElementById('card-expiry').addEventListener('input', function() {
+      var v = this.value.replace(/\D/g, '').slice(0, 4)
+      if (v.length >= 3) v = v.slice(0, 2) + ' / ' + v.slice(2)
+      this.value = v
+    })
+
+    // ── 戻るボタン ────────────────────────────────────────────
+    document.getElementById('back-btn').addEventListener('click', function() {
+      history.back()
+    })
+
+    // ── 次へボタン → ticket.html へ遷移 ──────────────────────
+    document.getElementById('next-btn').addEventListener('click', function() {
+      var method = document.querySelector('input[name="method"]:checked').value
+
+      if (method === 'card') {
+        var num  = document.getElementById('card-number').value.replace(/\s/g, '')
+        var name = document.getElementById('card-name').value.trim()
+        var exp  = document.getElementById('card-expiry').value.trim()
+        var cvc  = document.getElementById('card-cvc').value.trim()
+        if (num.length < 16 || !name || exp.length < 7 || cvc.length < 3) {
+          alert('カード情報を正しく入力してください。')
+          return
+        }
+      }
+
+      reservation.paymentMethod  = method
+      reservation.pointsUsed     = pointsUsed
+      reservation.finalAmount    = Math.max(0, baseAmount - pointsUsed)
+      sessionStorage.setItem('reservationData', JSON.stringify(reservation))
+
+      location.href = 'ticket.html'
+    })
+  </script>
+
+</body>
+</html>

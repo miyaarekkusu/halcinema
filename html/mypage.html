@@ -59,68 +59,8 @@
         <section class="mypage-panel active" id="panel-ticket">
           <h2 class="mypage-panel-title">チケット</h2>
 
-          <div class="ticket-list">
-
-            <div class="ticket-item">
-              <div class="ticket-poster">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="3"/>
-                  <path d="M7 2v20M17 2v20M2 12h20"/>
-                </svg>
-              </div>
-              <div class="ticket-info">
-                <p class="ticket-title">名探偵ピカチュウ</p>
-                <p class="ticket-meta">
-                  2026年5月20日（水）14:00〜15:52<br>
-                  スクリーン2 / E列 7番・8番
-                </p>
-              </div>
-              <div class="ticket-actions">
-                <span class="badge badge-green">予約済み</span>
-                <a href="#" class="btn btn-ghost btn-sm">詳細</a>
-              </div>
-            </div>
-
-            <div class="ticket-item">
-              <div class="ticket-poster">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="3"/>
-                  <path d="M7 2v20M17 2v20M2 12h20"/>
-                </svg>
-              </div>
-              <div class="ticket-info">
-                <p class="ticket-title">映画タイトル 2</p>
-                <p class="ticket-meta">
-                  2026年5月10日（日）10:00〜12:18<br>
-                  スクリーン1 / G列 12番
-                </p>
-              </div>
-              <div class="ticket-actions">
-                <span class="badge badge-gray">使用済み</span>
-                <a href="#" class="btn btn-ghost btn-sm">詳細</a>
-              </div>
-            </div>
-
-            <div class="ticket-item">
-              <div class="ticket-poster">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="3"/>
-                  <path d="M7 2v20M17 2v20M2 12h20"/>
-                </svg>
-              </div>
-              <div class="ticket-info">
-                <p class="ticket-title">映画タイトル 3</p>
-                <p class="ticket-meta">
-                  2026年4月28日（火）19:00〜21:15<br>
-                  スクリーン3 / C列 4番・5番・6番
-                </p>
-              </div>
-              <div class="ticket-actions">
-                <span class="badge badge-gray">使用済み</span>
-                <a href="#" class="btn btn-ghost btn-sm">詳細</a>
-              </div>
-            </div>
-
+          <div class="ticket-list" id="ticket-list">
+            <p class="zaseki-empty-msg" id="ticket-empty-msg" style="padding:32px 0;text-align:center;color:var(--c-text-muted);font-size:14px;">予約済みのチケットはありません</p>
           </div>
         </section>
 
@@ -249,6 +189,60 @@
     </div>
   </footer>
 
+  <!-- チケット詳細モーダル -->
+  <div id="ticket-modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;overflow-y:auto;padding:40px 16px;">
+    <div id="ticket-modal" style="background:var(--c-bg-2);border:1px solid var(--c-border-em);border-radius:16px;max-width:420px;margin:0 auto;overflow:hidden;">
+
+      <!-- モーダルヘッダー -->
+      <div style="background:var(--c-red);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:16px;font-weight:800;letter-spacing:0.06em;color:#fff;">HAL <span style="opacity:0.75;">CINEMA</span></span>
+        <button id="modal-close" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
+      </div>
+
+      <!-- QRコードエリア -->
+      <div style="padding:28px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;border-bottom:1px dashed var(--c-border-em);">
+        <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:var(--c-text-muted);text-transform:uppercase;">受付用 QR コード</p>
+        <div id="modal-qrcode" style="background:#fff;padding:10px;border-radius:8px;"></div>
+        <p id="modal-reservation-id" style="font-size:11px;color:var(--c-text-muted);letter-spacing:0.04em;"></p>
+        <p id="modal-status-badge" style="font-size:12px;"></p>
+      </div>
+
+      <!-- チケット詳細 -->
+      <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;gap:10px;font-size:14px;">
+          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">作品</span>
+          <span id="modal-title" style="color:var(--c-text);font-weight:600;"></span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:14px;">
+          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">スクリーン</span>
+          <span id="modal-screen" style="color:var(--c-text);"></span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:14px;">
+          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">日時</span>
+          <span id="modal-datetime" style="color:var(--c-text);"></span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:14px;">
+          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">座席</span>
+          <span id="modal-seats" style="color:var(--c-text);"></span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:14px;">
+          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">枚数</span>
+          <span id="modal-count" style="color:var(--c-text);"></span>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--c-border);margin:4px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:13px;color:var(--c-text-muted);">お支払金額</span>
+          <span id="modal-amount" style="font-size:22px;font-weight:800;color:var(--c-text);"></span>
+        </div>
+      </div>
+
+      <div style="padding:12px 20px;background:var(--c-bg-3);border-top:1px solid var(--c-border);font-size:11px;color:var(--c-text-muted);text-align:center;">
+        ※ 入場時にQRコードをスタッフにご提示ください
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script>
@@ -271,6 +265,101 @@
         location.href = '../index.html';
       }
     });
+
+    // ── 最新チケットをリスト先頭に追加 ──────────────────────
+    var POSTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>'
+
+    var latest = JSON.parse(sessionStorage.getItem('latestTicket') || 'null')
+    if (latest && latest.reservationId) {
+      var meta = [latest.screeningInfo, latest.seats ? latest.seats.join('・') : ''].filter(Boolean).join(' / ')
+      var titleFull = latest.movieTitle + (latest.movieFormat ? '（' + latest.movieFormat + '）' : '')
+      var item = document.createElement('div')
+      item.className = 'ticket-item'
+      item.setAttribute('data-id',       latest.reservationId)
+      item.setAttribute('data-title',    latest.movieTitle)
+      item.setAttribute('data-format',   latest.movieFormat || '')
+      item.setAttribute('data-screen',   latest.screenInfo  || '')
+      item.setAttribute('data-datetime', latest.screeningInfo || '')
+      item.setAttribute('data-seats',    latest.seats ? latest.seats.join('・') : '')
+      item.setAttribute('data-count',    (latest.ticketCount || '') + '枚')
+      item.setAttribute('data-amount',   String(latest.finalAmount || 0))
+      item.setAttribute('data-status',   'reserved')
+      item.innerHTML =
+        '<div class="ticket-poster">' + POSTER_SVG + '</div>'
+        + '<div class="ticket-info">'
+        + '<p class="ticket-title">' + titleFull + '</p>'
+        + '<p class="ticket-meta">' + meta + '</p>'
+        + '</div>'
+        + '<div class="ticket-actions">'
+        + '<span class="badge badge-green">予約済み</span>'
+        + '<button class="btn btn-ghost btn-sm ticket-detail-btn">詳細</button>'
+        + '</div>'
+      document.getElementById('ticket-empty-msg').style.display = 'none'
+      document.getElementById('ticket-list').insertBefore(item, document.getElementById('ticket-list').firstChild)
+    }
+
+    // ── チケット詳細モーダル ──────────────────────────────────
+    var backdrop  = document.getElementById('ticket-modal-backdrop')
+    var qrEl      = document.getElementById('modal-qrcode')
+    var currentQR = null
+
+    function openTicketModal(data) {
+      // QR再生成（前回のをクリア）
+      qrEl.innerHTML = ''
+      if (currentQR) { try { currentQR.clear() } catch(e){} currentQR = null }
+
+      currentQR = new QRCode(qrEl, {
+        text        : data.id || 'HAL-CINEMA',
+        width       : 180,
+        height      : 180,
+        colorDark   : '#000000',
+        colorLight  : '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      })
+
+      var statusLabel = data.status === 'reserved'
+        ? '<span style="color:#4caf87;font-weight:700;">● 予約済み</span>'
+        : '<span style="color:var(--c-text-muted);">● 使用済み</span>'
+
+      document.getElementById('modal-reservation-id').textContent = '予約ID: ' + data.id
+      document.getElementById('modal-status-badge').innerHTML     = statusLabel
+      document.getElementById('modal-title').textContent    = data.title + (data.format ? '（' + data.format + '）' : '')
+      document.getElementById('modal-screen').textContent   = data.screen   || '—'
+      document.getElementById('modal-datetime').textContent = data.datetime || '—'
+      document.getElementById('modal-seats').textContent    = data.seats    || '—'
+      document.getElementById('modal-count').textContent    = data.count    || '—'
+      document.getElementById('modal-amount').textContent   = Number(data.amount).toLocaleString() + ' 円'
+
+      backdrop.style.display = 'block'
+      document.body.style.overflow = 'hidden'
+    }
+
+    function closeModal() {
+      backdrop.style.display = 'none'
+      document.body.style.overflow = ''
+    }
+
+    document.getElementById('modal-close').addEventListener('click', closeModal)
+    backdrop.addEventListener('click', function(e) {
+      if (e.target === backdrop) closeModal()
+    })
+
+    // 詳細ボタンに委譲（動的追加分も含む）
+    document.getElementById('ticket-list').addEventListener('click', function(e) {
+      if (!e.target.classList.contains('ticket-detail-btn')) return
+      var item = e.target.closest('.ticket-item')
+      openTicketModal({
+        id      : item.dataset.id,
+        title   : item.dataset.title,
+        format  : item.dataset.format,
+        screen  : item.dataset.screen,
+        datetime: item.dataset.datetime,
+        seats   : item.dataset.seats,
+        count   : item.dataset.count,
+        amount  : item.dataset.amount,
+        status  : item.dataset.status
+      })
+    })
   </script>
 
 </body>

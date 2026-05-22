@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約完了 | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <style>
+    .complete-wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      text-align: center;
+    }
+
+    /* ステップ */
+    .payment-steps {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 48px;
+    }
+    .payment-step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--c-text-muted); }
+    .payment-step.done  { color: var(--c-text-sub); }
+    .payment-step.active { color: var(--c-text); }
+    .payment-step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c-bg-4); border: 1px solid var(--c-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+    .payment-step.done .payment-step-num { background: var(--c-bg-3); border-color: var(--c-border-em); color: var(--c-text-sub); }
+    .payment-step.active .payment-step-num { background: var(--c-red); border-color: var(--c-red); color: #fff; }
+    .payment-step-line { width: 48px; height: 1px; background: var(--c-border); margin: 0 4px; }
+
+    /* 完了アイコン */
+    .complete-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--c-red);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .complete-icon svg { width: 36px; height: 36px; stroke: #fff; stroke-width: 2.5; fill: none; }
+    .complete-title { font-size: 26px; font-weight: 800; color: var(--c-text); margin-bottom: 10px; }
+    .complete-sub   { font-size: 14px; color: var(--c-text-sub); line-height: 1.8; margin-bottom: 36px; }
+
+    /* 予約サマリーカード */
+    .complete-summary {
+      background: var(--c-bg-2);
+      border: 1px solid var(--c-border-em);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: left;
+      margin-bottom: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .summary-row {
+      display: flex; gap: 12px; font-size: 14px;
+    }
+    .summary-label { color: var(--c-text-muted); width: 80px; flex-shrink: 0; }
+    .summary-value { color: var(--c-text); font-weight: 500; }
+    .summary-divider { border: none; border-top: 1px solid var(--c-border); margin: 4px 0; }
+    .summary-id { font-size: 12px; color: var(--c-text-muted); text-align: center; margin-top: 4px; }
+
+    /* ボタン */
+    .complete-actions { display: flex; flex-direction: column; gap: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../index.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="complete-wrap">
+
+      <!-- ステップ -->
+      <div class="payment-steps">
+        <div class="payment-step done">
+          <span class="payment-step-num">✓</span>
+          <span>座席選択</span>
+        </div>
+        <div class="payment-step-line"></div>
+        <div class="payment-step done">
+          <span class="payment-step-num">✓</span>
+          <span>決済</span>
+        </div>
+        <div class="payment-step-line"></div>
+        <div class="payment-step active">
+          <span class="payment-step-num">3</span>
+          <span>予約完了</span>
+        </div>
+      </div>
+
+      <!-- 完了アイコン＋メッセージ -->
+      <div class="complete-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <p class="complete-title">予約が完了しました</p>
+      <p class="complete-sub">
+        チケットはマイページからご確認いただけます。<br>
+        入場時はマイページのQRコードをご提示ください。
+      </p>
+
+      <!-- 予約サマリー -->
+      <div class="complete-summary" id="summary-card">
+        <div class="summary-row">
+          <span class="summary-label">作品</span>
+          <span class="summary-value" id="s-title">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">日時</span>
+          <span class="summary-value" id="s-datetime">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">座席</span>
+          <span class="summary-value" id="s-seats">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">お支払金額</span>
+          <span class="summary-value" id="s-amount">—</span>
+        </div>
+        <hr class="summary-divider">
+        <p class="summary-id" id="s-id">—</p>
+      </div>
+
+      <!-- ボタン -->
+      <div class="complete-actions">
+        <a href="mypage.html" class="btn btn-primary btn-lg">マイページでチケットを確認</a>
+        <a href="../index.html" class="btn btn-ghost btn-lg">トップへ戻る</a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script>
+    var reservation = JSON.parse(sessionStorage.getItem('reservationData') || '{}')
+
+    var fullTitle  = reservation.movieTitle || '—'
+    var titleMatch = fullTitle.match(/^(.+?)（(.+?)版）$/)
+    var movieTitle  = titleMatch ? titleMatch[1] : fullTitle
+    var movieFormat = titleMatch ? '（' + titleMatch[2] + '版）' : ''
+
+    document.getElementById('s-title').textContent    = movieTitle + movieFormat
+    document.getElementById('s-datetime').textContent = reservation.screeningInfo || '—'
+    document.getElementById('s-seats').textContent    = reservation.seats ? reservation.seats.join('・') : '—'
+    document.getElementById('s-amount').textContent   = (reservation.finalAmount !== undefined
+      ? reservation.finalAmount : reservation.totalAmount || 0).toLocaleString() + ' 円（税込）'
+    document.getElementById('s-id').textContent       = '予約ID: ' + (reservation.reservationId || '—')
+
+    // マイページ用にlatestTicketを保存
+    var titleMatch2 = fullTitle.match(/^(.+?)（(.+?)版）$/)
+    sessionStorage.setItem('latestTicket', JSON.stringify({
+      reservationId : reservation.reservationId,
+      movieTitle    : titleMatch2 ? titleMatch2[1] : fullTitle,
+      movieFormat   : titleMatch2 ? titleMatch2[2] + '版' : '',
+      screenInfo    : reservation.screenInfo,
+      screeningInfo : reservation.screeningInfo,
+      seats         : reservation.seats,
+      ticketCount   : reservation.ticketCount,
+      paymentMethod : reservation.paymentMethod,
+      finalAmount   : reservation.finalAmount !== undefined ? reservation.finalAmount : reservation.totalAmount,
+      issuedAt      : reservation.issuedAt,
+      status        : 'reserved'
+    }))
+  </script>
+
+</body>
+</html>
