@@ -1,0 +1,306 @@
+/* ─── 決済ページ ───────────────────────────────────────────── */
+
+.payment-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* ステッププログレス */
+.payment-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 40px;
+}
+.payment-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--c-text-muted);
+}
+.payment-step.active { color: var(--c-text); }
+.payment-step-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--c-bg-4);
+  border: 1px solid var(--c-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.payment-step.active .payment-step-num {
+  background: var(--c-red);
+  border-color: var(--c-red);
+  color: #fff;
+}
+.payment-step-line {
+  width: 48px; height: 1px;
+  background: var(--c-border);
+  margin: 0 4px;
+}
+
+/* 2カラムレイアウト */
+.payment-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .payment-layout { grid-template-columns: 1fr; }
+}
+
+/* ─── 左パネル：合計＋支払方法 ─── */
+.payment-summary-panel {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.payment-total-box {
+  background: var(--c-bg-3);
+  border-radius: 8px;
+  padding: 20px 24px;
+}
+.payment-total-label {
+  font-size: 13px;
+  color: var(--c-text-sub);
+  margin-bottom: 6px;
+}
+.payment-total-amount {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--c-text);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.payment-total-amount small {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--c-text-sub);
+  margin-left: 4px;
+}
+
+.payment-method-label {
+  font-size: 13px;
+  color: var(--c-text-sub);
+  font-weight: 600;
+}
+
+.payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.payment-method-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-size: 14px;
+  color: var(--c-text-sub);
+}
+.payment-method-item:hover {
+  background: var(--c-bg-3);
+}
+.payment-method-item.selected {
+  background: var(--c-bg-3);
+  border-color: var(--c-red);
+  color: var(--c-text);
+}
+.payment-method-item input[type="radio"] {
+  accent-color: var(--c-red);
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+}
+.payment-method-name { flex: 1; }
+.payment-points-badge {
+  background: var(--c-bg-4);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: 0.03em;
+}
+
+/* ─── 右パネル：カード入力フォーム ─── */
+.payment-card-panel {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border-em);
+  border-radius: 12px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: opacity 0.2s;
+}
+.payment-card-panel.hidden {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.payment-card-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.payment-panel-logo {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--c-text);
+}
+.payment-panel-logo span { color: var(--c-red); }
+
+.payment-card-logos {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.payment-card-logo-badge {
+  padding: 3px 8px;
+  border: 1px solid var(--c-border);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-text-sub);
+  background: var(--c-bg-3);
+  letter-spacing: 0.05em;
+}
+
+.payment-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+.payment-card-sub {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-top: -12px;
+}
+
+.payment-card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.payment-card-warning {
+  background: var(--c-bg-4);
+  border-left: 3px solid var(--c-red);
+  border-radius: 0 6px 6px 0;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--c-text-sub);
+  line-height: 1.6;
+}
+
+.payment-save-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--c-text-sub);
+  cursor: pointer;
+}
+.payment-save-label input[type="checkbox"] {
+  accent-color: var(--c-red);
+  width: 15px; height: 15px;
+}
+
+.payment-ssl-note {
+  font-size: 11px;
+  color: var(--c-text-muted);
+  text-align: center;
+}
+
+/* 他の支払方法プレースホルダー */
+.payment-method-panel {
+  background: var(--c-bg-3);
+  border: 1px dashed var(--c-border-em);
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+
+/* ─── ポイント割引セクション ─── */
+.payment-points-section {
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.payment-points-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--c-bg-3);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--c-text-sub);
+  text-align: left;
+  transition: background 0.15s;
+}
+.payment-points-toggle:hover { background: var(--c-bg-4); }
+.payment-points-toggle.active { color: var(--c-text); }
+.payment-points-toggle-name { flex: 1; }
+.payment-points-arrow {
+  font-size: 11px;
+  color: var(--c-text-muted);
+  transition: transform 0.2s;
+}
+.payment-points-arrow.open { transform: rotate(180deg); }
+
+.payment-points-body {
+  padding: 16px 14px;
+  background: var(--c-bg-2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.payment-points-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--c-text-sub);
+}
+.payment-points-info-row strong {
+  color: var(--c-text);
+  font-weight: 700;
+}
+.payment-discount-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--c-text-sub);
+  padding-top: 8px;
+  border-top: 1px solid var(--c-border);
+}
+.payment-discount-amount {
+  font-weight: 700;
+  color: var(--c-red);
+}
+
+/* ─── アクションボタン ─── */
+.payment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+}

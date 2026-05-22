@@ -1,0 +1,300 @@
+[
+  {
+    "id": "godzilla-minus-one",
+    "title": "ゴジラ-1.0",
+    "titleEn": "GODZILLA MINUS ONE",
+    "status": "now",
+    "year": 2026,
+    "duration": 120,
+    "releaseDate": "2026年5月1日（木）",
+    "director": "山崎 貴",
+    "cast": "神木隆之介、浜辺美波、山田裕貴",
+    "genre": "アクション / SF",
+    "rating": "G",
+    "formats": ["字幕", "吹替"],
+    "synopsis": "戦後日本を舞台に、突如現れた巨大怪獣ゴジラが壊滅的な破壊をもたらす。何もかも失った人々が、絶望の中でゴジラに立ち向かう姿を描いた超大作。",
+    "schedule": {
+      "screens": [
+        {
+          "format": "字幕",
+          "times": [
+            { "start": "8:30",  "end": "10:30", "screen": "SC1", "full": false },
+            { "start": "11:00", "end": "13:00", "screen": "SC1", "full": false },
+            { "start": "13:30", "end": "15:30", "screen": "SC2", "full": false },
+            { "start": "16:00", "end": "18:00", "screen": "SC2", "full": false },
+            { "start": "18:30", "end": "20:30", "screen": "SC1", "full": false  },
+            { "start": "21:00", "end": "23:00", "screen": "SC1", "full": false }
+          ]
+        },
+        {
+          "format": "吹替",
+          "times": [
+            { "start": "9:00",  "end": "11:00", "screen": "SC3", "full": false },
+            { "start": "12:00", "end": "14:00", "screen": "SC3", "full": false },
+            { "start": "15:00", "end": "17:00", "screen": "SC4", "full": false },
+            { "start": "18:00", "end": "20:00", "screen": "SC3", "full": false  },
+            { "start": "20:30", "end": "22:30", "screen": "SC3", "full": false }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "conan-black-iron",
+    "title": "名探偵コナン 黒鉄の魚影",
+    "titleEn": "DETECTIVE CONAN: BLACK IRON SUBMARINE",
+    "status": "now",
+    "year": 2026,
+    "duration": 98,
+    "releaseDate": "2026年5月8日（木）",
+    "director": "立川譲",
+    "cast": "高山みなみ、山崎和佳奈、神谷明",
+    "genre": "アニメ / ミステリー",
+    "rating": "G",
+    "formats": ["字幕", "吹替"],
+    "synopsis": "世界各国の警察データを管理する巨大海上施設「パシフィック・ブイ」を舞台に、コナンが国際組織の陰謀に挑む。",
+    "schedule": {
+      "screens": [
+        {
+          "format": "字幕",
+          "times": [
+            { "start": "9:30",  "end": "11:10", "screen": "SC2", "full": false },
+            { "start": "12:00", "end": "13:40", "screen": "SC2", "full": false },
+            { "start": "14:30", "end": "16:10", "screen": "SC5", "full": false  },
+            { "start": "17:00", "end": "18:40", "screen": "SC5", "full": false },
+            { "start": "19:30", "end": "21:10", "screen": "SC2", "full": false }
+          ]
+        },
+        {
+          "format": "吹替",
+          "times": [
+            { "start": "10:00", "end": "11:40", "screen": "SC6", "full": false },
+            { "start": "13:00", "end": "14:40", "screen": "SC6", "full": false },
+            { "start": "16:00", "end": "17:40", "screen": "SC6", "full": false },
+            { "start": "19:00", "end": "20:40", "screen": "SC6", "full": false  }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "first-slam-dunk",
+    "title": "THE FIRST SLAM DUNK",
+    "titleEn": "THE FIRST SLAM DUNK",
+    "status": "now",
+    "year": 2026,
+    "duration": 135,
+    "releaseDate": "2026年5月10日（土）",
+    "director": "井上雄彦",
+    "cast": "仲村宗悟、笠間淳、木村昴",
+    "genre": "アニメ / スポーツ",
+    "rating": "G",
+    "formats": ["字幕なし"],
+    "synopsis": "バスケットボールに青春を賭けた湘北高校の5人が、全国制覇を目指す姿を圧倒的な映像と音楽で描く完全新作劇場版。",
+    "schedule": {
+      "screens": [
+        {
+          "format": "字幕なし",
+          "times": [
+            { "start": "10:00", "end": "12:15", "screen": "SC1", "full": false },
+            { "start": "13:30", "end": "15:45", "screen": "SC1", "full": false  },
+            { "start": "17:00", "end": "19:15", "screen": "SC3", "full": false },
+            { "start": "20:00", "end": "22:15", "screen": "SC3", "full": false }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "boy-and-the-heron",
+    "title": "君たちはどう生きるか",
+    "titleEn": "THE BOY AND THE HERON",
+    "status": "now",
+    "year": 2026,
+    "duration": 110,
+    "releaseDate": "2026年5月12日（月）",
+    "director": "宮崎 駿",
+    "cast": "山時聡真、菅田将暉、柴咲コウ",
+    "genre": "アニメ / ファンタジー",
+    "rating": "G",
+    "formats": ["字幕", "吹替"],
+    "synopsis": "戦時中の日本を舞台に、一人の少年が不思議な世界へ迷い込む。宮崎駿監督が贈る、生と死と愛をめぐる壮大な冒険ファンタジー。",
+    "schedule": {
+      "screens": [
+        {
+          "format": "字幕",
+          "times": [
+            { "start": "9:00",  "end": "10:50", "screen": "SC4", "full": false },
+            { "start": "12:00", "end": "13:50", "screen": "SC4", "full": false },
+            { "start": "15:00", "end": "16:50", "screen": "SC4", "full": false  },
+            { "start": "18:00", "end": "19:50", "screen": "SC7", "full": false }
+          ]
+        },
+        {
+          "format": "吹替",
+          "times": [
+            { "start": "10:30", "end": "12:20", "screen": "SC7", "full": false },
+            { "start": "13:30", "end": "15:20", "screen": "SC7", "full": false },
+            { "start": "16:30", "end": "18:20", "screen": "SC8", "full": false },
+            { "start": "19:30", "end": "21:20", "screen": "SC8", "full": false  }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "mission-impossible",
+    "title": "ミッション：インポッシブル",
+    "titleEn": "MISSION: IMPOSSIBLE",
+    "status": "now",
+    "year": 2026,
+    "duration": 88,
+    "releaseDate": "2026年5月15日（木）",
+    "director": "クリストファー・マッカリー",
+    "cast": "トム・クルーズ、ヘイリー・アトウェル",
+    "genre": "アクション / スパイ",
+    "rating": "PG12",
+    "formats": ["字幕", "吹替"],
+    "synopsis": "IMFエージェント、イーサン・ハントが史上最強の敵に挑む。世界中を舞台にした超高速アクションの連続でスクリーンを席巻する。",
+    "schedule": {
+      "screens": [
+        {
+          "format": "字幕",
+          "times": [
+            { "start": "8:00",  "end": "9:30",  "screen": "SC5", "full": false },
+            { "start": "11:00", "end": "12:30", "screen": "SC5", "full": false },
+            { "start": "14:00", "end": "15:30", "screen": "SC5", "full": false  },
+            { "start": "17:00", "end": "18:30", "screen": "SC6", "full": false },
+            { "start": "20:00", "end": "21:30", "screen": "SC6", "full": false }
+          ]
+        },
+        {
+          "format": "吹替",
+          "times": [
+            { "start": "9:30",  "end": "11:00", "screen": "SC8", "full": false },
+            { "start": "12:30", "end": "14:00", "screen": "SC8", "full": false },
+            { "start": "15:30", "end": "17:00", "screen": "SC8", "full": false },
+            { "start": "18:30", "end": "20:00", "screen": "SC8", "full": false  }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "avatar-way-of-water",
+    "title": "アバター：ウェイ・オブ・ウォーター",
+    "titleEn": "AVATAR: THE WAY OF WATER",
+    "status": "now",
+    "year": 2026,
+    "duration": 145,
+    "releaseDate": "2026年5月18日（月）",
+    "director": "ジェームズ・キャメロン",
+    "cast": "サム・ワーシントン、ゾーイ・サルダナ",
+    "genre": "SF / アドベンチャー",
+    "rating": "PG12",
+    "formats": ["字幕", "吹替"],
+    "synopsis": "パンドラの海を舞台に、ジェイクとネイティリが家族を守るため新たな戦いに挑む。圧倒的な映像美と深い感動が交差する超大作続編。",
+    "schedule": {
+      "screens": [
+        {
+          "format": "字幕",
+          "times": [
+            { "start": "9:00",  "end": "11:25", "screen": "SC1", "full": false },
+            { "start": "12:30", "end": "14:55", "screen": "SC1", "full": false  },
+            { "start": "16:00", "end": "18:25", "screen": "SC2", "full": false },
+            { "start": "19:30", "end": "21:55", "screen": "SC2", "full": false }
+          ]
+        },
+        {
+          "format": "吹替",
+          "times": [
+            { "start": "10:00", "end": "12:25", "screen": "SC3", "full": false },
+            { "start": "13:30", "end": "15:55", "screen": "SC3", "full": false },
+            { "start": "17:00", "end": "19:25", "screen": "SC4", "full": false  },
+            { "start": "20:00", "end": "22:25", "screen": "SC4", "full": false }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "coming-soon-1",
+    "title": "近日公開作品 1",
+    "titleEn": "COMING SOON 1",
+    "status": "coming",
+    "year": 2026,
+    "duration": null,
+    "releaseDate": "2026年7月公開予定",
+    "director": "未定",
+    "cast": "未定",
+    "genre": "未定",
+    "rating": "未定",
+    "formats": [],
+    "synopsis": "詳細は公開日程に合わせて順次発表予定です。",
+    "schedule": null
+  },
+  {
+    "id": "coming-soon-2",
+    "title": "近日公開作品 2",
+    "titleEn": "COMING SOON 2",
+    "status": "coming",
+    "year": 2026,
+    "duration": null,
+    "releaseDate": "2026年7月公開予定",
+    "director": "未定",
+    "cast": "未定",
+    "genre": "未定",
+    "rating": "未定",
+    "formats": [],
+    "synopsis": "詳細は公開日程に合わせて順次発表予定です。",
+    "schedule": null
+  },
+  {
+    "id": "coming-soon-3",
+    "title": "近日公開作品 3",
+    "titleEn": "COMING SOON 3",
+    "status": "coming",
+    "year": 2026,
+    "duration": null,
+    "releaseDate": "2026年8月公開予定",
+    "director": "未定",
+    "cast": "未定",
+    "genre": "未定",
+    "rating": "未定",
+    "formats": [],
+    "synopsis": "詳細は公開日程に合わせて順次発表予定です。",
+    "schedule": null
+  },
+  {
+    "id": "coming-soon-4",
+    "title": "近日公開作品 4",
+    "titleEn": "COMING SOON 4",
+    "status": "coming",
+    "year": 2026,
+    "duration": null,
+    "releaseDate": "2026年8月公開予定",
+    "director": "未定",
+    "cast": "未定",
+    "genre": "未定",
+    "rating": "未定",
+    "formats": [],
+    "synopsis": "詳細は公開日程に合わせて順次発表予定です。",
+    "schedule": null
+  },
+  {
+    "id": "coming-soon-5",
+    "title": "近日公開作品 5",
+    "titleEn": "COMING SOON 5",
+    "status": "coming",
+    "year": 2026,
+    "duration": null,
+    "releaseDate": "2026年9月公開予定",
+    "director": "未定",
+    "cast": "未定",
+    "genre": "未定",
+    "rating": "未定",
+    "formats": [],
+    "synopsis": "詳細は公開日程に合わせて順次発表予定です。",
+    "schedule": null
+  }
+]
