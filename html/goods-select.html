@@ -4,28 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>グッズ・売店 | HAL CINEMA</title>
-
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/mypage.css">
   <link rel="stylesheet" href="../css/goods.css">
+  <link rel="stylesheet" href="../css/goods-select.css">
 </head>
-
 <body>
 
-  <!-- Header -->
+  <!-- ヘッダー -->
   <header class="site-header">
     <div class="header-inner">
       <a href="index.html" class="site-logo">HAL <span>CINEMA</span></a>
-
       <nav class="site-nav" id="site-nav">
         <a href="index.html">上映スケジュール</a>
         <a href="movies.html">作品一覧</a>
-        <a href="goods.html" class="active">グッズ・物販</a>
+        <a href="goods.html">グッズ・物販</a>
         <a href="event.html">イベント情報</a>
         <a href="theater.html">劇場情報</a>
       </nav>
-
       <div class="header-actions">
         <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
         <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
@@ -36,28 +33,17 @@
           </svg>
           マイページ
         </a>
-        <button class="nav-toggle" id="nav-toggle">
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main -->
   <main class="page-main">
 
-    <!-- パンくず（単体ページのみ） -->
-    <nav class="breadcrumb standalone-only">
-      <a href="index.html">TOP</a>
-      <span class="breadcrumb-sep"></span>
-      <span>グッズ・売店</span>
-    </nav>
-
-    <h1 class="page-title standalone-only">GOODS <span>& SHOP</span></h1>
-    <p class="page-subtitle standalone-only">映画関連グッズや売店商品をご紹介します</p>
-
-    <!-- ステップバー（予約フローのみ） -->
-    <div class="gs-steps booking-only">
+    <!-- ステップバー -->
+    <div class="gs-steps">
       <div class="gs-step done">
         <span class="gs-step-num">1</span>
         <span>座席選択</span>
@@ -79,12 +65,13 @@
       </div>
     </div>
 
-    <!-- 予約情報バー（予約フローのみ） -->
-    <div class="gs-booking-bar booking-only" id="gs-booking-bar"></div>
+    <!-- 予約情報バー -->
+    <div class="gs-booking-bar" id="gs-booking-bar"></div>
 
+    <!-- メインレイアウト -->
     <div class="goods-layout">
 
-      <!-- サイドバー（絞り込みのみ） -->
+      <!-- サイドバー -->
       <aside class="goods-sidebar">
 
         <div class="sidebar-section">
@@ -123,6 +110,23 @@
           </div>
         </div>
 
+        <!-- カート -->
+        <div class="sidebar-section gs-cart-section">
+          <p class="sidebar-section-label">カート</p>
+          <div class="gs-cart-items-wrap">
+            <div id="cart-items-list">
+              <p class="gs-cart-empty">商品が選択されていません</p>
+            </div>
+          </div>
+          <div id="gs-cart-totals" style="display:none;"></div>
+        </div>
+
+        <!-- アクションボタン -->
+        <div class="gs-actions">
+          <button class="btn btn-primary" id="proceed-btn">決済へ進む</button>
+          <button class="btn btn-ghost btn-sm" id="skip-btn">スキップして決済へ</button>
+        </div>
+
       </aside>
 
       <!-- メインコンテンツ -->
@@ -130,30 +134,15 @@
         <div class="goods-main-header">
           <h2 id="category-title" class="goods-category-title">グッズ <span>GOODS</span></h2>
           <span id="item-count" class="goods-item-count"></span>
-          <!-- カートトグルボタン（両モード共通） -->
-          <button class="cart-toggle-btn" id="cart-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-            </svg>
-            カート
-            <span class="cart-badge" id="cart-badge">0</span>
-          </button>
         </div>
         <div class="goods-grid" id="goods-grid"></div>
       </div>
 
     </div>
 
-    <!-- ページネーション（単体ページのみ） -->
-    <div class="goods-pagination standalone-only">
-      <button class="btn btn-secondary" id="btn-prev">戻る</button>
-      <button class="btn btn-primary" id="btn-next">次へ</button>
-    </div>
-
   </main>
 
-  <!-- Footer -->
+  <!-- フッター -->
   <footer class="site-footer">
     <div class="footer-inner">
       <div>
@@ -173,32 +162,9 @@
     </div>
   </footer>
 
-  <!-- カートパネル（両モード共通） -->
-  <div class="cart-overlay" id="cart-overlay"></div>
-  <aside class="cart-panel" id="cart-panel">
-    <div class="cart-panel-header">
-      <h3 class="cart-panel-title">カート</h3>
-      <button class="cart-close" id="cart-close">✕</button>
-    </div>
-    <div class="cart-items" id="cart-items"></div>
-    <div class="cart-panel-footer">
-      <div class="cart-total-row">
-        <span>合計</span>
-        <span id="cart-total">¥0</span>
-      </div>
-      <!-- 単体ページ -->
-      <button class="btn btn-primary standalone-only" id="cart-checkout" style="width:100%">注文へ進む</button>
-      <!-- 予約フロー -->
-      <div class="booking-cart-actions booking-only">
-        <button class="btn btn-primary" id="proceed-btn" style="width:100%">決済へ進む</button>
-        <button class="btn btn-ghost btn-sm" id="skip-btn" style="width:100%">スキップして決済へ</button>
-      </div>
-    </div>
-  </aside>
-
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
-  <script src="../js/goods.js" defer></script>
+  <script src="../js/goods-select.js" defer></script>
 
 </body>
 </html>
