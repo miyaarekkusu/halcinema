@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>グッズ・売店 | HAL CINEMA</title>
+
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+
+  <link rel="stylesheet" href="../css/goods.css">
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">HAL <span>CINEMA</span></a>
+
+      <nav class="site-nav" id="site-nav">
+        <a href="schedule.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html" class="active">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <button class="nav-toggle" id="nav-toggle">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="page-main">
+
+    <nav class="breadcrumb">
+      <a href="index.html">TOP</a>
+      <span class="breadcrumb-sep"></span>
+      <span>グッズ・売店</span>
+    </nav>
+
+    <h1 class="page-title">GOODS <span>& SHOP</span></h1>
+    <p class="page-subtitle">映画関連グッズや売店商品をご紹介します</p>
+
+    <div class="goods-filters">
+
+      <input type="text" id="searchInput" placeholder="検索…">
+
+      <select id="categoryFilter">
+        <option value="all">すべて</option>
+        <option value="goods">GOODS</option>
+        <option value="shop">SHOP</option>
+      </select>
+
+      <select id="sizeFilter">
+        <option value="all">サイズ</option>
+        <option value="A3">A3</option>
+        <option value="A4">A4</option>
+        <option value="M">M</option>
+      </select>
+
+      <select id="sortPrice">
+        <option value="none">価格順</option>
+        <option value="asc">安い順</option>
+        <option value="desc">高い順</option>
+      </select>
+
+    </div>
+
+    <!-- GOODS Section -->
+    <section class="goods-section">
+      <div class="section-header">
+        <h2 class="section-title">グッズ <span>GOODS</span></h2>
+      </div>
+
+      <div class="goods-grid">
+
+        <!-- GOODS CARD -->
+        <div class="goods-card">
+          <img src="../images/event1.png" alt="赤ずきんグッズ">
+          <div class="goods-info">
+            <p class="goods-title">赤ずきん ポスター</p>
+            <p class="goods-price">1234円</p>
+            <p class="goods-desc">映画「赤ずきん」の公式ポスターです。</p>
+          </div>
+        </div>
+
+        <div class="goods-card">
+          <img src="../images/event2.png" alt="赤ずきんグッズ">
+          <div class="goods-info">
+            <p class="goods-title">赤ずきん クリアファイル</p>
+            <p class="goods-price">1234円</p>
+            <p class="goods-desc">キャラクターデザインのクリアファイル。</p>
+          </div>
+        </div>
+
+        <div class="goods-card">
+          <img src="../images/event1.png" alt="赤ずきんグッズ">
+          <div class="goods-info">
+            <p class="goods-title">赤ずきん 缶バッジセット</p>
+            <p class="goods-price">1234円</p>
+            <p class="goods-desc">限定デザインの缶バッジ3個セット。</p>
+          </div>
+        </div>
+
+        <div class="goods-card">
+          <img src="../images/event2.png" alt="アリーグッズ">
+          <div class="goods-info">
+            <p class="goods-title">アリー ポスター</p>
+            <p class="goods-price">1234円</p>
+            <p class="goods-desc">映画「アリー」の公式ビジュアルポスター。</p>
+          </div>
+        </div>
+
+        <div class="goods-card">
+          <img src="../images/event1.png" alt="アリーグッズ">
+          <div class="goods-info">
+            <p class="goods-title">アリー アクリルスタンド</p>
+            <p class="goods-price">1234円</p>
+            <p class="goods-desc">キャラクターのアクリルスタンド。</p>
+          </div>
+        </div>
+
+        <div class="goods-card">
+          <img src="../images/event2.png" alt="アリーグッズ">
+          <div class="goods-info">
+            <p class="goods-title">アリー ポスター</p>
+            <p class="goods-price">1234円</p>
+            <p class="goods-desc">映画「アリー」の公式ビジュアルポスター。</p>
+          </div>
+        </div>
+
+        <div class="goods-card">
+          <img src="../images/event1.png" alt="アリーグッズ">
+          <div class="goods-info">
+            <p class="goods-title">アリー アクリルスタンド</p>
+            <p class="goods-price">1234円</p>
+            <p class="goods-desc">キャラクターのアクリルスタンド。</p>
+          </div>
+        </div>
+
+        <div class="goods-card">
+          <img src="../images/event2.png" alt="アリーグッズ">
+          <div class="goods-info">
+            <p class="goods-title">アリー キーホルダー</p>
+            <p class="goods-price">1234円</p>
+            <p class="goods-desc">映画ロゴ入りのキーホルダー。</p>
+          </div>
+        </div>
+
+        </div>
+        <!-- ページネーション -->
+        <div class="goods-pagination">
+            <a href="#" class="btn btn-secondary">戻る</a>
+            <a href="#" class="btn btn-primary">次へ</a>
+        </div>
+    </section>
+
+    <!-- SHOP Section -->
+    <section class="shop-section">
+      <div class="section-header">
+        <h2 class="section-title">売店 <span>SHOP</span></h2>
+      </div>
+
+      <div class="shop-grid">
+
+        <!-- SHOP CARD -->
+        <div class="shop-card">
+          <img src="../images/1.png" alt="ポップコーン">
+          <div class="shop-info">
+            <p class="shop-title">ポップコーン（塩）</p>
+            <p class="shop-price">500円</p>
+            <p class="shop-desc">定番の塩味ポップコーン。</p>
+
+            <div class="shop-option">
+              <label>サイズ</label>
+              <select class="shop-select">
+                <option>S（小）</option>
+                <option>M（中）</option>
+                <option>L（大）</option>
+              </select>
+            </div>
+
+            <div class="shop-option">
+              <label>数量</label>
+              <input type="number" min="1" value="1" class="shop-qty">
+            </div>
+          </div>
+        </div>
+
+        <div class="shop-card">
+          <img src="../images/1.png" alt="キャラメルポップコーン">
+          <div class="shop-info">
+            <p class="shop-title">キャラメルポップコーン</p>
+            <p class="shop-price">600円</p>
+            <p class="shop-desc">甘くて人気のキャラメル味。</p>
+
+            <div class="shop-option">
+              <label>サイズ</label>
+              <select class="shop-select">
+                <option>S（小）</option>
+                <option>M（中）</option>
+                <option>L（大）</option>
+              </select>
+            </div>
+
+            <div class="shop-option">
+              <label>数量</label>
+              <input type="number" min="1" value="1" class="shop-qty">
+            </div>
+          </div>
+        </div>
+
+        <div class="shop-card">
+          <img src="../images/2.png" alt="ドリンク">
+          <div class="shop-info">
+            <p class="shop-title">ソフトドリンク</p>
+            <p class="shop-price">350円</p>
+            <p class="shop-desc">コーラ・メロンソーダなど。</p>
+
+            <div class="shop-option">
+              <label>サイズ</label>
+              <select class="shop-select">
+                <option>S</option>
+                <option>M</option>
+                <option>L</option>
+              </select>
+            </div>
+
+            <div class="shop-option">
+              <label>数量</label>
+              <input type="number" min="1" value="1" class="shop-qty">
+            </div>
+          </div>
+        </div>
+        <!-- SHOP CARD -->
+        <div class="shop-card">
+          <img src="../images/1.png" alt="ポップコーン">
+          <div class="shop-info">
+            <p class="shop-title">ポップコーン（塩）</p>
+            <p class="shop-price">500円</p>
+            <p class="shop-desc">定番の塩味ポップコーン。</p>
+
+            <div class="shop-option">
+              <label>サイズ</label>
+              <select class="shop-select">
+                <option>S（小）</option>
+                <option>M（中）</option>
+                <option>L（大）</option>
+              </select>
+            </div>
+
+            <div class="shop-option">
+              <label>数量</label>
+              <input type="number" min="1" value="1" class="shop-qty">
+            </div>
+          </div>
+        </div>
+
+        <div class="shop-card">
+          <img src="../images/1.png" alt="キャラメルポップコーン">
+          <div class="shop-info">
+            <p class="shop-title">キャラメルポップコーン</p>
+            <p class="shop-price">600円</p>
+            <p class="shop-desc">甘くて人気のキャラメル味。</p>
+
+            <div class="shop-option">
+              <label>サイズ</label>
+              <select class="shop-select">
+                <option>S（小）</option>
+                <option>M（中）</option>
+                <option>L（大）</option>
+              </select>
+            </div>
+
+            <div class="shop-option">
+              <label>数量</label>
+              <input type="number" min="1" value="1" class="shop-qty">
+            </div>
+          </div>
+        </div>
+
+        <div class="shop-card">
+          <img src="../images/2.png" alt="ドリンク">
+          <div class="shop-info">
+            <p class="shop-title">ソフトドリンク</p>
+            <p class="shop-price">350円</p>
+            <p class="shop-desc">コーラ・メロンソーダなど。</p>
+
+            <div class="shop-option">
+              <label>サイズ</label>
+              <select class="shop-select">
+                <option>S</option>
+                <option>M</option>
+                <option>L</option>
+              </select>
+            </div>
+
+            <div class="shop-option">
+              <label>数量</label>
+              <input type="number" min="1" value="1" class="shop-qty">
+            </div>
+          </div>
+        </div>
+        <!-- SHOP CARD -->
+        <div class="shop-card">
+          <img src="../images/1.png" alt="ポップコーン">
+          <div class="shop-info">
+            <p class="shop-title">ポップコーン（塩）</p>
+            <p class="shop-price">500円</p>
+            <p class="shop-desc">定番の塩味ポップコーン。</p>
+
+            <div class="shop-option">
+              <label>サイズ</label>
+              <select class="shop-select">
+                <option>S（小）</option>
+                <option>M（中）</option>
+                <option>L（大）</option>
+              </select>
+            </div>
+
+            <div class="shop-option">
+              <label>数量</label>
+              <input type="number" min="1" value="1" class="shop-qty">
+            </div>
+          </div>
+        </div>
+
+        <div class="shop-card">
+          <img src="../images/1.png" alt="キャラメルポップコーン">
+          <div class="shop-info">
+            <p class="shop-title">キャラメルポップコーン</p>
+            <p class="shop-price">600円</p>
+            <p class="shop-desc">甘くて人気のキャラメル味。</p>
+
+            <div class="shop-option">
+              <label>サイズ</label>
+              <select class="shop-select">
+                <option>S（小）</option>
+                <option>M（中）</option>
+                <option>L（大）</option>
+              </select>
+            </div>
+
+            <div class="shop-option">
+              <label>数量</label>
+              <input type="number" min="1" value="1" class="shop-qty">
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+      <!-- ページネーション -->
+      <div class="goods-pagination">
+        <a href="#" class="btn btn-secondary">戻る</a>
+        <a href="#" class="btn btn-primary">次へ</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+
+      <nav class="footer-links">
+        <a href="#">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script src="../js/goods.js" defer></script>
+
+</body>
+</html>
