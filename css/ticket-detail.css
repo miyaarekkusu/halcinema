@@ -1,0 +1,503 @@
+/* ============================================================
+   HAL CINEMA — ticket-detail.css
+   予約詳細ページ専用スタイル
+   ============================================================ */
+
+/* ── 戻るボタン ──────────────────────────────────────────── */
+.td-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-text-sub);
+  padding: 8px 0;
+  margin-bottom: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: color .2s, gap .2s;
+}
+.td-back-btn:hover { color: var(--c-text); gap: 12px; }
+.td-back-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* ── ページヘッダー ──────────────────────────────────────── */
+.td-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+.td-header-left {}
+.td-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.td-order-id {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  letter-spacing: .06em;
+  font-family: var(--font-display);
+}
+
+/* ── QRボタン ────────────────────────────────────────────── */
+.td-qr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--c-red);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background .2s, transform .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.td-qr-btn:hover { background: var(--c-red-dark); transform: translateY(-1px); }
+.td-qr-btn:active { transform: scale(.97); }
+.td-qr-btn svg { width: 20px; height: 20px; }
+
+/* ── メインレイアウト（左カラム＋右サイドバー） ─────────── */
+.td-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── 汎用カード ──────────────────────────────────────────── */
+.td-card {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.td-card:last-child { margin-bottom: 0; }
+
+.td-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+}
+.td-card-header-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--c-bg-4);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--c-red);
+}
+.td-card-header-icon svg { width: 17px; height: 17px; }
+.td-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: .04em;
+}
+.td-card-badge {
+  margin-left: auto;
+}
+.td-card-body { padding: 22px; }
+
+/* ── 映画情報カード ──────────────────────────────────────── */
+.td-movie-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.td-movie-poster {
+  width: 80px;
+  min-width: 80px;
+  aspect-ratio: 2/3;
+  background: var(--c-bg-3);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-text-muted);
+}
+.td-movie-poster svg { width: 28px; height: 28px; opacity: .4; }
+.td-movie-info { flex: 1; min-width: 0; }
+.td-movie-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.td-movie-meta-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 13px;
+  margin-top: 10px;
+}
+.td-meta-label { color: var(--c-text-muted); }
+.td-meta-value { color: var(--c-text-sub); }
+
+/* 上映なし状態 */
+.td-no-movie {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 0;
+}
+.td-no-movie-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--c-bg-3);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--c-text-muted);
+}
+.td-no-movie-icon svg { width: 22px; height: 22px; opacity: .5; }
+.td-no-movie-text { font-size: 14px; color: var(--c-text-muted); line-height: 1.6; }
+.td-no-movie-text strong { color: var(--c-text-sub); display: block; margin-bottom: 2px; font-size: 15px; }
+
+/* ── 座席カード ──────────────────────────────────────────── */
+.td-seats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.td-seat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--c-bg-3);
+  border: 1px solid var(--c-border-em);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-text);
+}
+.td-seat-chip svg { width: 14px; height: 14px; color: var(--c-red); }
+.td-seat-screen {
+  font-size: 13px;
+  color: var(--c-text-muted);
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.td-seat-screen svg { width: 14px; height: 14px; }
+
+/* ── フードカード ────────────────────────────────────────── */
+.td-food-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.td-food-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--c-border);
+}
+.td-food-item:last-child { border-bottom: none; padding-bottom: 0; }
+.td-food-thumb {
+  width: 48px;
+  height: 48px;
+  background: var(--c-bg-3);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--c-text-muted);
+  font-size: 22px;
+}
+.td-food-name { font-size: 14px; font-weight: 500; color: var(--c-text); margin-bottom: 2px; }
+.td-food-option { font-size: 12px; color: var(--c-text-muted); }
+.td-food-right { margin-left: auto; text-align: right; }
+.td-food-qty { font-size: 12px; color: var(--c-text-muted); margin-bottom: 2px; }
+.td-food-price { font-size: 14px; font-weight: 700; color: var(--c-text); }
+
+.td-food-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--c-text-muted);
+}
+.td-food-empty svg { width: 20px; height: 20px; opacity: .4; }
+
+/* ── サイドバー ──────────────────────────────────────────── */
+.td-main-col { min-width: 0; }
+.td-sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+/* ── 金額サマリー ────────────────────────────────────────── */
+.td-price-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.td-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--c-border);
+}
+.td-price-row:last-of-type { border-bottom: none; }
+.td-price-row-label { color: var(--c-text-sub); }
+.td-price-row-value { color: var(--c-text); font-variant-numeric: tabular-nums; }
+.td-price-row-value.discount { color: #5ab; }
+.td-price-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px 0 0;
+  margin-top: 4px;
+  border-top: 2px solid var(--c-border-em);
+}
+.td-price-total-label { font-size: 14px; font-weight: 700; color: var(--c-text); }
+.td-price-total-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: .04em;
+  color: var(--c-red);
+}
+
+/* ── 支払い方法カード ────────────────────────────────────── */
+.td-payment-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.td-payment-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--c-bg-3);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--c-text-sub);
+}
+.td-payment-icon svg { width: 20px; height: 20px; }
+.td-payment-name { font-size: 14px; font-weight: 500; color: var(--c-text); margin-bottom: 2px; }
+.td-payment-num { font-size: 12px; color: var(--c-text-muted); font-family: var(--font-display); letter-spacing: .08em; }
+.td-mask-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--c-text-muted);
+  background: var(--c-bg-4);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: color .2s, border-color .2s;
+  flex-shrink: 0;
+}
+.td-mask-btn:hover { color: var(--c-text-sub); border-color: var(--c-border-em); }
+.td-mask-btn svg { width: 13px; height: 13px; }
+
+/* ── チケット選択タイプ ──────────────────────────────────── */
+.td-ticket-types {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.td-ticket-type-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.td-ticket-type-row:last-child { border-bottom: none; padding-bottom: 0; }
+.td-ticket-type-name { color: var(--c-text-sub); }
+.td-ticket-type-count { color: var(--c-text); font-weight: 500; }
+.td-ticket-type-price { color: var(--c-text-muted); font-size: 12px; }
+
+/* ── QRモーダル ──────────────────────────────────────────── */
+.td-qr-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 300;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.td-qr-overlay.open { display: flex; }
+.td-qr-modal {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border-em);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 360px;
+  overflow: hidden;
+  animation: qr-in .22s var(--ease);
+}
+@keyframes qr-in {
+  from { opacity:0; transform:scale(.9) translateY(12px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.td-qr-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+}
+.td-qr-modal-title { font-size: 16px; font-weight: 700; color: var(--c-text); }
+.td-qr-modal-close {
+  width: 32px; height: 32px;
+  background: var(--c-bg-4); border: 1px solid var(--c-border);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--c-text-sub); transition: background .2s, color .2s;
+}
+.td-qr-modal-close:hover { background: var(--c-red); color: #fff; border-color: var(--c-red); }
+.td-qr-modal-close svg { width: 16px; height: 16px; }
+.td-qr-modal-body { padding: 28px 22px; text-align: center; }
+.td-qr-code {
+  width: 200px; height: 200px;
+  background: #fff;
+  border-radius: 12px;
+  margin: 0 auto 20px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+/* QRコードのSVGモック */
+.td-qr-code svg { width: 180px; height: 180px; }
+.td-qr-movie { font-size: 14px; font-weight: 700; color: var(--c-text); margin-bottom: 4px; }
+.td-qr-info  { font-size: 12px; color: var(--c-text-muted); line-height: 1.7; }
+.td-qr-note  {
+  margin-top: 16px;
+  font-size: 11px; color: var(--c-text-muted);
+  background: var(--c-bg-3); border-radius: 8px; padding: 10px 14px; line-height: 1.7;
+}
+
+/* ── レスポンシブ ────────────────────────────────────────── */
+
+/* タブレット〜スマホ：2列→1列縦積み */
+@media (max-width: 900px) {
+  .td-layout {
+    grid-template-columns: 1fr;
+  }
+  /* サイドバーはメインカラムの下に（映画詳細→座席→フード→金額の順） */
+  .td-sidebar {
+    order: 1;
+  }
+  .td-main-col {
+    order: 0;
+  }
+}
+
+/* スマホ専用 */
+@media (max-width: 600px) {
+  /* ページ余白を狭める */
+  .page-main {
+    padding: 24px 16px 40px;
+  }
+
+  /* ヘッダー縦積み */
+  .td-header {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .td-qr-btn {
+    width: 100%;
+    justify-content: center;
+    font-size: 15px;
+    padding: 14px 20px;
+  }
+
+  /* 戻るボタンを少し大きく */
+  .td-back-btn {
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+
+  /* 映画情報：縦積み */
+  .td-movie-row {
+    flex-direction: column;
+  }
+  .td-movie-poster {
+    width: 120px;
+    aspect-ratio: 2/3;
+  }
+  .td-movie-title {
+    font-size: 18px;
+  }
+  .td-movie-meta-grid {
+    font-size: 13px;
+  }
+
+  /* カードのpadding縮小 */
+  .td-card-body {
+    padding: 16px;
+  }
+  .td-card-header {
+    padding: 12px 16px;
+  }
+
+  /* 座席チップを少し大きく */
+  .td-seat-chip {
+    font-size: 15px;
+    padding: 10px 16px;
+  }
+
+  /* フード行 */
+  .td-food-thumb {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  .td-food-name { font-size: 14px; }
+  .td-food-price { font-size: 14px; }
+
+  /* 金額サマリー */
+  .td-price-row { font-size: 14px; padding: 12px 0; }
+  .td-price-total-value { font-size: 26px; }
+
+  /* チケット種別 */
+  .td-ticket-type-row { font-size: 14px; padding: 10px 0; }
+
+  /* 支払いカード */
+  .td-payment-name { font-size: 14px; }
+  .td-payment-num  { font-size: 13px; }
+  .td-mask-btn     { font-size: 12px; padding: 6px 12px; }
+
+  /* QRモーダル */
+  .td-qr-modal { border-radius: 16px; }
+  .td-qr-code  { width: 180px; height: 180px; }
+}

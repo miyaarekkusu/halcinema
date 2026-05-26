@@ -1,0 +1,349 @@
+/* ============================================================
+   HAL CINEMA — qrcode.css
+   QRコード一覧ページ専用スタイル
+   ============================================================ */
+
+/* ── ページ全体の max-width を少し広める ─────────────────── */
+.qr-page-main {
+  flex: 1;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+}
+
+/* ── ページヘッダー ──────────────────────────────────────── */
+.qr-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+.qr-page-subtitle {
+  font-size: 14px;
+  color: var(--c-text-muted);
+  margin-top: 4px;
+}
+
+/* ── 予約カード ──────────────────────────────────────────── */
+.qr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.qr-card {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: border-color .25s var(--ease);
+}
+.qr-card:hover {
+  border-color: var(--c-border-em);
+}
+
+/* カードヘッダー部分 */
+.qr-card-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+}
+.qr-card-poster {
+  width: 54px;
+  min-width: 54px;
+  aspect-ratio: 2/3;
+  background: var(--c-bg-4);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-text-muted);
+}
+.qr-card-poster svg { width: 22px; height: 22px; opacity: .4; }
+
+/* フードのみ時のアイコン */
+.qr-card-poster.food-only {
+  font-size: 24px;
+  background: rgba(232,33,43,.06);
+  border-color: rgba(232,33,43,.15);
+}
+
+.qr-card-info { flex: 1; min-width: 0; }
+.qr-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qr-card-meta {
+  font-size: 13px;
+  color: var(--c-text-muted);
+  line-height: 1.7;
+}
+.qr-card-status {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* ── 有効期限カウントダウン ──────────────────────────────── */
+.qr-countdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(232,33,43,.12);
+  border: 1px solid rgba(232,33,43,.3);
+  color: #ff9999;
+  white-space: nowrap;
+}
+.qr-countdown svg { width: 13px; height: 13px; flex-shrink: 0; }
+/* 余裕あり */
+.qr-countdown.safe {
+  background: rgba(30,160,90,.12);
+  border-color: rgba(30,160,90,.3);
+  color: #6dda9a;
+}
+/* 使用済み */
+.qr-countdown.expired {
+  background: var(--c-bg-4);
+  border-color: var(--c-border);
+  color: var(--c-text-muted);
+}
+/* 点滅アニメ（1時間以内） */
+.qr-countdown.urgent .qr-cd-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  background: var(--c-red);
+  border-radius: 50%;
+  animation: cdpulse 1s ease-in-out infinite;
+}
+@keyframes cdpulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.4; transform:scale(.65); }
+}
+.qr-cd-time {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: .06em;
+}
+
+/* ── カード本体（ボタンエリア） ──────────────────────────── */
+.qr-card-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* フード注文サマリー */
+.qr-food-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--c-border);
+  margin-bottom: 2px;
+}
+.qr-food-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--c-text-sub);
+  background: var(--c-bg-3);
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+.qr-food-chip-icon { font-size: 15px; }
+.qr-food-none {
+  font-size: 13px;
+  color: var(--c-text-muted);
+}
+
+/* ── QRボタン（大） ──────────────────────────────────────── */
+.qr-show-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--c-red);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 18px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background .2s, transform .15s;
+}
+.qr-show-btn:hover  { background: var(--c-red-dark); transform: translateY(-1px); }
+.qr-show-btn:active { transform: scale(.98); }
+.qr-show-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
+/* 使用済みは無効スタイル */
+.qr-show-btn:disabled {
+  background: var(--c-bg-4);
+  color: var(--c-text-muted);
+  cursor: not-allowed;
+  transform: none;
+  border: 1px solid var(--c-border);
+}
+
+/* ── 予約詳細ボタン（小） ────────────────────────────────── */
+.qr-detail-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--c-text-sub);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 13px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border-em);
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-decoration: none;
+  transition: color .2s, background .2s, border-color .2s;
+}
+.qr-detail-btn:hover {
+  color: var(--c-text);
+  background: var(--c-bg-4);
+  border-color: var(--c-border-em);
+}
+.qr-detail-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ── 空状態 ──────────────────────────────────────────────── */
+.qr-empty {
+  text-align: center;
+  padding: 72px 24px;
+  background: var(--c-bg-2);
+  border: 1px dashed var(--c-border-em);
+  border-radius: 18px;
+}
+.qr-empty-icon {
+  width: 60px; height: 60px;
+  background: var(--c-bg-3);
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--c-text-muted);
+}
+.qr-empty-icon svg { width: 28px; height: 28px; }
+.qr-empty-title { font-size: 16px; font-weight: 700; color: var(--c-text-sub); margin-bottom: 6px; }
+.qr-empty-desc  { font-size: 13px; color: var(--c-text-muted); line-height: 1.8; }
+
+/* ── QRモーダル ──────────────────────────────────────────── */
+.qr-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.78);
+  z-index: 300;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.qr-overlay.open { display: flex; }
+
+.qr-modal {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border-em);
+  border-radius: 22px;
+  width: 100%; max-width: 380px;
+  overflow: hidden;
+  animation: qr-modal-in .24s var(--ease);
+}
+@keyframes qr-modal-in {
+  from { opacity:0; transform: scale(.88) translateY(16px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+.qr-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+}
+.qr-modal-title { font-size: 16px; font-weight: 700; color: var(--c-text); }
+.qr-modal-close {
+  width: 34px; height: 34px;
+  background: var(--c-bg-4); border: 1px solid var(--c-border);
+  border-radius: 9px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--c-text-sub);
+  transition: background .2s, color .2s, border-color .2s;
+}
+.qr-modal-close:hover { background: var(--c-red); color: #fff; border-color: var(--c-red); }
+.qr-modal-close svg { width: 17px; height: 17px; }
+
+.qr-modal-body { padding: 28px 22px 24px; text-align: center; }
+
+/* QRコード白枠 */
+.qr-modal-code {
+  width: 210px; height: 210px;
+  background: #fff;
+  border-radius: 14px;
+  margin: 0 auto 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+.qr-modal-code svg { width: 190px; height: 190px; }
+
+.qr-modal-movie  { font-size: 15px; font-weight: 700; color: var(--c-text); margin-bottom: 4px; }
+.qr-modal-info   { font-size: 13px; color: var(--c-text-muted); line-height: 1.75; }
+
+/* モーダル内カウントダウン */
+.qr-modal-countdown {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 14px 0 0;
+  font-size: 13px; font-weight: 700;
+  padding: 7px 18px; border-radius: 20px;
+  background: rgba(232,33,43,.12);
+  border: 1px solid rgba(232,33,43,.28);
+  color: #ff9999;
+}
+.qr-modal-countdown.safe {
+  background: rgba(30,160,90,.12); border-color: rgba(30,160,90,.28); color: #6dda9a;
+}
+.qr-modal-countdown svg { width: 14px; height: 14px; }
+.qr-modal-cd-val { font-family: var(--font-display); font-size: 15px; letter-spacing:.06em; }
+
+.qr-modal-note {
+  margin-top: 16px; font-size: 11px; color: var(--c-text-muted);
+  background: var(--c-bg-3); border-radius: 9px; padding: 10px 14px; line-height: 1.75;
+}
+
+/* ── レスポンシブ ────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .qr-page-main { padding: 24px 14px 48px; }
+  .qr-card-head { padding: 16px 16px; gap: 12px; }
+  .qr-card-body { padding: 16px 16px; gap: 10px; }
+  .qr-card-title { font-size: 16px; }
+  .qr-card-meta  { font-size: 12px; }
+  .qr-show-btn   { font-size: 15px; padding: 16px 20px; }
+  .qr-detail-btn { font-size: 13px; padding: 11px 16px; }
+  .qr-modal-code { width: 180px; height: 180px; }
+  .qr-modal-code svg { width: 164px; height: 164px; }
+}

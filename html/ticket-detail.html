@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約詳細 | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/mypage.css">
+  <link rel="stylesheet" href="../css/ticket-detail.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../index.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="mypage.html" class="mypage-nav-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          マイページ
+        </a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+
+    <!-- パンくず -->
+    <nav class="breadcrumb" aria-label="パンくず">
+      <a href="../index.html">TOP</a>
+      <span class="breadcrumb-sep"></span>
+      <a href="mypage.html">マイページ</a>
+      <span class="breadcrumb-sep"></span>
+      <span>予約詳細</span>
+    </nav>
+
+    <!-- 戻るボタン -->
+    <button class="td-back-btn" onclick="history.back()" aria-label="マイページに戻る">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      マイページに戻る
+    </button>
+
+    <!-- ページヘッダー -->
+    <div class="td-header">
+      <div class="td-header-left">
+        <div class="td-status-row">
+          <span class="badge badge-green" style="font-size:13px;padding:5px 14px;">予約済み</span>
+          <span class="td-order-id">ORDER #HAL-20260520-0042</span>
+        </div>
+        <h1 class="page-title" style="margin-bottom:0;">予約<span>詳細</span></h1>
+      </div>
+      <!-- QRコード発行ボタン -->
+      <button class="td-qr-btn" id="qrOpenBtn" aria-label="QRコードを表示">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <path d="M14 14h.01M14 17h3M17 14h3M17 17v4M20 17v4"/>
+        </svg>
+        QRコードを表示
+      </button>
+    </div>
+
+    <!-- ─── 表示モード切り替え ─────────────────────────────
+         サンプル用：「映画あり」「映画なし（フードのみ）」 -->
+    <div style="display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;">
+      <button class="btn btn-primary btn-sm" id="modeMovie" onclick="setMode('movie')">
+        サンプル：映画あり
+      </button>
+      <button class="btn btn-secondary btn-sm" id="modeFoodOnly" onclick="setMode('foodonly')">
+        サンプル：フードのみ
+      </button>
+    </div>
+
+    <!-- ─── メインレイアウト ──────────────────────────────── -->
+    <div class="td-layout">
+
+      <!-- 左カラム：詳細情報 -->
+      <div class="td-main-col">
+
+        <!-- ① 映画情報カード -->
+        <div class="td-card" id="movieCard">
+          <div class="td-card-header">
+            <div class="td-card-header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="3"/>
+                <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/>
+              </svg>
+            </div>
+            <span class="td-card-title">映画情報</span>
+          </div>
+          <div class="td-card-body" id="movieCardBody">
+            <!-- 映画ありの場合 -->
+            <div id="movieContent">
+              <div class="td-movie-row">
+                <div class="td-movie-poster">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="2" y="2" width="20" height="20" rx="3"/>
+                    <path d="M7 2v20M17 2v20M2 12h20"/>
+                  </svg>
+                </div>
+                <div class="td-movie-info">
+                  <div class="td-movie-title">名探偵ピカチュウ</div>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
+                    <span class="badge badge-red" style="font-size:10px;">上映中</span>
+                    <span class="badge badge-border" style="font-size:10px;">字幕版</span>
+                  </div>
+                  <div class="td-movie-meta-grid">
+                    <span class="td-meta-label">日時</span>
+                    <span class="td-meta-value">2026年5月20日（水）14:00〜15:52</span>
+                    <span class="td-meta-label">上映時間</span>
+                    <span class="td-meta-value">104分</span>
+                    <span class="td-meta-label">スクリーン</span>
+                    <span class="td-meta-value">スクリーン 2（中・120席）</span>
+                    <span class="td-meta-label">ジャンル</span>
+                    <span class="td-meta-value">アドベンチャー / ファミリー</span>
+                    <span class="td-meta-label">言語</span>
+                    <span class="td-meta-value">字幕版（原語：英語）</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 映画なし（フードのみ）の場合 -->
+            <div id="noMovieContent" style="display:none;">
+              <div class="td-no-movie">
+                <div class="td-no-movie-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                  </svg>
+                </div>
+                <div class="td-no-movie-text">
+                  <strong>映画チケットなし</strong>
+                  このご注文にはフードのみが含まれています。<br>
+                  カウンターでQRコードをご提示ください。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ② 座席情報カード -->
+        <div class="td-card" id="seatCard">
+          <div class="td-card-header">
+            <div class="td-card-header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/>
+                <path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0z"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="8" y1="22" x2="16" y2="22"/>
+              </svg>
+            </div>
+            <span class="td-card-title">座席情報</span>
+          </div>
+          <div class="td-card-body" id="seatCardBody">
+            <div id="seatContent">
+              <div class="td-seat-screen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                スクリーン 2 — E列
+              </div>
+              <div class="td-seats" style="margin-top:12px;">
+                <div class="td-seat-chip">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/>
+                    <path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0z"/>
+                  </svg>
+                  E列 7番
+                </div>
+                <div class="td-seat-chip">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/>
+                    <path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0z"/>
+                  </svg>
+                  E列 8番
+                </div>
+              </div>
+            </div>
+            <div id="noSeatContent" style="display:none;">
+              <div class="td-food-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                </svg>
+                座席の予約はありません
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ③ フード注文カード -->
+        <div class="td-card">
+          <div class="td-card-header">
+            <div class="td-card-header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                <line x1="6" y1="1" x2="6" y2="4"/>
+                <line x1="10" y1="1" x2="10" y2="4"/>
+                <line x1="14" y1="1" x2="14" y2="4"/>
+              </svg>
+            </div>
+            <span class="td-card-title">フード・ドリンク注文</span>
+            <span class="badge badge-border td-card-badge" style="font-size:11px;">モバイルオーダー</span>
+          </div>
+          <div class="td-card-body">
+            <div class="td-food-list">
+
+              <div class="td-food-item">
+                <div class="td-food-thumb">🍿</div>
+                <div>
+                  <p class="td-food-name">バターポップコーン</p>
+                  <p class="td-food-option">Lサイズ</p>
+                </div>
+                <div class="td-food-right">
+                  <p class="td-food-qty">×2</p>
+                  <p class="td-food-price">¥1,400</p>
+                </div>
+              </div>
+
+              <div class="td-food-item">
+                <div class="td-food-thumb">🥤</div>
+                <div>
+                  <p class="td-food-name">コーラ</p>
+                  <p class="td-food-option">Mサイズ</p>
+                </div>
+                <div class="td-food-right">
+                  <p class="td-food-qty">×1</p>
+                  <p class="td-food-price">¥450</p>
+                </div>
+              </div>
+
+              <div class="td-food-item">
+                <div class="td-food-thumb">🍫</div>
+                <div>
+                  <p class="td-food-name">チョコレートミルク</p>
+                  <p class="td-food-option">Mサイズ</p>
+                </div>
+                <div class="td-food-right">
+                  <p class="td-food-qty">×1</p>
+                  <p class="td-food-price">¥480</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.td-main-col -->
+
+      <!-- 右サイドバー -->
+      <div class="td-sidebar">
+
+        <!-- チケット種別カード -->
+        <div class="td-card" id="ticketTypeCard">
+          <div class="td-card-header">
+            <div class="td-card-header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z"/>
+              </svg>
+            </div>
+            <span class="td-card-title">選択チケット</span>
+          </div>
+          <div class="td-card-body" id="ticketTypeBody">
+            <div id="ticketTypeContent">
+              <div class="td-ticket-types">
+                <div class="td-ticket-type-row">
+                  <span class="td-ticket-type-name">一般</span>
+                  <span class="td-ticket-type-count">×1</span>
+                  <span class="td-ticket-type-price">¥1,900</span>
+                </div>
+                <div class="td-ticket-type-row">
+                  <span class="td-ticket-type-name">学生</span>
+                  <span class="td-ticket-type-count">×1</span>
+                  <span class="td-ticket-type-price">¥1,500</span>
+                </div>
+              </div>
+            </div>
+            <div id="noTicketTypeContent" style="display:none;">
+              <div class="td-food-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                </svg>
+                映画チケットの選択はありません
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 支払い金額カード -->
+        <div class="td-card">
+          <div class="td-card-header">
+            <div class="td-card-header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <span class="td-card-title">お支払い金額</span>
+          </div>
+          <div class="td-card-body">
+            <div class="td-price-rows" id="priceRows">
+              <!-- 映画ありの場合 -->
+              <div id="moviePriceRows">
+                <div class="td-price-row">
+                  <span class="td-price-row-label">映画チケット（一般）× 1</span>
+                  <span class="td-price-row-value">¥1,900</span>
+                </div>
+                <div class="td-price-row">
+                  <span class="td-price-row-label">映画チケット（学生）× 1</span>
+                  <span class="td-price-row-value">¥1,500</span>
+                </div>
+              </div>
+              <div class="td-price-row">
+                <span class="td-price-row-label">バターポップコーン × 2</span>
+                <span class="td-price-row-value">¥1,400</span>
+              </div>
+              <div class="td-price-row">
+                <span class="td-price-row-label">コーラ × 1</span>
+                <span class="td-price-row-value">¥450</span>
+              </div>
+              <div class="td-price-row">
+                <span class="td-price-row-label">チョコレートミルク × 1</span>
+                <span class="td-price-row-value">¥480</span>
+              </div>
+              <div class="td-price-row">
+                <span class="td-price-row-label" style="color:#5ab;">ポイント割引</span>
+                <span class="td-price-row-value discount">－¥500</span>
+              </div>
+            </div>
+            <div class="td-price-total" id="priceTotalRow">
+              <span class="td-price-total-label">合計</span>
+              <span class="td-price-total-value" id="totalAmount">¥5,230</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 支払い方法カード -->
+        <div class="td-card">
+          <div class="td-card-header">
+            <div class="td-card-header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
+              </svg>
+            </div>
+            <span class="td-card-title">支払い方法</span>
+          </div>
+          <div class="td-card-body">
+            <div class="td-payment-row">
+              <div class="td-payment-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <div>
+                <p class="td-payment-name">クレジットカード</p>
+                <p class="td-payment-num" id="cardNum">•••• •••• •••• 1234</p>
+              </div>
+              <button class="td-mask-btn" id="maskToggleBtn" aria-label="カード番号の表示切り替え">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" id="maskIcon">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                表示
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /.td-sidebar -->
+
+    </div><!-- /.td-layout -->
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- QRコードモーダル -->
+  <div class="td-qr-overlay" id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+    <div class="td-qr-modal">
+      <div class="td-qr-modal-header">
+        <p class="td-qr-modal-title" id="qrModalTitle">入場用QRコード</p>
+        <button class="td-qr-modal-close" id="qrCloseBtn" aria-label="閉じる">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="td-qr-modal-body">
+        <!-- QRコードSVGモック（白背景） -->
+        <div class="td-qr-code" aria-label="QRコード">
+          <svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+            <!-- 左上ファインダーパターン -->
+            <rect x="10" y="10" width="50" height="50" rx="4" fill="#111"/>
+            <rect x="18" y="18" width="34" height="34" rx="2" fill="#fff"/>
+            <rect x="26" y="26" width="18" height="18" rx="1" fill="#111"/>
+            <!-- 右上ファインダーパターン -->
+            <rect x="120" y="10" width="50" height="50" rx="4" fill="#111"/>
+            <rect x="128" y="18" width="34" height="34" rx="2" fill="#fff"/>
+            <rect x="136" y="26" width="18" height="18" rx="1" fill="#111"/>
+            <!-- 左下ファインダーパターン -->
+            <rect x="10" y="120" width="50" height="50" rx="4" fill="#111"/>
+            <rect x="18" y="128" width="34" height="34" rx="2" fill="#fff"/>
+            <rect x="26" y="136" width="18" height="18" rx="1" fill="#111"/>
+            <!-- データモジュール（ランダム配置） -->
+            <rect x="74" y="10" width="8" height="8" fill="#111"/><rect x="86" y="10" width="8" height="8" fill="#111"/>
+            <rect x="98" y="10" width="8" height="8" fill="#111"/><rect x="74" y="22" width="8" height="8" fill="#111"/>
+            <rect x="98" y="22" width="8" height="8" fill="#111"/><rect x="74" y="34" width="8" height="8" fill="#111"/>
+            <rect x="86" y="34" width="8" height="8" fill="#111"/><rect x="74" y="46" width="8" height="8" fill="#111"/>
+            <rect x="86" y="46" width="8" height="8" fill="#111"/><rect x="98" y="46" width="8" height="8" fill="#111"/>
+            <rect x="10" y="74" width="8" height="8" fill="#111"/><rect x="22" y="74" width="8" height="8" fill="#111"/>
+            <rect x="46" y="74" width="8" height="8" fill="#111"/><rect x="58" y="74" width="8" height="8" fill="#111"/>
+            <rect x="74" y="74" width="8" height="8" fill="#111"/><rect x="86" y="74" width="8" height="8" fill="#111"/>
+            <rect x="110" y="74" width="8" height="8" fill="#111"/><rect x="134" y="74" width="8" height="8" fill="#111"/>
+            <rect x="158" y="74" width="8" height="8" fill="#111"/><rect x="10" y="86" width="8" height="8" fill="#111"/>
+            <rect x="34" y="86" width="8" height="8" fill="#111"/><rect x="58" y="86" width="8" height="8" fill="#111"/>
+            <rect x="86" y="86" width="8" height="8" fill="#111"/><rect x="110" y="86" width="8" height="8" fill="#111"/>
+            <rect x="122" y="86" width="8" height="8" fill="#111"/><rect x="146" y="86" width="8" height="8" fill="#111"/>
+            <rect x="10" y="98" width="8" height="8" fill="#111"/><rect x="22" y="98" width="8" height="8" fill="#111"/>
+            <rect x="46" y="98" width="8" height="8" fill="#111"/><rect x="74" y="98" width="8" height="8" fill="#111"/>
+            <rect x="98" y="98" width="8" height="8" fill="#111"/><rect x="122" y="98" width="8" height="8" fill="#111"/>
+            <rect x="158" y="98" width="8" height="8" fill="#111"/><rect x="74" y="110" width="8" height="8" fill="#111"/>
+            <rect x="86" y="110" width="8" height="8" fill="#111"/><rect x="110" y="110" width="8" height="8" fill="#111"/>
+            <rect x="134" y="110" width="8" height="8" fill="#111"/><rect x="146" y="110" width="8" height="8" fill="#111"/>
+            <rect x="74" y="122" width="8" height="8" fill="#111"/><rect x="98" y="122" width="8" height="8" fill="#111"/>
+            <rect x="110" y="122" width="8" height="8" fill="#111"/><rect x="158" y="122" width="8" height="8" fill="#111"/>
+            <rect x="74" y="134" width="8" height="8" fill="#111"/><rect x="86" y="134" width="8" height="8" fill="#111"/>
+            <rect x="122" y="134" width="8" height="8" fill="#111"/><rect x="146" y="134" width="8" height="8" fill="#111"/>
+            <rect x="74" y="146" width="8" height="8" fill="#111"/><rect x="110" y="146" width="8" height="8" fill="#111"/>
+            <rect x="122" y="146" width="8" height="8" fill="#111"/><rect x="134" y="146" width="8" height="8" fill="#111"/>
+            <rect x="158" y="158" width="8" height="8" fill="#111"/><rect x="74" y="158" width="8" height="8" fill="#111"/>
+            <rect x="86" y="158" width="8" height="8" fill="#111"/><rect x="98" y="158" width="8" height="8" fill="#111"/>
+          </svg>
+        </div>
+        <p class="td-qr-movie" id="qrMovieName">名探偵ピカチュウ</p>
+        <p class="td-qr-info" id="qrInfo">
+          2026年5月20日（水）14:00〜<br>
+          スクリーン 2 / E列 7番・8番
+        </p>
+        <div class="td-qr-note">
+          ※ 入場ゲートでこの画面をご提示ください。<br>
+          ※ スクリーンショットは無効です。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+
+  <script>
+  /* ───────────────────────────────────────────
+     表示モード切り替え（映画あり / フードのみ）
+  ___________________________________________ */
+  function setMode(mode) {
+    var isMovie = mode === 'movie';
+
+    // ボタン状態
+    document.getElementById('modeMovie').className    = isMovie ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+    document.getElementById('modeFoodOnly').className = isMovie ? 'btn btn-secondary btn-sm' : 'btn btn-primary btn-sm';
+
+    // 映画情報の表示切り替え
+    document.getElementById('movieContent').style.display   = isMovie ? '' : 'none';
+    document.getElementById('noMovieContent').style.display = isMovie ? 'none' : '';
+
+    // 座席情報の表示切り替え
+    document.getElementById('seatContent').style.display   = isMovie ? '' : 'none';
+    document.getElementById('noSeatContent').style.display = isMovie ? 'none' : '';
+
+    // チケット種別の表示切り替え
+    document.getElementById('ticketTypeContent').style.display   = isMovie ? '' : 'none';
+    document.getElementById('noTicketTypeContent').style.display = isMovie ? 'none' : '';
+
+    // 映画チケット料金行の表示切り替え
+    document.getElementById('moviePriceRows').style.display = isMovie ? '' : 'none';
+
+    // 合計金額の切り替え
+    document.getElementById('totalAmount').textContent = isMovie ? '¥5,230' : '¥2,330';
+
+    // QRモーダル情報の切り替え
+    document.getElementById('qrMovieName').textContent = isMovie ? '名探偵ピカチュウ' : 'フードのみ注文';
+    document.getElementById('qrInfo').innerHTML = isMovie
+      ? '2026年5月20日（水）14:00〜<br>スクリーン 2 / E列 7番・8番'
+      : 'フードカウンターでご提示ください<br>ORDER #HAL-20260520-0042';
+  }
+
+  /* ───────────────────────────────────────────
+     QRコードモーダル
+  ___________________________________________ */
+  var qrModal    = document.getElementById('qrModal');
+  var qrOpenBtn  = document.getElementById('qrOpenBtn');
+  var qrCloseBtn = document.getElementById('qrCloseBtn');
+
+  qrOpenBtn.addEventListener('click', function() {
+    qrModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+  qrCloseBtn.addEventListener('click', closeQR);
+  qrModal.addEventListener('click', function(e) { if (e.target === qrModal) closeQR(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeQR(); });
+
+  function closeQR() {
+    qrModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ───────────────────────────────────────────
+     カード情報マスク切り替え
+  ___________________________________________ */
+  var masked     = true;
+  var cardNum    = document.getElementById('cardNum');
+  var maskBtn    = document.getElementById('maskToggleBtn');
+  var maskIcon   = document.getElementById('maskIcon');
+
+  var REAL_NUM    = '1234 5678 9012 1234';
+  var MASKED_NUM  = '•••• •••• •••• 1234';
+
+  var ICON_EYE      = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  var ICON_EYE_OFF  = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+
+  maskBtn.addEventListener('click', function() {
+    masked = !masked;
+    cardNum.textContent    = masked ? MASKED_NUM : REAL_NUM;
+    maskIcon.innerHTML     = masked ? ICON_EYE : ICON_EYE_OFF;
+    maskBtn.innerHTML      = maskIcon.outerHTML + (masked ? '表示' : '非表示');
+    // innerHTML 書き換え後に maskIcon の参照を更新
+    maskIcon = maskBtn.querySelector('svg');
+  });
+  </script>
+
+</body>
+</html>
