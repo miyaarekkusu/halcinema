@@ -137,3 +137,5 @@ halcinema/
 | `html/goods.html`     | グッズ・物販   | 🔲 未作成 |
 | `html/event.html`     | イベント情報   | 🔲 未作成 |
 | `html/theater.html`   | 劇場情報       | 🔲 未作成 |
+| `html/terms.html`     | 利用規約       | ✅ 完成 |]
+| `html/privacy.html`     | プライバシーポリシー | ✅ 完成 |
