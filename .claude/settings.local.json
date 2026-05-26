@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem \"C:\\\\HAL名古屋\\\\halcinema\\\\halcinema\" -File)",
+      "Bash(Select-Object Name)"
+    ]
+  }
+}

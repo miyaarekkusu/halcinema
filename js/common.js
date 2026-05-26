@@ -165,9 +165,7 @@
     const expandBtn = document.getElementById('widget-expand-btn');
     if (expandBtn) {
       expandBtn.addEventListener('click', function () {
-        /* html/ 配下のページからの相対パス */
-        const base = document.location.pathname.includes('/html/') ? '' : 'html/';
-        location.href = base + 'chatbot.html';
+        location.href = 'chatbot.html';
       });
     }
 

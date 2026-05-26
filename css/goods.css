@@ -1,0 +1,201 @@
+/* ============================================================
+   HAL CINEMA — goods.css
+   グッズ・売店ページ専用スタイル
+   ============================================================ */
+.goods-search {
+  margin: 24px 0 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.goods-search input {
+  width: 100%;
+  max-width: 420px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+  color: var(--c-text);
+  font-size: 15px;
+  transition: border-color 0.2s var(--ease);
+}
+
+.goods-search input:focus {
+  border-color: var(--c-red);
+  outline: none;
+}
+.goods-filters {
+  display: flex;
+  gap: 12px;
+  margin: 24px 0 32px;
+  flex-wrap: wrap;
+}
+
+.goods-filters input,
+.goods-filters select {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+  color: var(--c-text);
+  font-size: 14px;
+}
+
+/* GOODS SECTION */
+.goods-section {
+  margin-top: 32px;
+}
+
+.goods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.goods-card {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.goods-card:hover {
+  border-color: var(--c-border-em);
+  transform: translateY(-3px);
+}
+
+.goods-card img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.goods-info {
+  padding: 16px;
+}
+
+.goods-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.goods-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-red);
+  margin-bottom: 8px;
+}
+
+.goods-desc {
+  font-size: 13px;
+  color: var(--c-text-sub);
+  line-height: 1.6;
+}
+
+/* SHOP SECTION */
+.shop-section {
+  margin-top: 48px;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.shop-card {
+  background: var(--c-bg-2);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.shop-card:hover {
+  border-color: var(--c-border-em);
+  transform: translateY(-3px);
+}
+
+.shop-card img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.shop-info {
+  padding: 16px;
+}
+
+.shop-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.shop-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-red);
+  margin-bottom: 8px;
+}
+
+.shop-desc {
+  font-size: 13px;
+  color: var(--c-text-sub);
+  line-height: 1.6;
+}
+
+/* SIZE + QUANTITY */
+.shop-option {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shop-option label {
+  font-size: 12px;
+  color: var(--c-text-sub);
+}
+
+.shop-select,
+.shop-qty {
+  background: var(--c-bg-3);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  color: var(--c-text);
+  padding: 8px 10px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s var(--ease);
+}
+
+.shop-select:focus,
+.shop-qty:focus {
+  border-color: var(--c-red);
+}
+
+.shop-qty {
+  width: 80px;
+}
+/* --- ページネーション --- */
+.goods-pagination {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .goods-card img {
+    height: 200px;
+  }
+  .shop-card img {
+    height: 160px;
+  }
+}

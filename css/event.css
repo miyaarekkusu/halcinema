@@ -1,0 +1,57 @@
+/* ============================================================
+   HAL CINEMA — event.css
+   イベント情報ページ専用スタイル
+   ============================================================ */
+
+.event-section {
+  margin-top: 32px;
+}
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.event-item {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.event-date {
+  font-size: 14px;
+  color: #555;
+}
+
+.event-tag {
+  font-size: 14px;
+  color: #d9534f;
+  font-weight: bold;
+}
+
+.event-tag-event {
+  color: #0275d8;
+}
+
+.event-title {
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+/* --- ページネーション --- */
+.goods-pagination {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+
+/* ページネーション */
+.event-pagination {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}

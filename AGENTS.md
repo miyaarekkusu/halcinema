@@ -23,23 +23,34 @@ halcinema/
 │   ├── auth.css      → ログイン・会員登録ページ共通
 │   ├── movies.css    → 作品一覧・作品詳細 共通
 │   ├── mypage.css    → マイページ + ヘッダーマイページボタン共通
-│   └── zaseki.css    → 座席選択ページ専用
+│   ├── zaseki.css    → 座席選択ページ専用
+│   ├── payment.css   → 決済ページ専用
+│   ├── ticket.css    → チケット発行ページ専用（未使用・予備）
+│   ├── goods.css     → グッズ・売店ページ専用
+│   └── event.css     → イベント情報ページ専用
 ├── js/
 │   ├── common.js     → 全ページ共通（ハンバーガー・チャットポップアップ自動挿入）
 │   ├── chatbot.js    → チャットページ専用
-│   └── zaseki.js     → 座席選択ページ専用
-├── html/             → 各ページのHTMLファイル
+│   ├── zaseki.js     → 座席選択ページ専用
+│   └── goods.js      → グッズ・売店ページ専用
+├── html/             → 全ページのHTMLファイル（index.htmlも含む）
+│   ├── index.html        → トップページ（上映スケジュール）
 │   ├── login.html        → ログインページ
 │   ├── register.html     → 会員登録ページ
 │   ├── movies.html       → 作品一覧ページ
-│   ├── movie-detail.html → 作品詳細ページ
+│   ├── movie-detail.html → 作品詳細ページ（?id=xxx でJSON参照）
 │   ├── mypage.html       → マイページ（チケット・支払方法・設定）
+│   ├── zaseki.html       → 座席選択ページ（Three.js 3D）
+│   ├── payment.html      → 決済ページ
+│   ├── ticket.html       → 予約完了ページ
+│   ├── goods.html        → グッズ・売店ページ
+│   ├── event.html        → イベント情報ページ
 │   ├── chatbot.html      → チャットボットフルページ
-│   ├── zaseki.html       → 座席選択ページ
 │   └── sample.html       → 新規ページ作成用テンプレート
+├── data/
+│   └── movies.json   → 映画データ（上映中6本・上映予定5本）
 ├── images/           → 画像ファイル
 ├── note/             → メモ・設計資料
-├── index.html        → トップページ
 └── README.md         → このファイル
 
 ## 注意
@@ -47,6 +58,12 @@ halcinema/
 - push前に必ず `git pull` する。他の人の更新を取得するから必ずやってね。
 - 画像は `images/` フォルダに入れる
 - ファイル名・フォルダ名に**日本語・スペース禁止**（例：`映画詳細.html` はNG → `movie-detail.html` にする）
+- **HTMLファイルはすべて `html/` フォルダに置く**（ルートに置かない）
+- **CSSファイルはすべて `css/` フォルダに置く**
+- **JSファイルはすべて `js/` フォルダに置く**
+- `html/` 内のファイルから各リソースへのパスは `../css/`、`../js/`、`../data/`、`../images/` を使う
+- ページ間リンクは同じ `html/` フォルダ内なので `xxx.html` の形式でOK（`../html/xxx.html` は不要）
+- エントリーポイントは `html/index.html`（Live Serverなら `http://localhost:xxxx/html/index.html`）
 
 ---
 
@@ -120,6 +137,12 @@ halcinema/
 | 2026-05-19 | 全ページのヘッダーにマイページボタン追加                    | Claude Code |
 | 2026-05-19 | マイページタイトル下スペース追加・退会セクション削除         | Claude Code |
 | 2026-05-19 | ナビ「上映スケジュール」リンクをトップページ(index.html)に変更 | Claude Code |
+| 2026-05-22 | 映画データを data/movies.json に移行、各ページをfetch対応化  | Claude Code |
+| 2026-05-22 | 座席選択→決済→予約完了の予約フロー実装（sessionStorage連携） | Claude Code |
+| 2026-05-22 | 決済ページ作成（html/payment.html + css/payment.css）        | Claude Code |
+| 2026-05-22 | 予約完了ページ作成（html/ticket.html）                       | Claude Code |
+| 2026-05-22 | マイページにチケット詳細モーダル（QRコード）追加             | Claude Code |
+| 2026-05-22 | 全HTMLをhtml/フォルダに統一、CSS/JSも各フォルダへ移動        | Claude Code |
 
 ## 作成済みページ一覧
 
@@ -134,8 +157,8 @@ halcinema/
 | `html/mypage.html`    | マイページ       | ✅ 完成 |
 | `html/schedule.html`  | 上映スケジュール | 🔲 未作成 |
 | `html/movies.html`    | 作品一覧       | ✅ 完成 |
-| `html/goods.html`     | グッズ・物販   | 🔲 未作成 |
-| `html/event.html`     | イベント情報   | 🔲 未作成 |
+| `html/goods.html`     | グッズ・売店   | ✅ 完成 |
+| `html/event.html`     | イベント情報   | ✅ 完成 |
 | `html/theater.html`   | 劇場情報       | 🔲 未作成 |
-| `html/terms.html`     | 利用規約       | ✅ 完成 |]
-| `html/privacy.html`     | プライバシーポリシー | ✅ 完成 |
+| `html/payment.html`   | 決済           | ✅ 完成 |
+| `html/ticket.html`    | 予約完了       | ✅ 完成 |

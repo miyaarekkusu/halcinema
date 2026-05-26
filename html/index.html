@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HAL CINEMA | 名古屋最大級のシネマコンプレックス</title>
-  <link rel="stylesheet" href="css/common.css">
-  <link rel="stylesheet" href="css/chatbot.css">
-  <link rel="stylesheet" href="css/mypage.css">
-  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/mypage.css">
+  <link rel="stylesheet" href="../css/index.css">
 </head>
 <body>
 
@@ -17,15 +17,15 @@
       <a href="index.html" class="site-logo">HAL <span>CINEMA</span></a>
       <nav class="site-nav" id="site-nav">
         <a href="index.html" class="active">上映スケジュール</a>
-        <a href="html/movies.html">作品一覧</a>
-        <a href="html/goods.html">グッズ・物販</a>
-        <a href="html/event.html">イベント情報</a>
-        <a href="html/theater.html">劇場情報</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
       </nav>
       <div class="header-actions">
-        <a href="html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
-        <a href="html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
-        <a href="html/mypage.html" class="mypage-nav-btn">
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="mypage.html" class="mypage-nav-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
@@ -48,8 +48,8 @@
       <h1 class="hero-title">HAL <span>CINEMA</span></h1>
       <p class="hero-lead">全8スクリーン・1,500席。<br>最高の映画体験をあなたに。</p>
       <div class="hero-actions">
-        <a href="html/schedule.html" class="btn btn-primary btn-lg">上映スケジュールを見る</a>
-        <a href="html/movies.html" class="btn btn-secondary btn-lg">作品一覧</a>
+        <a href="schedule.html" class="btn btn-primary btn-lg">上映スケジュールを見る</a>
+        <a href="movies.html" class="btn btn-secondary btn-lg">作品一覧</a>
       </div>
     </div>
   </section>
@@ -62,7 +62,7 @@
       <section class="section">
         <div class="section-header">
           <h2 class="section-title">上映<span>中</span></h2>
-          <a href="html/movies.html" class="section-link">すべて見る →</a>
+          <a href="movies.html" class="section-link">すべて見る →</a>
         </div>
         <div class="movie-row-scroll" id="now-playing-list"></div>
       </section>
@@ -71,7 +71,7 @@
       <section class="section">
         <div class="section-header">
           <h2 class="section-title">上映<span>予定</span></h2>
-          <a href="html/movies.html" class="section-link">すべて見る →</a>
+          <a href="movies.html" class="section-link">すべて見る →</a>
         </div>
         <div class="movie-row-scroll" id="coming-soon-list"></div>
       </section>
@@ -83,7 +83,6 @@
         </div>
         <div class="notice-grid">
 
-          <!-- お知らせ 1 -->
           <article class="notice-card">
             <p class="notice-card-title">劇場からのお知らせ</p>
             <ul class="notice-list">
@@ -103,7 +102,6 @@
             <a href="#" class="notice-card-link">一覧を見る →</a>
           </article>
 
-          <!-- お知らせ 2 -->
           <article class="notice-card">
             <p class="notice-card-title">劇場からのお知らせ</p>
             <ul class="notice-list">
@@ -123,19 +121,18 @@
             <a href="#" class="notice-card-link">一覧を見る →</a>
           </article>
 
-          <!-- 劇場セレクト -->
           <div class="theater-select-card">
             <p class="theater-select-card-title">劇場をセレクト</p>
             <div class="theater-option-list">
-              <a href="html/theater.html" class="theater-option">
+              <a href="theater.html" class="theater-option">
                 <span class="theater-option-name">HAL CINEMA 名古屋亀島</span>
                 <span class="theater-option-arrow">›</span>
               </a>
-              <a href="html/theater.html" class="theater-option">
+              <a href="theater.html" class="theater-option">
                 <span class="theater-option-name">HAL CINEMA 栄</span>
                 <span class="theater-option-arrow">›</span>
               </a>
-              <a href="html/theater.html" class="theater-option">
+              <a href="theater.html" class="theater-option">
                 <span class="theater-option-name">HAL CINEMA 名古屋駅前</span>
                 <span class="theater-option-arrow">›</span>
               </a>
@@ -168,8 +165,8 @@
     </div>
   </footer>
 
-  <script src="js/common.js" defer></script>
-  <script src="js/chatbot.js" defer></script>
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
   <script>
     const POSTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></svg>'
 
@@ -180,7 +177,7 @@
         + '<div class="movie-card-overlay">'
         + '<p class="movie-card-title">' + m.title + '</p>'
         + '<p class="text-sm text-sub">' + m.year + ' / ' + m.duration + '分</p>'
-        + '<a href="html/movie-detail.html?id=' + m.id + '" class="btn btn-primary btn-sm">詳細・予約</a>'
+        + '<a href="movie-detail.html?id=' + m.id + '" class="btn btn-primary btn-sm">詳細・予約</a>'
         + '</div></div>'
     }
 
@@ -194,7 +191,7 @@
         + '</div></div>'
     }
 
-    fetch('data/movies.json')
+    fetch('../data/movies.json')
       .then(function(r) { return r.json() })
       .then(function(movies) {
         document.getElementById('now-playing-list').innerHTML =
