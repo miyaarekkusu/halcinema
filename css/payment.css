@@ -21,6 +21,7 @@
   font-size: 13px;
   color: var(--c-text-muted);
 }
+.payment-step.done   { color: var(--c-text-sub); }
 .payment-step.active { color: var(--c-text); }
 .payment-step-num {
   width: 26px; height: 26px;
@@ -30,11 +31,17 @@
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700;
 }
+.payment-step.done .payment-step-num {
+  background: var(--c-bg-3);
+  border-color: var(--c-border-em);
+  color: var(--c-text-sub);
+}
 .payment-step.active .payment-step-num {
   background: var(--c-red);
   border-color: var(--c-red);
   color: #fff;
 }
+.payment-step-line.done { background: var(--c-border-em); }
 .payment-step-line {
   width: 48px; height: 1px;
   background: var(--c-border);

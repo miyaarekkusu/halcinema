@@ -36,18 +36,23 @@
 
       <!-- ステップ表示 -->
       <div class="payment-steps">
-        <div class="payment-step">
+        <div class="payment-step done">
           <span class="payment-step-num">1</span>
           <span>座席選択</span>
         </div>
-        <div class="payment-step-line"></div>
-        <div class="payment-step active">
+        <div class="payment-step-line done"></div>
+        <div class="payment-step done">
           <span class="payment-step-num">2</span>
+          <span>グッズ選択</span>
+        </div>
+        <div class="payment-step-line done"></div>
+        <div class="payment-step active">
+          <span class="payment-step-num">3</span>
           <span>決済</span>
         </div>
         <div class="payment-step-line"></div>
         <div class="payment-step">
-          <span class="payment-step-num">3</span>
+          <span class="payment-step-num">4</span>
           <span>チケット発行</span>
         </div>
       </div>
@@ -217,10 +222,13 @@
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script>
-    // ── sessionStorage から予約情報を読み込む ─────────────────
-    var reservation  = JSON.parse(sessionStorage.getItem('reservationData') || '{}')
-    var baseAmount   = reservation.totalAmount || 0
-    var pointsUsed   = 0
+    // ── sessionStorage から予約・グッズ情報を読み込む ──────────
+    var reservation   = JSON.parse(sessionStorage.getItem('reservationData') || '{}')
+    var goodsCart     = JSON.parse(sessionStorage.getItem('goodsCart') || '[]')
+    var ticketAmount  = reservation.totalAmount || 0
+    var goodsSubtotal = goodsCart.reduce(function(s, i) { return s + i.price * i.qty }, 0)
+    var baseAmount    = ticketAmount + goodsSubtotal
+    var pointsUsed    = 0
     var POINT_BALANCE = 1450
 
     function updateTotal() {
@@ -230,16 +238,27 @@
 
     updateTotal()
 
-    if (reservation.movieTitle || reservation.seats) {
+    ;(function () {
       var lines = []
       if (reservation.movieTitle)    lines.push(reservation.movieTitle)
       if (reservation.screenInfo)    lines.push(reservation.screenInfo)
       if (reservation.screeningInfo) lines.push(reservation.screeningInfo)
       if (reservation.seats)         lines.push('座席：' + reservation.seats.join('・'))
-      if (reservation.ticketCount)   lines.push(reservation.ticketCount + '枚')
+      if (reservation.ticketCount)   lines.push('チケット ' + reservation.ticketCount + '枚　¥' + ticketAmount.toLocaleString())
+      if (goodsCart.length > 0) {
+        lines.push('─────')
+        goodsCart.forEach(function(item) {
+          lines.push(item.name + ' ×' + item.qty + '　¥' + (item.price * item.qty).toLocaleString())
+        })
+        lines.push('グッズ小計　¥' + goodsSubtotal.toLocaleString())
+      }
       document.getElementById('reservation-summary').innerHTML =
-        lines.map(function(l) { return '<p>' + l + '</p>' }).join('')
-    }
+        lines.map(function(l) {
+          return l === '─────'
+            ? '<hr style="border:none;border-top:1px solid var(--c-border);margin:6px 0;">'
+            : '<p>' + l + '</p>'
+        }).join('')
+    })()
 
     // ── ポイント割引トグル ────────────────────────────────────
     var pointsToggle = document.getElementById('points-toggle')
@@ -307,7 +326,7 @@
 
     // ── 戻るボタン ────────────────────────────────────────────
     document.getElementById('back-btn').addEventListener('click', function() {
-      history.back()
+      location.href = 'goods.html'
     })
 
     // ── 次へボタン → ticket.html へ遷移 ──────────────────────

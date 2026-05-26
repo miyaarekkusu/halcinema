@@ -377,7 +377,7 @@ confirmBtn.addEventListener('click', () => {
     issuedAt      : new Date().toISOString()
   }
   sessionStorage.setItem('reservationData', JSON.stringify(reservationData))
-  location.href = 'payment.html'
+  location.href = 'goods.html'
 })
 
 // ─── アニメーションループ ──────────────────────────────────────────

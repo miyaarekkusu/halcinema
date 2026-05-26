@@ -86,6 +86,7 @@
     var TOTAL = 14, VISIBLE = 7
     var dateOffset = 0, selectedIdx = 0
     var currentMovie = null
+    var selectedSlot = null
 
     // ── 日付タブ生成 ──────────────────────────────────────────
     function buildDates() {
@@ -130,10 +131,10 @@
               + '<span class="time-slot-end">〜 ' + t.end + '</span>'
               + '<span class="time-slot-screen">満席</span></div>'
           } else {
-            html += '<a href="#" class="time-slot" data-movie="' + movie.title + '" data-format="' + sc.format + '" data-screen="' + t.screen + '" data-time="' + t.start + '" data-endtime="' + t.end + '">'
+            html += '<button class="time-slot" data-movie="' + movie.title + '" data-format="' + sc.format + '" data-screen="' + t.screen + '" data-time="' + t.start + '" data-endtime="' + t.end + '">'
               + '<span class="time-slot-time">' + t.start + '</span>'
               + '<span class="time-slot-end">〜 ' + t.end + '</span>'
-              + '<span class="time-slot-screen">' + t.screen + '</span></a>'
+              + '<span class="time-slot-screen">' + t.screen + '</span></button>'
           }
         })
         html += '</div></div>'
@@ -143,17 +144,18 @@
 
     // ── 時間スロットのクリック処理 ────────────────────────────
     function attachSlotHandlers() {
-      document.querySelectorAll('a.time-slot').forEach(function(slot) {
-        slot.addEventListener('click', function(e) {
-          e.preventDefault()
-          var activeTab = document.querySelector('.schedule-date-tab.active')
-          var date = activeTab ? activeTab.dataset.date : ''
-          var params = new URLSearchParams({
-            movie: this.dataset.movie, format: this.dataset.format,
-            screen: this.dataset.screen, time: this.dataset.time,
-            endtime: this.dataset.endtime, date: date
-          })
-          location.href = 'zaseki.html?' + params.toString()
+      document.querySelectorAll('button.time-slot').forEach(function(slot) {
+        slot.addEventListener('click', function() {
+          if (this.classList.contains('selected')) {
+            this.classList.remove('selected')
+            selectedSlot = null
+          } else {
+            document.querySelectorAll('button.time-slot.selected').forEach(function(s) {
+              s.classList.remove('selected')
+            })
+            this.classList.add('selected')
+            selectedSlot = this
+          }
         })
       })
     }
@@ -172,7 +174,7 @@
         + '<button class="schedule-nav-btn" id="date-next">&#8250;</button>'
         + '</div>'
         + '<div id="schedule-content">' + buildSchedule(movie) + '</div>'
-        + '<div class="schedule-reserve-wrap"><a href="#schedule" class="btn btn-primary btn-lg">予約する</a></div>'
+        + '<div class="schedule-reserve-wrap"><button id="reserve-btn" class="btn btn-primary btn-lg">予約する</button></div>'
         + '</div></section>'
       ) : ''
 
@@ -217,6 +219,20 @@
           if (dateOffset + VISIBLE < TOTAL) { dateOffset = Math.min(TOTAL - VISIBLE, dateOffset + VISIBLE); buildDates() }
         })
         attachSlotHandlers()
+        document.getElementById('reserve-btn').addEventListener('click', function() {
+          if (!selectedSlot) {
+            alert('時間帯を選択してください')
+            return
+          }
+          var activeTab = document.querySelector('.schedule-date-tab.active')
+          var date = activeTab ? activeTab.dataset.date : ''
+          var params = new URLSearchParams({
+            movie: selectedSlot.dataset.movie, format: selectedSlot.dataset.format,
+            screen: selectedSlot.dataset.screen, time: selectedSlot.dataset.time,
+            endtime: selectedSlot.dataset.endtime, date: date
+          })
+          location.href = 'zaseki.html?' + params.toString()
+        })
       }
 
       document.title = movie.title + ' | HAL CINEMA'
