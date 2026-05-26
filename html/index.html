@@ -8,6 +8,14 @@
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/mypage.css">
   <link rel="stylesheet" href="../css/index.css">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+    }
+  }
+  </script>
 </head>
 <body>
 
@@ -42,6 +50,7 @@
   <!-- ヒーロー -->
   <section class="hero">
     <div class="hero-bg"></div>
+    <canvas id="hero-cinema"></canvas>
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <p class="hero-eyebrow">名古屋最大級シネマコンプレックス</p>
@@ -165,6 +174,7 @@
     </div>
   </footer>
 
+  <script type="module" src="../js/hero-cinema.js"></script>
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script>
