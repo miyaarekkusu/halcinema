@@ -2,16 +2,19 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 // ─── 定数 ──────────────────────────────────────────────────────────
-const ROWS = 10
-const COLS = 20
-const SPACING_X = 1.5
-const SPACING_Z = 2.0
+const ROWS       = 14
+const COLS       = 14
+const COLS_BACK  = 18
+const ROWS_BACK  = 1
+// 13行×14列 + 1行×18列 = 182 + 18 = 200席
+const SPACING_X  = 1.5
+const SPACING_Z  = 2.0
 const HEIGHT_STEP = 0.5
 const AISLE_WIDTH = 2.5
 const PRICE_PER_SEAT = 1800
-const TAKEN_RATE = 0.28   // 事前に埋まっている席の割合
+const TAKEN_RATE = 0.28
 
-const ROW_LABELS = ['A','B','C','D','E','F','G','H','I','J']
+const ROW_LABELS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N']
 
 const STATE_AVAILABLE = 0
 const STATE_SELECTED  = 1
@@ -28,15 +31,19 @@ const viewSection  = document.getElementById('view-section')
 const viewBtn      = document.getElementById('view-btn')
 const resetViewBtn = document.getElementById('reset-view-btn')
 const tooltip      = document.getElementById('zaseki-tooltip')
+const toggle3dBtn  = document.getElementById('toggle-3d')
+const toggle2dBtn  = document.getElementById('toggle-2d')
+const twoDWrap     = document.getElementById('zaseki-2d-wrap')
+const twoDGrid     = document.getElementById('zaseki-2d-grid')
 
 // ─── URLパラメータから上映情報を反映 ─────────────────────────────────
 ;(function () {
-  const p      = new URLSearchParams(location.search)
-  const movie  = p.get('movie')
-  const format = p.get('format')
-  const screen = p.get('screen')
-  const date   = p.get('date')
-  const time   = p.get('time')
+  const p       = new URLSearchParams(location.search)
+  const movie   = p.get('movie')
+  const format  = p.get('format')
+  const screen  = p.get('screen')
+  const date    = p.get('date')
+  const time    = p.get('time')
   const endtime = p.get('endtime')
   if (!movie && !screen) return
 
@@ -47,8 +54,8 @@ const tooltip      = document.getElementById('zaseki-tooltip')
   if (movie)  nameEl.textContent  = movie + (format ? '（' + format + '版）' : '')
   if (screen) titleEl.textContent = screen
   const parts = []
-  if (date)    parts.push(date)
-  if (time)    parts.push(time + (endtime ? '〜' + endtime : ''))
+  if (date)  parts.push(date)
+  if (time)  parts.push(time + (endtime ? '〜' + endtime : ''))
   if (parts.length) subEl.textContent = parts.join(' ／ ')
 })()
 
@@ -66,22 +73,20 @@ scene.background = new THREE.Color(0x0D0F14)
 scene.fog = new THREE.FogExp2(0x0D0F14, 0.018)
 
 // ─── ライト ────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+scene.add(new THREE.AmbientLight(0xffffff, 2.0))
 
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.8)
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.5)
 dirLight.position.set(0, 12, 5)
 scene.add(dirLight)
 
-// スクリーンからのブルー光
-const screenLight = new THREE.PointLight(0x3355cc, 1.2, 35)
-screenLight.position.set(0, 10, -8)
+const screenLight = new THREE.PointLight(0x4488ff, 6.0, 50)
+screenLight.position.set(0, 8, -6)
 scene.add(screenLight)
 
 // ─── マテリアル ────────────────────────────────────────────────────
 const matAvailable = new THREE.MeshStandardMaterial({ color: 0x6a7090 })
 const matSelected  = new THREE.MeshStandardMaterial({ color: 0xE8212B, emissive: 0x8a0000, emissiveIntensity: 0.3 })
 const matTaken     = new THREE.MeshStandardMaterial({ color: 0x252A3A })
-const matFloor     = new THREE.MeshStandardMaterial({ color: 0x0a0c12 })
 
 function getMat(state) {
   return [matAvailable, matSelected, matTaken][state]
@@ -92,22 +97,18 @@ function createSeatGroup(row, col, state) {
   const group = new THREE.Group()
   const mat   = getMat(state)
 
-  // 座面
   const base = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 1), mat)
   base.position.y = 0.5
   group.add(base)
 
-  // 背もたれ
   const back = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.2), mat)
   back.position.set(0, 1, 0.4)
   group.add(back)
 
-  // 左肘掛け
   const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 1), mat)
   leftArm.position.set(-0.55, 0.7, 0)
   group.add(leftArm)
 
-  // 右肘掛け
   const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 1), mat)
   rightArm.position.set(0.55, 0.7, 0)
   group.add(rightArm)
@@ -121,30 +122,28 @@ function createSeatGroup(row, col, state) {
 }
 
 // ─── 座席配置 ──────────────────────────────────────────────────────
-const seatObjects  = []   // { row, col, state, group, label }
+const seatObjects     = []
 const clickableGroups = []
 
-const totalWidth = ((COLS - 1) * SPACING_X) + AISLE_WIDTH * 2
-
-// ランダムシードで再現性を持たせたい場合は固定 seed を使う
-// （ここでは単純に Math.random）
-const takenSet = new Set()
-while (takenSet.size < Math.floor(ROWS * COLS * TAKEN_RATE)) {
-  takenSet.add(Math.floor(Math.random() * ROWS * COLS))
-}
+const normalWidth = (COLS - 1) * SPACING_X + AISLE_WIDTH * 2
+const backWidth   = (COLS_BACK - 1) * SPACING_X
 
 for (let row = 0; row < ROWS; row++) {
-  for (let col = 0; col < COLS; col++) {
-    const idx   = row * COLS + col
-    const state = takenSet.has(idx) ? STATE_TAKEN : STATE_AVAILABLE
+  const isBack  = row >= ROWS - ROWS_BACK
+  const rowCols = isBack ? COLS_BACK : COLS
 
+  for (let col = 0; col < rowCols; col++) {
+    const state = Math.random() < TAKEN_RATE ? STATE_TAKEN : STATE_AVAILABLE
     const group = createSeatGroup(row, col, state)
 
     let offsetX = 0
-    if (col >= 5 && col < 15) offsetX = AISLE_WIDTH
-    else if (col >= 15)        offsetX = AISLE_WIDTH * 2
+    if (!isBack) {
+      if (col >= 4 && col < 10) offsetX = AISLE_WIDTH
+      else if (col >= 10)        offsetX = AISLE_WIDTH * 2
+    }
 
-    group.position.x = col * SPACING_X + offsetX - totalWidth / 2
+    const centerOffset = isBack ? backWidth / 2 : normalWidth / 2
+    group.position.x = col * SPACING_X + offsetX - centerOffset
     group.position.z = row * SPACING_Z
     group.position.y = row * HEIGHT_STEP
 
@@ -156,35 +155,55 @@ for (let row = 0; row < ROWS; row++) {
   }
 }
 
+// ─── 出入り口 ──────────────────────────────────────────────────────
+const exitMat = new THREE.MeshStandardMaterial({
+  color: 0x00cc66, emissive: 0x00cc66, emissiveIntensity: 0.8
+})
+
+function createExit(x, z) {
+  const group = new THREE.Group()
+
+  const leftPost = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.5, 0.2), exitMat)
+  leftPost.position.set(-1.0, 1.75, 0)
+  group.add(leftPost)
+
+  const rightPost = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.5, 0.2), exitMat)
+  rightPost.position.set(1.0, 1.75, 0)
+  group.add(rightPost)
+
+  const topBar = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.2, 0.2), exitMat)
+  topBar.position.set(0, 3.5, 0)
+  group.add(topBar)
+
+  const light = new THREE.PointLight(0x00cc66, 1.5, 10)
+  light.position.set(0, 2, 1)
+  group.add(light)
+
+  group.position.set(x, 0, z)
+  group.rotation.y = Math.PI / 2
+  scene.add(group)
+}
+
+createExit(-14, -5)
+createExit( 14, -5)
+
 // ─── スクリーン ────────────────────────────────────────────────────
-const screenMat = new THREE.MeshBasicMaterial({ color: 0x1a2244 })
-const screenEdge = new THREE.MeshBasicMaterial({ color: 0x3355aa })
+const screenMat = new THREE.MeshStandardMaterial({ color: 0x2255cc, emissive: 0x1133aa, emissiveIntensity: 0.8 })
 
 const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(24, 10), screenMat)
 screenMesh.position.set(0, 9, -9)
 scene.add(screenMesh)
 
-// スクリーン枠
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x1a1d2a })
 const frame = new THREE.Mesh(new THREE.BoxGeometry(25.2, 11.2, 0.15), frameMat)
 frame.position.set(0, 9, -9.1)
 scene.add(frame)
 
-// スクリーン上部のサイン
 const signGeom = new THREE.BoxGeometry(26, 0.4, 0.1)
 const signMat  = new THREE.MeshStandardMaterial({ color: 0x252A3A })
 const sign = new THREE.Mesh(signGeom, signMat)
 sign.position.set(0, 14.5, -9)
 scene.add(sign)
-
-// ─── 床 ───────────────────────────────────────────────────────────
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(50, 50),
-  matFloor
-)
-floor.rotation.x = -Math.PI / 2
-floor.position.set(0, 0, 8)
-scene.add(floor)
 
 // ─── カメラ ────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(60, sizes.width / sizes.height, 0.1, 200)
@@ -219,7 +238,7 @@ window.addEventListener('resize', () => {
 
 // ─── 座席の状態変更 ────────────────────────────────────────────────
 function setSeatState(seatObj, newState) {
-  seatObj.state             = newState
+  seatObj.state                = newState
   seatObj.group.userData.state = newState
   const mat = getMat(newState)
   seatObj.group.traverse(child => {
@@ -249,7 +268,7 @@ function findSeatGroup(intersects) {
 }
 
 // ─── クリック → 選択 ───────────────────────────────────────────────
-let lastSelected = null   // 直近に選択した座席（視点移動ボタン用）
+let lastSelected = null
 
 canvas.addEventListener('click', (e) => {
   getCanvasMouse(e)
@@ -298,7 +317,7 @@ canvas.addEventListener('mouseleave', () => {
 
 // ─── カメラアニメーション ──────────────────────────────────────────
 const camAnim = {
-  active:   false,
+  active:    false,
   targetPos: new THREE.Vector3(),
   targetAt:  new THREE.Vector3()
 }
@@ -311,9 +330,16 @@ function moveCameraTo(pos, lookAt) {
   camAnim.active = true
 }
 
-// 視点移動ボタン
 viewBtn.addEventListener('click', () => {
   if (!lastSelected) return
+
+  if (!is3D) {
+    is3D = true
+    twoDWrap.classList.remove('active')
+    toggle3dBtn.classList.add('active')
+    toggle2dBtn.classList.remove('active')
+  }
+
   const p = lastSelected.group.position
   moveCameraTo(
     new THREE.Vector3(p.x, p.y + 2, p.z + 1),
@@ -321,7 +347,6 @@ viewBtn.addEventListener('click', () => {
   )
 })
 
-// 全体表示に戻す
 resetViewBtn.addEventListener('click', () => {
   moveCameraTo(DEFAULT_CAM_POS.clone(), DEFAULT_CAM_TARGET.clone())
 })
@@ -331,9 +356,9 @@ function updateUI() {
   const selected = seatObjects.filter(s => s.state === STATE_SELECTED)
   const count    = selected.length
 
-  countEl.textContent    = count
+  countEl.textContent      = count
   totalPriceEl.textContent = (count * PRICE_PER_SEAT).toLocaleString()
-  confirmBtn.disabled    = count === 0
+  confirmBtn.disabled      = count === 0
 
   if (count === 0) {
     selectedList.innerHTML = '<p class="zaseki-empty-msg">座席をクリックして選択してください</p>'
@@ -342,7 +367,6 @@ function updateUI() {
       `<span class="zaseki-seat-tag" data-label="${s.label}">${s.label}</span>`
     ).join('')
 
-    // タグクリックで選択解除
     selectedList.querySelectorAll('.zaseki-seat-tag').forEach(tag => {
       tag.addEventListener('click', () => {
         const lbl = tag.dataset.label
@@ -356,29 +380,123 @@ function updateUI() {
     })
   }
 
-  // 視点移動ボタン表示制御
   viewSection.style.display = count > 0 ? 'flex' : 'none'
   if (!lastSelected) {
     lastSelected = selected[selected.length - 1] ?? null
   }
 }
 
-// 確定ボタン
+// 次へボタン
 confirmBtn.addEventListener('click', () => {
-  const selected = seatObjects.filter(s => s.state === STATE_SELECTED)
-  const reservationData = {
-    reservationId : 'HAL-' + Date.now() + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0'),
-    movieTitle    : document.querySelector('.zaseki-movie-name').textContent,
-    screenInfo    : document.querySelector('.zaseki-movie-title').textContent,
-    screeningInfo : document.querySelector('.zaseki-movie-sub').textContent,
-    seats         : selected.map(s => s.label),
-    ticketCount   : selected.length,
-    totalAmount   : selected.length * PRICE_PER_SEAT,
-    issuedAt      : new Date().toISOString()
-  }
-  sessionStorage.setItem('reservationData', JSON.stringify(reservationData))
-  location.href = 'payment.html'
+  // window.location.href = '../html/購入情報入力.html'
 })
+
+// ─── 2D座席マップ ──────────────────────────────────────────────────
+let is3D = true
+
+function updateSeat2dEl(el, state) {
+  el.classList.remove('zaseki-2d-seat--selected', 'zaseki-2d-seat--taken')
+  if (state === STATE_SELECTED) el.classList.add('zaseki-2d-seat--selected')
+  else if (state === STATE_TAKEN) el.classList.add('zaseki-2d-seat--taken')
+}
+
+function updateTwoD() {
+  seatObjects.forEach(s => {
+    const el = twoDGrid.querySelector(`[data-row="${s.row}"][data-col="${s.col}"]`)
+    if (el) updateSeat2dEl(el, s.state)
+  })
+}
+
+function buildTwoDMap() {
+  twoDGrid.innerHTML = ''
+
+  // 列番号ヘッダー（通常列 1〜14）
+  const headerEl = document.createElement('div')
+  headerEl.className = 'zaseki-2d-row'
+
+  const headerLabelSpacer = document.createElement('span')
+  headerLabelSpacer.className = 'zaseki-2d-row-label'
+  headerEl.appendChild(headerLabelSpacer)
+
+  for (let col = 0; col < COLS; col++) {
+    if (col === 4 || col === 10) {
+      const aisleEl = document.createElement('span')
+      aisleEl.className = 'zaseki-2d-aisle'
+      headerEl.appendChild(aisleEl)
+    }
+    const numEl = document.createElement('span')
+    numEl.className = 'zaseki-2d-col-num'
+    numEl.textContent = col + 1
+    headerEl.appendChild(numEl)
+  }
+
+  twoDGrid.appendChild(headerEl)
+
+  for (let row = 0; row < ROWS; row++) {
+    const isBack  = row >= ROWS - ROWS_BACK
+    const rowCols = isBack ? COLS_BACK : COLS
+
+    const rowEl = document.createElement('div')
+    rowEl.className = 'zaseki-2d-row'
+
+    const labelEl = document.createElement('span')
+    labelEl.className = 'zaseki-2d-row-label'
+    labelEl.textContent = ROW_LABELS[row]
+    rowEl.appendChild(labelEl)
+
+    for (let col = 0; col < rowCols; col++) {
+      if (!isBack && (col === 4 || col === 10)) {
+        const aisleEl = document.createElement('span')
+        aisleEl.className = 'zaseki-2d-aisle'
+        rowEl.appendChild(aisleEl)
+      }
+
+      const seatObj = seatObjects.find(s => s.row === row && s.col === col)
+      const btn = document.createElement('button')
+      btn.className = 'zaseki-2d-seat'
+      btn.dataset.row = row
+      btn.dataset.col = col
+      btn.title = seatObj.label
+      updateSeat2dEl(btn, seatObj.state)
+
+      if (seatObj.state !== STATE_TAKEN) {
+        btn.addEventListener('click', () => {
+          if (seatObj.state === STATE_AVAILABLE) {
+            setSeatState(seatObj, STATE_SELECTED)
+            lastSelected = seatObj
+          } else {
+            setSeatState(seatObj, STATE_AVAILABLE)
+            lastSelected = seatObjects.find(s => s.state === STATE_SELECTED) ?? null
+          }
+          updateTwoD()
+          updateUI()
+        })
+      }
+      rowEl.appendChild(btn)
+    }
+
+    twoDGrid.appendChild(rowEl)
+  }
+}
+
+toggle3dBtn.addEventListener('click', () => {
+  if (is3D) return
+  is3D = true
+  twoDWrap.classList.remove('active')
+  toggle3dBtn.classList.add('active')
+  toggle2dBtn.classList.remove('active')
+})
+
+toggle2dBtn.addEventListener('click', () => {
+  if (!is3D) return
+  is3D = false
+  twoDWrap.classList.add('active')
+  toggle2dBtn.classList.add('active')
+  toggle3dBtn.classList.remove('active')
+  updateTwoD()
+})
+
+buildTwoDMap()
 
 // ─── アニメーションループ ──────────────────────────────────────────
 const tick = () => {
