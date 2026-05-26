@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -6,7 +6,6 @@
   <title>座席選択 | HAL CINEMA</title>
 
   <link rel="stylesheet" href="../css/common.css">
-  <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/zaseki.css">
 
   <!-- Three.js CDN (importmap) -->
@@ -24,17 +23,17 @@
   <!-- ヘッダー -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <a href="../html/index.html" class="site-logo">HAL <span>CINEMA</span></a>
       <nav class="site-nav" id="site-nav">
-        <a href="index.html">上映スケジュール</a>
-        <a href="movies.html">作品一覧</a>
-        <a href="goods.html">グッズ・物販</a>
-        <a href="event.html">イベント情報</a>
-        <a href="theater.html">劇場情報</a>
+        <a href="../html/index.html">上映スケジュール</a>
+        <a href="../html/movies.html">作品一覧</a>
+        <a href="../html/goods.html">グッズ・物販</a>
+        <a href="../html/event.html">イベント情報</a>
+        <a href="../html/theater.html">劇場情報</a>
       </nav>
       <div class="header-actions">
-        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
-        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
         <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
           <span></span><span></span><span></span>
         </button>
@@ -48,6 +47,18 @@
     <!-- 3Dキャンバスエリア -->
     <div class="zaseki-canvas-wrap">
       <canvas class="webgl"></canvas>
+
+      <!-- 2D/3Dビュートグル -->
+      <div class="zaseki-view-toggle">
+        <button id="toggle-3d" class="active">3D</button>
+        <button id="toggle-2d">2D</button>
+      </div>
+
+      <!-- 2D座席マップ -->
+      <div class="zaseki-2d-wrap" id="zaseki-2d-wrap">
+        <div class="zaseki-2d-screen">SCREEN</div>
+        <div class="zaseki-2d-grid" id="zaseki-2d-grid"></div>
+      </div>
 
       <!-- 操作ガイド（フェードアウト） -->
       <div class="zaseki-guide" id="zaseki-guide">
@@ -116,14 +127,10 @@
         </div>
       </div>
 
-      <!-- 確定ボタン -->
-      <div class="zaseki-panel-section zaseki-confirm-section">
-        <button class="btn btn-primary btn-lg" id="confirm-btn" disabled style="width:100%;">
-          予約を確定する
-        </button>
-        <p class="zaseki-confirm-note text-muted text-xs">
-          ※ 選択後、内容確認画面へ進みます
-        </p>
+      <!-- ナビゲーション -->
+      <div class="zaseki-panel-section zaseki-nav-section">
+        <a href="../html/券種選択.html" class="btn btn-secondary btn-lg zaseki-nav-back">戻る</a>
+        <button class="btn btn-primary btn-lg zaseki-nav-next" id="confirm-btn" disabled>次へ</button>
       </div>
 
     </aside>
@@ -132,7 +139,6 @@
   <!-- JS -->
   <script type="module" src="../js/zaseki.js"></script>
   <script src="../js/common.js" defer></script>
-  <script src="../js/chatbot.js" defer></script>
 
 </body>
 </html>
