@@ -388,7 +388,19 @@ function updateUI() {
 
 // 次へボタン
 confirmBtn.addEventListener('click', () => {
-  // window.location.href = '../html/購入情報入力.html'
+  const selected = seatObjects.filter(s => s.state === STATE_SELECTED)
+  const reservationData = {
+    reservationId : 'HAL-' + Date.now() + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0'),
+    movieTitle    : document.querySelector('.zaseki-movie-name').textContent,
+    screenInfo    : document.querySelector('.zaseki-movie-title').textContent,
+    screeningInfo : document.querySelector('.zaseki-movie-sub').textContent,
+    seats         : selected.map(s => s.label),
+    ticketCount   : selected.length,
+    totalAmount   : selected.length * PRICE_PER_SEAT,
+    issuedAt      : new Date().toISOString()
+  }
+  sessionStorage.setItem('reservationData', JSON.stringify(reservationData))
+  location.href = 'goods.html'
 })
 
 // ─── 2D座席マップ ──────────────────────────────────────────────────
