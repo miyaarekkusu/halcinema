@@ -30,36 +30,105 @@ a { text-decoration: none; color: inherit; }
 ul { list-style: none; }
 button { font-family: inherit; cursor: pointer; }
 
-/* --- ヘッダー ----------------------------------------------- */
-.site-header { background: #252A3A; position: sticky; top: 0; z-index: 100; }
-.site-header__inner {
-  max-width: 1040px; margin: 0 auto; padding: 0 24px;
-  height: 56px; display: flex; align-items: center; gap: 32px;
+/* ── ステップヘッダー ─────────────────────────────────────── */
+.oc-step-header {
+  background: var(--c-bg, #0D0F14);
+  border-bottom: 1px solid var(--c-border, rgba(255,255,255,0.08));
+  padding: 16px 0;
+  flex-shrink: 0;
 }
-.site-logo { font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; }
-.site-logo span { color: var(--oc-accent); }
-.site-nav { display: flex; gap: 24px; flex: 1; }
-.site-nav__link { font-size: 0.82rem; color: var(--oc-text-dim); transition: color 0.15s; }
-.site-nav__link:hover { color: var(--oc-text); }
-.header-chatbot-btn {
-  width: 36px; height: 36px; border: none; background: #282d40;
-  color: var(--oc-text-dim); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-}
-.header-chatbot-btn svg { width: 18px; height: 18px; }
 
-/* --- メイン -------------------------------------------------- */
+.oc-step-header-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.step-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.step-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--oc-accent);
+  border: 2px solid var(--oc-accent);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.step-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--oc-text);
+  letter-spacing: 0.04em;
+}
+
+/* 音声案内 */
+.oc-step-header .voice-guide {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--oc-accent);
+  border-radius: 999px;
+  padding: 10px 10px 10px 20px;
+  max-width: 740px;
+}
+
+.oc-step-header .voice-guide-text {
+  flex: 1;
+  font-size: 13px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.oc-step-header .voice-guide-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.oc-step-header .voice-guide-btn img {
+  width: 65%;
+  height: 65%;
+  object-fit: contain;
+}
+
+/* ── メイン ─────────────────────────────────────────────────── */
 .page-main { flex: 1; padding: 28px 24px 48px; }
+
 .page-wrapper {
-  max-width: 1000px; margin: 0 auto;
-  display: flex; flex-direction: column; gap: 22px;
+  max-width: 1040px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
-/* --- ページ見出し + 音声案内 -------------------------------- */
-.page-top { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-.page-title { font-size: 1.65rem; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap; }
-
-/* --- 上映情報ヘッダーカード --------------------------------- */
+/* ── 上映情報ヘッダーカード ──────────────────────────────────── */
 .movie-header-card {
   background: var(--oc-bg-card);
   border-radius: 14px;
@@ -67,62 +136,66 @@ button { font-family: inherit; cursor: pointer; }
   display: flex;
   align-items: center;
   gap: 20px;
+  flex-wrap: wrap;
 }
+
 .movie-header-card__poster {
   width: 70px;
   aspect-ratio: 2/3;
   border-radius: 8px;
   overflow: hidden;
   background: linear-gradient(160deg, #3a1820 0%, #1e1030 100%);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1.4rem;
   flex-shrink: 0;
 }
+
 .movie-header-card__info {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 140px;
 }
-.movie-header-card__title { font-size: 1.1rem; font-weight: 700; }
+
+.movie-header-card__title { font-size: 1.05rem; font-weight: 700; }
+
 .movie-header-card__meta {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
-.movie-header-card__time { font-size: 0.88rem; color: var(--oc-text-dim); }
-.movie-header-card__rating {
-  display: inline-block; padding: 1px 6px;
-  border: 1px solid var(--oc-text-dim); border-radius: 3px;
-  font-size: 0.65rem; color: var(--oc-text-dim);
-}
+
+.movie-header-card__time     { font-size: 0.85rem; color: var(--oc-text-dim); }
+.movie-header-card__rating   { display: inline-block; padding: 1px 6px; border: 1px solid var(--oc-text-dim); border-radius: 3px; font-size: 0.65rem; color: var(--oc-text-dim); }
 .movie-header-card__duration { font-size: 0.82rem; color: var(--oc-text-dim); }
 
-.movie-header-card__divider {
-  width: 1px; height: 56px;
-  background: var(--oc-border);
-  flex-shrink: 0;
-}
+.movie-header-card__divider { width: 1px; height: 56px; background: var(--oc-border); flex-shrink: 0; }
+
 .movie-header-card__venue { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
-.movie-header-card__venue-name { font-size: 0.85rem; font-weight: 600; }
+.movie-header-card__venue-name   { font-size: 0.85rem; font-weight: 600; }
 .movie-header-card__venue-screen { font-size: 0.78rem; color: var(--oc-text-dim); }
 
-.movie-header-card__seats { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+.movie-header-card__seats { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 .movie-header-card__seats-label { font-size: 0.7rem; color: var(--oc-text-dim); }
-.movie-header-card__seats-list {
-  display: flex; gap: 6px; flex-wrap: wrap;
-}
+.movie-header-card__seats-list  { display: flex; gap: 6px; flex-wrap: wrap; }
+
 .seat-badge {
-  display: inline-flex; align-items: center; justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 3px 10px;
   background: var(--oc-accent);
   color: #fff;
   border-radius: 20px;
-  font-size: 0.78rem; font-weight: 700;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
-/* --- メインコンテンツ 2カラム ------------------------------ */
+/* ── 2カラムレイアウト ──────────────────────────────────────── */
 .confirm-layout {
   display: grid;
   grid-template-columns: 1fr 280px;
@@ -130,19 +203,19 @@ button { font-family: inherit; cursor: pointer; }
   align-items: start;
 }
 
-/* ---- 左：注文詳細 ----------------------------------------- */
+/* 左：注文詳細 */
 .confirm-details {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-/* 各セクションカード */
 .confirm-section {
   background: var(--oc-bg-card);
   border-radius: 12px;
   overflow: hidden;
 }
+
 .confirm-section__header {
   display: flex;
   align-items: center;
@@ -151,15 +224,11 @@ button { font-family: inherit; cursor: pointer; }
   background: var(--oc-bg-panel);
   border-bottom: 1px solid var(--oc-border);
 }
-.confirm-section__icon { font-size: 1rem; }
-.confirm-section__title { font-size: 0.88rem; font-weight: 700; color: var(--oc-accent); }
-.confirm-section__count {
-  margin-left: auto;
-  font-size: 0.75rem;
-  color: var(--oc-text-dim);
-}
 
-/* 行レイアウト（チケット・フード共通） */
+.confirm-section__icon  { font-size: 1rem; }
+.confirm-section__title { font-size: 0.88rem; font-weight: 700; color: var(--oc-accent); }
+.confirm-section__count { margin-left: auto; font-size: 0.75rem; color: var(--oc-text-dim); }
+
 .confirm-row {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -170,54 +239,27 @@ button { font-family: inherit; cursor: pointer; }
 }
 .confirm-row:last-child { border-bottom: none; }
 
-.confirm-row__label {
-  font-size: 0.88rem;
-}
-.confirm-row__sublabel {
-  font-size: 0.73rem;
-  color: var(--oc-text-muted);
-  margin-top: 2px;
-}
-.confirm-row__qty {
-  font-size: 0.82rem;
-  color: var(--oc-text-dim);
-  white-space: nowrap;
-}
-.confirm-row__price {
-  font-size: 0.88rem;
-  font-weight: 500;
-  text-align: right;
-  white-space: nowrap;
-  min-width: 72px;
-}
+.confirm-row__label    { font-size: 0.88rem; }
+.confirm-row__sublabel { font-size: 0.73rem; color: var(--oc-text-muted); margin-top: 2px; }
+.confirm-row__qty      { font-size: 0.82rem; color: var(--oc-text-dim); white-space: nowrap; }
+.confirm-row__price    { font-size: 0.88rem; font-weight: 500; text-align: right; white-space: nowrap; min-width: 72px; }
 
-/* スキップ（フード購入なし）の場合 */
-.confirm-section__empty {
-  padding: 18px 20px;
-  font-size: 0.82rem;
-  color: var(--oc-text-muted);
-  text-align: center;
-}
+.confirm-section__empty { padding: 18px 20px; font-size: 0.82rem; color: var(--oc-text-muted); text-align: center; }
 
-/* ---- 右：価格サマリー ------------------------------------- */
+/* 右：価格サマリー */
 .price-summary {
   background: var(--oc-bg-card);
   border-radius: 12px;
   overflow: hidden;
   position: sticky;
-  top: 76px; /* ヘッダー分オフセット */
+  top: 80px;
 }
 
-.price-summary__header {
-  padding: 16px 20px;
-  background: var(--oc-bg-panel);
-  border-bottom: 1px solid var(--oc-border);
-}
-.price-summary__title { font-size: 0.88rem; font-weight: 700; color: var(--oc-accent); }
+.price-summary__header { padding: 16px 20px; background: var(--oc-bg-panel); border-bottom: 1px solid var(--oc-border); }
+.price-summary__title  { font-size: 0.88rem; font-weight: 700; color: var(--oc-accent); }
 
 .price-summary__body { padding: 16px 20px; display: flex; flex-direction: column; gap: 0; }
 
-/* サブ合計行 */
 .price-row {
   display: flex;
   justify-content: space-between;
@@ -226,22 +268,10 @@ button { font-family: inherit; cursor: pointer; }
   border-bottom: 1px solid var(--oc-divider);
   font-size: 0.84rem;
 }
-.price-row:last-of-type { border-bottom: none; }
+.price-row:last-child { border-bottom: none; }
 .price-row__label { color: var(--oc-text-dim); }
 .price-row__value { font-weight: 500; }
-.price-row__detail {
-  width: 100%;
-  padding-left: 12px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--oc-divider);
-}
-.price-row__detail-item {
-  display: flex; justify-content: space-between;
-  font-size: 0.75rem; color: var(--oc-text-muted);
-  padding: 3px 0;
-}
 
-/* 合計 */
 .price-total-row {
   display: flex;
   justify-content: space-between;
@@ -250,33 +280,24 @@ button { font-family: inherit; cursor: pointer; }
   background: var(--oc-bg-panel);
   border-top: 1px solid var(--oc-border);
 }
-.price-total-row__label { font-size: 0.9rem; font-weight: 600; }
-.price-total-row__value {
-  display: flex;
-  align-items: baseline;
-  gap: 3px;
-}
-.price-total-row__amount {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--oc-text);
-  letter-spacing: -0.02em;
-}
-.price-total-row__unit { font-size: 0.78rem; color: var(--oc-text-dim); }
+.price-total-row__label  { font-size: 0.9rem; font-weight: 600; }
+.price-total-row__value  { display: flex; align-items: baseline; gap: 3px; }
+.price-total-row__amount { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; }
+.price-total-row__unit   { font-size: 0.78rem; color: var(--oc-text-dim); }
 
-/* ボタンエリア */
 .price-summary__actions {
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
 .btn {
   width: 100%;
   padding: 13px 20px;
   border: none;
   border-radius: 50px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   transition: opacity 0.15s, transform 0.1s;
@@ -284,51 +305,26 @@ button { font-family: inherit; cursor: pointer; }
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  gap: 6px;
 }
 .btn:hover  { opacity: 0.85; }
 .btn:active { transform: scale(0.97); }
-.btn--next {
-  background: var(--oc-accent);
-  color: #fff;
-}
+.btn--next  { background: var(--oc-accent); color: #fff; }
 .btn--next:hover { background: var(--oc-accent-dark); opacity: 1; }
-.btn--back {
-  background: var(--oc-btn-back-bg);
-  color: var(--oc-text);
-  border: 1px solid #3a4056;
-}
+.btn--back  { background: var(--oc-btn-back-bg); color: var(--oc-text); border: 1px solid #3a4056; }
 
-/* 注意書き */
 .confirm-note {
-  font-size: 0.73rem;
+  font-size: 0.72rem;
   color: var(--oc-text-muted);
   text-align: center;
   line-height: 1.6;
   padding: 0 4px;
 }
 
-/* --- フッター ----------------------------------------------- */
-.site-footer {
-  background: #0a0c11; padding: 20px 24px;
-  margin-top: auto; border-top: 1px solid var(--oc-border);
-}
-.footer-inner {
-  max-width: 1040px; margin: 0 auto;
-  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
-}
-.footer-logo { font-size: 0.75rem; font-weight: 700; line-height: 1.4; letter-spacing: 1px; }
-.footer-nav { display: flex; gap: 20px; flex: 1; }
-.footer-nav a { font-size: 0.78rem; color: var(--oc-text-dim); transition: color 0.15s; }
-.footer-nav a:hover { color: var(--oc-text); }
-.footer-copy { font-size: 0.72rem; color: var(--oc-text-muted); }
-
-/* --- レスポンシブ ------------------------------------------- */
+/* ── レスポンシブ ────────────────────────────────────────────── */
 @media (max-width: 680px) {
-  .confirm-layout { grid-template-columns: 1fr; }
-  .price-summary { position: static; }
-  .movie-header-card { flex-wrap: wrap; }
+  .confirm-layout        { grid-template-columns: 1fr; }
+  .price-summary         { position: static; }
   .movie-header-card__divider { display: none; }
-  .confirm-row { grid-template-columns: 1fr auto; }
-  .confirm-row__price { grid-column: 2; }
+  .oc-step-header-inner  { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .oc-step-header .voice-guide { max-width: 100%; width: 100%; }
 }

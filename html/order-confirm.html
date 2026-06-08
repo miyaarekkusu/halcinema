@@ -7,12 +7,12 @@
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/voice-guide.css">
+  <link rel="stylesheet" href="../css/step-progress.css">
   <link rel="stylesheet" href="../css/order-confirm.css">
 </head>
 <body>
 
-  <!-- ヘッダー（common.js で自動挿入している場合は削除可） -->
-<!-- ヘッダー -->
+  <!-- ヘッダー -->
   <header class="site-header">
     <div class="header-inner">
       <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
@@ -33,233 +33,201 @@
     </div>
   </header>
 
+  <!-- ステップヘッダー + 音声案内 -->
+  <div class="oc-step-header">
+    <div class="oc-step-header-inner">
+      <div class="step-title-wrap">
+        <span class="step-num">4</span>
+        <span class="step-title">注文確認</span>
+      </div>
+      <div class="voice-guide" id="voice-guide" data-audio="../voice/voice/音声案内_注文確認.wav">
+        <p class="voice-guide-text">ご注文内容をご確認ください。よろしければ次へを押して決済へお進みください。</p>
+        <button class="voice-guide-btn" id="voice-guide-btn" aria-label="音声案内">
+          <img src="../images/volum_on.png" id="voice-guide-icon" alt="音声">
+        </button>
+      </div>
+    </div>
+  </div>
+
   <main class="page-main">
     <div class="page-wrapper">
 
-      <!-- ページ見出し + 音声案内 -->
-      <div class="page-top">
-        <h1 class="page-title"><span class="page-num">4.</span> 注文確認</h1>
-
-        <div class="voice-guide"
-             data-audio="audio/04_order-confirm.mp3"
-             data-autoplay="false">
-          <button class="voice-guide__body" type="button">
-            ご注文内容をご確認ください。<br>
-            よろしければ次へを押して決済へお進みください。
-          </button>
-          <button class="voice-guide__speaker" type="button"></button>
-        </div>
-      </div>
-
-      <!-- ====================================================
-           上映情報ヘッダーカード（映画・スクリーン・座席を一目で確認）
-           ==================================================== -->
+      <!-- 上映情報ヘッダーカード -->
       <div class="movie-header-card">
-
-        <!-- ポスター -->
         <div class="movie-header-card__poster">🎬</div>
-        <!-- ▼ 実際の画像があれば上の div を下記に差し替え
-          <img class="movie-header-card__poster" src="img/prada2.jpg" alt="プラダを着た悪魔2">
-        -->
-
-        <!-- 作品情報 -->
         <div class="movie-header-card__info">
-          <p class="movie-header-card__title">プラダを着た悪魔2</p>
+          <p class="movie-header-card__title" id="oc-movie-title">—</p>
           <div class="movie-header-card__meta">
-            <span class="movie-header-card__time">12:30〜</span>
-            <span class="movie-header-card__rating">PC12</span>
-            <span class="movie-header-card__duration">120分</span>
+            <span class="movie-header-card__time" id="oc-movie-time">—</span>
           </div>
         </div>
-
         <div class="movie-header-card__divider"></div>
-
-        <!-- スクリーン -->
         <div class="movie-header-card__venue">
           <span class="movie-header-card__venue-name">HAL CINEMA</span>
-          <span class="movie-header-card__venue-screen">スクリーン7 IMAXスクリーン</span>
+          <span class="movie-header-card__venue-screen" id="oc-screen">—</span>
         </div>
-
         <div class="movie-header-card__divider"></div>
-
-        <!-- 選択座席 -->
         <div class="movie-header-card__seats">
-          <span class="movie-header-card__seats-label">選択座席（3席）</span>
-          <div class="movie-header-card__seats-list">
-            <span class="seat-badge">D-3</span>
-            <span class="seat-badge">D-4</span>
-            <span class="seat-badge">D-5</span>
-          </div>
+          <span class="movie-header-card__seats-label" id="oc-seat-label">選択座席</span>
+          <div class="movie-header-card__seats-list" id="oc-seat-list"></div>
         </div>
-
       </div>
 
-      <!-- ====================================================
-           2カラム：左＝注文詳細 / 右＝価格サマリー
-           ==================================================== -->
+      <!-- 2カラム -->
       <div class="confirm-layout">
 
-        <!-- ========================================
-             左：注文詳細
-             ======================================== -->
+        <!-- 左：注文詳細 -->
         <div class="confirm-details">
 
-          <!-- チケット内訳 -->
+          <!-- チケット -->
           <section class="confirm-section">
             <div class="confirm-section__header">
               <span class="confirm-section__icon">🎫</span>
               <h2 class="confirm-section__title">チケット</h2>
-              <span class="confirm-section__count">2枚</span>
+              <span class="confirm-section__count" id="oc-ticket-count"></span>
             </div>
-
-            <div class="confirm-row">
-              <div>
-                <p class="confirm-row__label">小学生以下</p>
-              </div>
-              <span class="confirm-row__qty">× 1</span>
-              <span class="confirm-row__price">¥1,000</span>
+            <div id="oc-ticket-rows">
+              <p class="confirm-section__empty">チケット情報なし</p>
             </div>
-
-            <div class="confirm-row">
-              <div>
-                <p class="confirm-row__label">一般</p>
-              </div>
-              <span class="confirm-row__qty">× 1</span>
-              <span class="confirm-row__price">¥1,800</span>
-            </div>
-
           </section>
 
-          <!-- フード・グッズ内訳 -->
+          <!-- フード・グッズ -->
           <section class="confirm-section">
             <div class="confirm-section__header">
               <span class="confirm-section__icon">🍿</span>
               <h2 class="confirm-section__title">フード・グッズ</h2>
-              <span class="confirm-section__count">4点</span>
+              <span class="confirm-section__count" id="oc-food-count"></span>
             </div>
-
-            <div class="confirm-row">
-              <div>
-                <p class="confirm-row__label">ポップコーンミックス</p>
-                <p class="confirm-row__sublabel">Sサイズ（300g）</p>
-              </div>
-              <span class="confirm-row__qty">× 1</span>
-              <span class="confirm-row__price">¥500</span>
+            <div id="oc-food-rows">
+              <p class="confirm-section__empty">フード・グッズの購入はありません</p>
             </div>
-
-            <div class="confirm-row">
-              <div>
-                <p class="confirm-row__label">ポップコーンキャラメル味</p>
-                <p class="confirm-row__sublabel">Mサイズ（450g）</p>
-              </div>
-              <span class="confirm-row__qty">× 1</span>
-              <span class="confirm-row__price">¥600</span>
-            </div>
-
-            <div class="confirm-row">
-              <div>
-                <p class="confirm-row__label">ホットドッグ</p>
-              </div>
-              <span class="confirm-row__qty">× 1</span>
-              <span class="confirm-row__price">¥250</span>
-            </div>
-
-            <div class="confirm-row">
-              <div>
-                <p class="confirm-row__label">ドリンクLサイズ</p>
-                <p class="confirm-row__sublabel">コーラ</p>
-              </div>
-              <span class="confirm-row__qty">× 1</span>
-              <span class="confirm-row__price">¥350</span>
-            </div>
-
-            <!-- フードなしの場合はこちらを表示（JSで切り替え）
-            <p class="confirm-section__empty">フード・グッズの購入はありません</p>
-            -->
           </section>
 
-        </div><!-- /.confirm-details -->
+        </div>
 
-        <!-- ========================================
-             右：価格サマリー（スクロールに追従）
-             ======================================== -->
+        <!-- 右：価格サマリー -->
         <aside class="price-summary">
-
           <div class="price-summary__header">
             <h2 class="price-summary__title">お支払い金額</h2>
           </div>
-
           <div class="price-summary__body">
-
-            <!-- チケット小計 -->
             <div class="price-row">
               <span class="price-row__label">チケット</span>
-              <span class="price-row__value">¥2,800</span>
+              <span class="price-row__value" id="oc-ticket-subtotal">¥0</span>
             </div>
-
-            <!-- フード小計 -->
             <div class="price-row">
               <span class="price-row__label">フード・グッズ</span>
-              <span class="price-row__value">¥1,700</span>
+              <span class="price-row__value" id="oc-food-subtotal">¥0</span>
             </div>
-
           </div>
-
-          <!-- 合計 -->
           <div class="price-total-row">
             <span class="price-total-row__label">合計</span>
             <div class="price-total-row__value">
-              <span class="price-total-row__amount">4,500</span>
+              <span class="price-total-row__amount" id="oc-total">0</span>
               <span class="price-total-row__unit">円（税込）</span>
             </div>
           </div>
-
-          <!-- 戻る・決済へ進むボタン -->
           <div class="price-summary__actions">
-            <a href="payment.html" class="btn btn--next">
-              この内容で決済へ進む
-            </a>
-            <a href="food-select.html" class="btn btn--back">
-              戻る
-            </a>
-            <p class="confirm-note">
-              決済後のキャンセル・変更はできません。<br>
-              内容をよくご確認の上、お進みください。
-            </p>
+            <button class="btn btn--next" id="btn-payment">この内容で決済へ進む</button>
+            <button class="btn btn--back" onclick="history.back()">戻る</button>
+            <p class="confirm-note">決済後のキャンセル・変更はできません。<br>内容をよくご確認の上、お進みください。</p>
           </div>
-
         </aside>
 
-      </div><!-- /.confirm-layout -->
-
-    </div><!-- /.page-wrapper -->
-  </main>
-
-  <!-- フッター -->
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-logo">HAL<br>CINEMA</div>
-      <nav class="footer-nav">
-        <a href="#">トップ</a>
-        <a href="#">お問い合わせ</a>
-        <a href="#">Q&A</a>
-        <a href="#">個人情報</a>
-      </nav>
-      <p class="footer-copy">© All right reserved 2026</p>
+      </div>
     </div>
-  </footer>
+  </main>
 
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script src="../js/voice-guide.js" defer></script>
+  <script src="../js/step-progress.js" defer></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const data = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null');
+    if (!data) return;
 
+    // 上映情報
+    if (data.movie)  document.getElementById('oc-movie-title').textContent = data.movie;
+    if (data.time)   document.getElementById('oc-movie-time').textContent  = data.time;
+    if (data.screen) document.getElementById('oc-screen').textContent      = data.screen;
 
-  <!--
-    ▼ 2次開発（JS）で実装する部分 ▼
-    ・前のページの選択内容（sessionStorage等）を読み込み、各 confirm-row を動的に生成
-    ・フードが0点の場合は confirm-section__empty を表示
-    ・座席バッジ、チケット枚数、合計金額を動的に更新
-    ・「この内容で決済へ進む」で決済ページに選択データを渡す
-  -->
+    // 座席バッジ
+    const seatList = document.getElementById('oc-seat-list');
+    const seatLabel = document.getElementById('oc-seat-label');
+    if (data.seats && data.seats.length > 0) {
+      seatLabel.textContent = '選択座席（' + data.seats.length + '席）';
+      data.seats.forEach(function(s) {
+        const span = document.createElement('span');
+        span.className = 'seat-badge';
+        span.textContent = s;
+        seatList.appendChild(span);
+      });
+    }
+
+    // チケット行
+    const ticketNameMap = {
+      small:'小学生以下', general:'一般', junior:'中学生・高校生',
+      college:'大学生', senior:'シニア', oyako:'親子割',
+      couple:'カップル割', 'senior-discount':'シニア割'
+    };
+    const ticketPriceMap = { small:1000, general:1800, junior:1400, college:1600, senior:1200, oyako:2500, couple:3000, 'senior-discount':2000 };
+
+    const ticketRowsEl = document.getElementById('oc-ticket-rows');
+    let ticketTotal = 0;
+    let ticketCount = 0;
+
+    if (data.tickets && data.tickets.length > 0) {
+      ticketRowsEl.innerHTML = '';
+      data.tickets.forEach(function(t) {
+        const price = t.price || ticketPriceMap[t.type] || 0;
+        const subtotal = price * t.count;
+        ticketTotal += subtotal;
+        ticketCount += t.count;
+        const row = document.createElement('div');
+        row.className = 'confirm-row';
+        row.innerHTML =
+          '<div><p class="confirm-row__label">' + (ticketNameMap[t.type] || t.type) + '</p></div>' +
+          '<span class="confirm-row__qty">× ' + t.count + '</span>' +
+          '<span class="confirm-row__price">¥' + subtotal.toLocaleString() + '</span>';
+        ticketRowsEl.appendChild(row);
+      });
+      document.getElementById('oc-ticket-count').textContent = ticketCount + '枚';
+    }
+
+    // フード行
+    const foodRowsEl = document.getElementById('oc-food-rows');
+    let foodTotal = 0;
+    let foodCount = 0;
+
+    if (data.foods && data.foods.length > 0) {
+      foodRowsEl.innerHTML = '';
+      data.foods.forEach(function(f) {
+        const subtotal = f.price * f.count;
+        foodTotal += subtotal;
+        foodCount += f.count;
+        const row = document.createElement('div');
+        row.className = 'confirm-row';
+        row.innerHTML =
+          '<div><p class="confirm-row__label">' + f.name + '</p></div>' +
+          '<span class="confirm-row__qty">× ' + f.count + '</span>' +
+          '<span class="confirm-row__price">¥' + subtotal.toLocaleString() + '</span>';
+        foodRowsEl.appendChild(row);
+      });
+      document.getElementById('oc-food-count').textContent = foodCount + '点';
+    }
+
+    // 金額表示
+    document.getElementById('oc-ticket-subtotal').textContent = '¥' + ticketTotal.toLocaleString();
+    document.getElementById('oc-food-subtotal').textContent   = '¥' + foodTotal.toLocaleString();
+    document.getElementById('oc-total').textContent           = (ticketTotal + foodTotal).toLocaleString();
+
+    // 決済へ
+    document.getElementById('btn-payment').addEventListener('click', function() {
+      window.location.href = 'payment.html';
+    });
+  });
+  </script>
+
 </body>
 </html>

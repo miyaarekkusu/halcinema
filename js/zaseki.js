@@ -416,7 +416,6 @@ confirmBtn.addEventListener('click', () => {
 
   // 券種選択ページへ遷移
   window.location.href = 'ticket-select.html'
->>>>>>> Stashed changes
 })
 
 // ─── 2D座席マップ ──────────────────────────────────────────────────

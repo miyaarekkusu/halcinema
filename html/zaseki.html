@@ -7,10 +7,10 @@
 
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
-  <link rel="stylesheet" href="../css/zaseki.css">
   <link rel="stylesheet" href="../css/voice-guide.css">
+  <link rel="stylesheet" href="../css/step-progress.css">
+  <link rel="stylesheet" href="../css/zaseki.css">
 
-  <!-- Three.js CDN (importmap) -->
   <script type="importmap">
   {
     "imports": {
@@ -25,18 +25,17 @@
   <!-- ヘッダー -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
       <nav class="site-nav" id="site-nav">
-
-        <a href="index.html">上映スケジュール</a>
-        <a href="movies.html">作品一覧</a>
-        <a href="goods.html">グッズ・物販</a>
-        <a href="event.html">イベント情報</a>
-        <a href="theater.html">劇場情報</a>
+        <a href="../html/schedule.html">上映スケジュール</a>
+        <a href="../html/movies.html">作品一覧</a>
+        <a href="../html/goods.html">グッズ・物販</a>
+        <a href="../html/event.html">イベント情報</a>
+        <a href="../html/theater.html">劇場情報</a>
       </nav>
       <div class="header-actions">
-        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
-        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
         <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
           <span></span><span></span><span></span>
         </button>
@@ -44,42 +43,37 @@
     </div>
   </header>
 
-  <!-- 音声案内バー（座席選択ページ） -->
-  <div class="zaseki-voice-bar">
-    <div class="zaseki-voice-bar__inner">
-      <h1 class="zaseki-page-title">1. 座席選択</h1>
+  <!-- ステップヘッダー + 音声案内 -->
+  <div class="zaseki-step-header">
+    <div class="zaseki-step-header-inner">
+      <div class="step-title-wrap">
+        <span class="step-num">1</span>
+        <span class="step-title">座席選択</span>
+      </div>
       <div class="voice-guide"
-           data-audio="../audio/01_seat-select.mp3"
-           data-autoplay="false">
-        <button class="voice-guide__body" type="button">
-          予約する座席を選択してください。座席は複数選択することが可能です。<br>
-          また、右下のボタンから座席からの視点で確認することも可能です。選択が完了後「次へ」を押してください。
+           id="voice-guide"
+           data-audio="../voice/voice/音声案内_座席選択.wav">
+        <p class="voice-guide-text">予約する座席を選択してください。座席は複数選択することが可能です。また、右下のボタンから座席からの視点で確認することも可能です。選択が完了後「次へ」を押してください。</p>
+        <button class="voice-guide-btn" id="voice-guide-btn" aria-label="音声案内">
+          <img src="../images/volum_on.png" id="voice-guide-icon" alt="音声">
         </button>
-        <button class="voice-guide__speaker" type="button"></button>
       </div>
     </div>
   </div>
 
-  <!-- メインレイアウト（3D + パネル） -->
+  <!-- メインレイアウト -->
   <div class="zaseki-layout">
 
     <!-- 3Dキャンバスエリア -->
     <div class="zaseki-canvas-wrap">
       <canvas class="webgl"></canvas>
 
-      <!-- 2D/3Dビュートグル -->
-      <div class="zaseki-view-toggle">
-        <button id="toggle-3d" class="active">3D</button>
-        <button id="toggle-2d">2D</button>
-      </div>
-
       <!-- 2D座席マップ -->
       <div class="zaseki-2d-wrap" id="zaseki-2d-wrap">
-        <div class="zaseki-2d-screen">SCREEN</div>
         <div class="zaseki-2d-grid" id="zaseki-2d-grid"></div>
       </div>
 
-      <!-- 操作ガイド（フェードアウト） -->
+      <!-- 操作ガイド -->
       <div class="zaseki-guide" id="zaseki-guide">
         <p>ドラッグで視点を変更 ／ スクロールで拡大縮小 ／ 座席をクリックして選択</p>
       </div>
@@ -95,9 +89,14 @@
         <div class="zaseki-legend-item">
           <span class="zaseki-legend-dot zaseki-dot-taken"></span>満席
         </div>
+        <!-- 3D/2D切替 -->
+        <div class="zaseki-view-toggle">
+          <button class="zaseki-toggle-btn active" id="toggle-3d">3D</button>
+          <button class="zaseki-toggle-btn" id="toggle-2d">2D</button>
+        </div>
       </div>
 
-      <!-- ホバー時の座席ラベル -->
+      <!-- ホバーツールチップ -->
       <div class="zaseki-tooltip" id="zaseki-tooltip"></div>
     </div>
 
@@ -107,7 +106,7 @@
       <!-- 上映情報 -->
       <div class="zaseki-panel-section">
         <p class="zaseki-panel-label">上映情報</p>
-        <p class="zaseki-movie-name">ゴジラ-1.0</p>
+        <p class="zaseki-movie-name"></p>
         <p class="zaseki-movie-title">スクリーン 1（大）</p>
         <p class="zaseki-movie-sub text-sub text-sm">200席 ／ 本日 14:00 上映</p>
       </div>
@@ -134,6 +133,11 @@
         </button>
       </div>
 
+      <!-- zaseki.jsが参照する料金要素（非表示） -->
+      <div style="display:none;">
+        <span id="total-price">0</span>
+      </div>
+
       <!-- 確定ボタン -->
       <div class="zaseki-panel-section zaseki-confirm-section">
         <button class="btn btn-primary btn-lg" id="confirm-btn" disabled style="width:100%;">
@@ -147,11 +151,11 @@
     </aside>
   </div>
 
-  <!-- JS -->
   <script type="module" src="../js/zaseki.js"></script>
+  <script src="../js/voice-guide.js" defer></script>
+  <script src="../js/step-progress.js" defer></script>
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
-  <script src="../js/voice-guide.js" defer></script>
 
 </body>
 </html>

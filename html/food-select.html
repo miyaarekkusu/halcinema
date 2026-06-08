@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/voice-guide.css">
+  <link rel="stylesheet" href="../css/step-progress.css">
   <link rel="stylesheet" href="../css/food-select.css">
 </head>
 <body>
 
-<!-- ヘッダー -->
+  <!-- ヘッダー -->
   <header class="site-header">
     <div class="header-inner">
       <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
@@ -32,301 +33,1061 @@
     </div>
   </header>
 
+  <!-- ステップヘッダー + 音声案内 -->
+  <div class="fs-step-header">
+    <div class="fs-step-header-inner">
+      <div class="step-title-wrap">
+        <span class="step-num">3</span>
+        <span class="step-title">フード・グッズ</span>
+      </div>
+      <div class="voice-guide" id="voice-guide" data-audio="../voice/voice/音声案内_フード購入.wav">
+        <p class="voice-guide-text">ご一緒にポップコーンやお飲み物はいかがですか？HALシネマ限定の味もご用意しています。必要のない方はそのまま次へお進みください。</p>
+        <button class="voice-guide-btn" id="voice-guide-btn" aria-label="音声案内">
+          <img src="../images/volum_on.png" id="voice-guide-icon" alt="音声">
+        </button>
+      </div>
+    </div>
+  </div>
+
   <main class="page-main">
     <div class="page-wrapper">
 
-      <!-- ページ見出し + 音声案内 -->
-      <div class="page-top">
-        <h1 class="page-title"><span class="page-num">3.</span> フード・グッズ</h1>
-
-        <div class="voice-guide"
-             data-audio="audio/03_food-select.mp3"
-             data-autoplay="false">
-          <button class="voice-guide__body" type="button">
-            ご一緒にポップコーンやお飲み物はいかがですか？私はポップコーンのキャラメル味がおすすめです！<br>
-            必要のない方はそのまま次へお進みください。
-          </button>
-          <button class="voice-guide__speaker" type="button"></button>
-        </div>
+      <!-- カテゴリタブ -->
+      <div class="category-tabs">
+        <button class="category-tab active" data-tab="food">🍿 フード</button>
+        <button class="category-tab" data-tab="goods">🎁 グッズ</button>
+        <button class="category-tab" data-tab="service">✋ サービス</button>
       </div>
 
-      <!-- メイングリッド（左：フード / 右：サイドバー） -->
-      <div class="food-grid-layout" style="position:relative;">
+      <div class="food-grid-layout">
 
-        <!-- ========================================
-             左カラム：フード選択グリッド
-             ======================================== -->
+        <!-- 左：アイテムグリッド -->
         <div class="food-panel">
-          <div class="food-items-grid">
 
-            <!-- ポップコーン キャラメル味（サイズ選択型） -->
-            <div class="food-item has-size-options" id="item-popcorn-caramel"
-                 data-popup-target="popup-popcorn-caramel">
-              <div class="food-item__img">
-                <!-- <img src="img/popcorn-caramel.jpg" alt="ポップコーンキャラメル味"> -->
-                <div class="food-item__img-placeholder">
-                  <span class="ph-icon">🍿</span>
-                  <span class="ph-label">サンプル</span>
-                </div>
-              </div>
-              <div class="food-item__body">
-                <span class="food-item__name">ポップコーンキャラメル味</span>
-                <button class="size-selector-btn" type="button" aria-expanded="false">
-                  <span>サイズを選んでください</span>
-                  <span class="size-selector-btn__count is-zero" id="count-caramel">0</span>
-                </button>
-              </div>
-            </div>
+          <!-- ── フードタブ ── -->
+          <div class="tab-panel active" id="tab-food">
+            <div class="food-items-grid">
 
-            <!-- ポップコーン 塩味（サイズ選択型） -->
-            <div class="food-item has-size-options" id="item-popcorn-salt"
-                 data-popup-target="popup-popcorn-salt">
-              <div class="food-item__img">
-                <div class="food-item__img-placeholder">
-                  <span class="ph-icon">🍿</span>
-                  <span class="ph-label">サンプル</span>
+              <!-- ポップコーン S -->
+              <div class="food-item has-popup" data-popup="popup-popcorn-s">
+                <div class="food-item__img"><span class="ph-icon">🍿</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ポップコーン S</span>
+                  <span class="food-item__sub">300g・500〜580円</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">味を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-popcorn-s">0</span>
+                  </button>
                 </div>
               </div>
-              <div class="food-item__body">
-                <span class="food-item__name">ポップコーン塩味</span>
-                <button class="size-selector-btn" type="button" aria-expanded="false">
-                  <span>サイズを選んでください</span>
-                  <span class="size-selector-btn__count is-zero" id="count-salt">0</span>
-                </button>
-              </div>
-            </div>
 
-            <!-- ポップコーン ミックス（サイズ選択型） -->
-            <div class="food-item has-size-options" id="item-popcorn-mix"
-                 data-popup-target="popup-popcorn-mix">
-              <div class="food-item__img">
-                <div class="food-item__img-placeholder">
-                  <span class="ph-icon">🍿</span>
-                  <span class="ph-label">サンプル</span>
+              <!-- ポップコーン M -->
+              <div class="food-item has-popup" data-popup="popup-popcorn-m">
+                <div class="food-item__img"><span class="ph-icon">🍿</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ポップコーン M</span>
+                  <span class="food-item__sub">450g・600〜680円</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">味を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-popcorn-m">0</span>
+                  </button>
                 </div>
               </div>
-              <div class="food-item__body">
-                <span class="food-item__name">ポップコーンミックス</span>
-                <button class="size-selector-btn" type="button" aria-expanded="false">
-                  <span>サイズを選んでください</span>
-                  <span class="size-selector-btn__count" id="count-mix">2</span>
-                </button>
-              </div>
-            </div>
 
-            <!-- ドリンク M サイズ（サイズ選択型） -->
-            <div class="food-item has-size-options" id="item-drink-m"
-                 data-popup-target="popup-drink">
-              <div class="food-item__img">
-                <div class="food-item__img-placeholder">
-                  <span class="ph-icon">🥤</span>
-                  <span class="ph-label">サンプル</span>
+              <!-- ポップコーン L -->
+              <div class="food-item has-popup" data-popup="popup-popcorn-l">
+                <div class="food-item__img"><span class="ph-icon">🍿</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ポップコーン L</span>
+                  <span class="food-item__sub">600g・650〜730円</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">味を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-popcorn-l">0</span>
+                  </button>
                 </div>
               </div>
-              <div class="food-item__body">
-                <span class="food-item__name">ドリンクMサイズ</span>
-                <button class="size-selector-btn" type="button" aria-expanded="false">
-                  <span>サイズを選んでください</span>
-                  <span class="size-selector-btn__count is-zero" id="count-drink-m">0</span>
-                </button>
-              </div>
-            </div>
 
-            <!-- ドリンク L サイズ（サイズ選択型） -->
-            <div class="food-item has-size-options" id="item-drink-l"
-                 data-popup-target="popup-drink">
-              <div class="food-item__img">
-                <div class="food-item__img-placeholder">
-                  <span class="ph-icon">🥤</span>
-                  <span class="ph-label">サンプル</span>
+              <!-- ドリンク S -->
+              <div class="food-item has-popup" data-popup="popup-drink-s">
+                <div class="food-item__img"><span class="ph-icon">🥤</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ドリンク S</span>
+                  <span class="food-item__sub">280〜380円</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">種類を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-drink-s">0</span>
+                  </button>
                 </div>
               </div>
-              <div class="food-item__body">
-                <span class="food-item__name">ドリンクLサイズ</span>
-                <button class="size-selector-btn" type="button" aria-expanded="false">
-                  <span>サイズを選んでください</span>
-                  <span class="size-selector-btn__count is-zero" id="count-drink-l">0</span>
-                </button>
-              </div>
-            </div>
 
-            <!-- ホットドッグ（固定価格型） -->
-            <div class="food-item" id="item-hotdog">
-              <div class="food-item__img">
-                <div class="food-item__img-placeholder">
-                  <span class="ph-icon">🌭</span>
-                  <span class="ph-label">サンプル</span>
+              <!-- ドリンク M -->
+              <div class="food-item has-popup" data-popup="popup-drink-m">
+                <div class="food-item__img"><span class="ph-icon">🥤</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ドリンク M</span>
+                  <span class="food-item__sub">350〜460円</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">種類を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-drink-m">0</span>
+                  </button>
                 </div>
               </div>
-              <div class="food-item__body">
-                <span class="food-item__name">ホットドッグ</span>
-                <span class="food-item__price">250円（税抜）</span>
-                <div class="food-stepper">
-                  <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
-                  <span class="food-stepper__count">1</span>
-                  <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
-                </div>
-              </div>
-            </div>
 
-          </div><!-- /.food-items-grid -->
-        </div><!-- /.food-panel -->
+              <!-- ドリンク L -->
+              <div class="food-item has-popup" data-popup="popup-drink-l">
+                <div class="food-item__img"><span class="ph-icon">🥤</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ドリンク L</span>
+                  <span class="food-item__sub">420〜470円</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">種類を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-drink-l">0</span>
+                  </button>
+                </div>
+              </div>
 
-        <!-- ========================================
-             サイズ選択ポップアップ（各アイテム共通）
-             JS で .is-open を付与して表示する
-             デザイン確認用：class="size-popup is-demo-open" に変更すると常時表示
-             ======================================== -->
+              <!-- ホットドッグ -->
+              <div class="food-item has-popup" data-popup="popup-hotdog">
+                <div class="food-item__img"><span class="ph-icon">🌭</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ホットドッグ</span>
+                  <span class="food-item__sub">各種トッピング</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">種類を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-hotdog">0</span>
+                  </button>
+                </div>
+              </div>
 
-        <!-- ポップコーン キャラメル味 サイズポップアップ -->
-        <div class="size-popup" id="popup-popcorn-caramel" role="dialog"
-             aria-modal="true" aria-label="サイズを選択">
-          <div class="size-popup__overlay" data-close-popup></div>
-          <div class="size-popup__card">
-            <div class="size-popup__header">
-              <div class="size-popup__logo">HAL <span>CINEMA</span></div>
-              <button class="size-popup__close" type="button"
-                      data-close-popup aria-label="閉じる">×</button>
-            </div>
-            <div class="size-options">
-              <div class="size-option">
-                <div class="size-option__img">
-                  <div class="size-option__img-placeholder">🍿</div>
-                </div>
-                <div class="size-option__info">
-                  <span class="size-option__name">ポップコーンキャラメル味<br>Sサイズ（300g）</span>
-                  <span class="size-option__price">500円（税抜）</span>
-                </div>
-                <div class="size-option__stepper">
-                  <button class="size-option__btn" type="button">&#9664;</button>
-                  <span class="size-option__count">1</span>
-                  <button class="size-option__btn" type="button">&#9654;</button>
+              <!-- ナチョス -->
+              <div class="food-item has-popup" data-popup="popup-nachos">
+                <div class="food-item__img"><span class="ph-icon">🧀</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ナチョス</span>
+                  <span class="food-item__sub">S/L・ソース選択</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">サイズ・ソースを選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-nachos">0</span>
+                  </button>
                 </div>
               </div>
-              <div class="size-option">
-                <div class="size-option__img">
-                  <div class="size-option__img-placeholder">🍿</div>
-                </div>
-                <div class="size-option__info">
-                  <span class="size-option__name">ポップコーンキャラメル味<br>Mサイズ（450g）</span>
-                  <span class="size-option__price">600円（税抜）</span>
-                </div>
-                <div class="size-option__stepper">
-                  <button class="size-option__btn" type="button">&#9664;</button>
-                  <span class="size-option__count">1</span>
-                  <button class="size-option__btn" type="button">&#9654;</button>
-                </div>
-              </div>
-              <div class="size-option">
-                <div class="size-option__img">
-                  <div class="size-option__img-placeholder">🍿</div>
-                </div>
-                <div class="size-option__info">
-                  <span class="size-option__name">ポップコーンキャラメル味<br>Lサイズ（600g）</span>
-                  <span class="size-option__price">650円（税抜）</span>
-                </div>
-                <div class="size-option__stepper">
-                  <button class="size-option__btn" type="button">&#9664;</button>
-                  <span class="size-option__count">1</span>
-                  <button class="size-option__btn" type="button">&#9654;</button>
+
+              <!-- フライドポテト -->
+              <div class="food-item has-popup" data-popup="popup-fries">
+                <div class="food-item__img"><span class="ph-icon">🍟</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">フライドポテト</span>
+                  <span class="food-item__sub">S/M・塩/チーズ</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">種類を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-fries">0</span>
+                  </button>
                 </div>
               </div>
+
+              <!-- アイスクリーム -->
+              <div class="food-item has-popup" data-popup="popup-ice">
+                <div class="food-item__img"><span class="ph-icon">🍦</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">アイスクリーム</span>
+                  <span class="food-item__sub">各種フレーバー</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">種類を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-ice">0</span>
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
-        </div><!-- /#popup-popcorn-caramel -->
 
-        <!-- ポップコーン 塩味 / ミックス / ドリンク は同じ構造でポップアップを追加 -->
-        <!-- （コード量のため省略。同じ .size-popup を複製して id を変えてください） -->
+          <!-- ── グッズタブ ── -->
+          <div class="tab-panel" id="tab-goods">
+            <div class="food-items-grid">
 
-        <!-- ========================================
-             右カラム：サイドバー
-             ======================================== -->
+              <div class="food-item has-popup" data-popup="popup-goods-tshirt">
+                <div class="food-item__img"><span class="ph-icon">👕</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">HAL限定Tシャツ</span>
+                  <span class="food-item__sub">S/M/L/XL</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">サイズを選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-tshirt">0</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="food-item has-popup" data-popup="popup-goods-tumbler">
+                <div class="food-item__img"><span class="ph-icon">🥛</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">HALオリジナルタンブラー</span>
+                  <span class="food-item__sub">2色展開</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">カラーを選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-tumbler">0</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="food-item has-popup" data-popup="popup-goods-badge">
+                <div class="food-item__img"><span class="ph-icon">🎖️</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">缶バッジセット</span>
+                  <span class="food-item__sub">3種セット</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">デザインを選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-badge">0</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="food-item has-popup" data-popup="popup-goods-poster">
+                <div class="food-item__img"><span class="ph-icon">🖼️</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">映画ポスター</span>
+                  <span class="food-item__sub">A3サイズ</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">デザインを選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-poster">0</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="food-item has-popup" data-popup="popup-goods-keychain">
+                <div class="food-item__img"><span class="ph-icon">🔑</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">キーチェーン</span>
+                  <span class="food-item__sub">各種キャラクター</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">種類を選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-keychain">0</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="food-item has-popup" data-popup="popup-goods-blanket">
+                <div class="food-item__img"><span class="ph-icon">🧣</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">映画ブランケット</span>
+                  <span class="food-item__sub">HALロゴ入り</span>
+                  <button class="size-selector-btn" type="button">
+                    <span class="size-selector-btn__label">カラーを選ぶ</span>
+                    <span class="size-selector-btn__count is-zero" id="cnt-blanket">0</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── サービスタブ ── -->
+          <div class="tab-panel" id="tab-service">
+            <div class="food-items-grid">
+
+              <div class="food-item simple-item" data-item-id="wipe" data-price="50">
+                <div class="food-item__img"><span class="ph-icon">🧻</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">お手拭き</span>
+                  <span class="food-item__price">50円（税込）</span>
+                  <div class="food-stepper">
+                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
+                    <span class="food-stepper__count">0</span>
+                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="food-item simple-item" data-item-id="bucket" data-price="100">
+                <div class="food-item__img"><span class="ph-icon">🪣</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">取り分け用バケット</span>
+                  <span class="food-item__price">100円（税込）</span>
+                  <div class="food-stepper">
+                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
+                    <span class="food-stepper__count">0</span>
+                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="food-item simple-item" data-item-id="bag" data-price="30">
+                <div class="food-item__img"><span class="ph-icon">🛍️</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">持ち帰り用袋</span>
+                  <span class="food-item__price">30円（税込）</span>
+                  <div class="food-stepper">
+                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
+                    <span class="food-stepper__count">0</span>
+                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="food-item simple-item" data-item-id="straw" data-price="0">
+                <div class="food-item__img"><span class="ph-icon">🥤</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ストロー（紙）</span>
+                  <span class="food-item__price">無料</span>
+                  <div class="food-stepper">
+                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
+                    <span class="food-stepper__count">0</span>
+                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="food-item simple-item" data-item-id="fork" data-price="0">
+                <div class="food-item__img"><span class="ph-icon">🍴</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">プラスチックフォーク</span>
+                  <span class="food-item__price">無料</span>
+                  <div class="food-stepper">
+                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
+                    <span class="food-stepper__count">0</span>
+                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="food-item simple-item" data-item-id="napkin" data-price="0">
+                <div class="food-item__img"><span class="ph-icon">📄</span></div>
+                <div class="food-item__body">
+                  <span class="food-item__name">ナプキン（5枚）</span>
+                  <span class="food-item__price">無料</span>
+                  <div class="food-stepper">
+                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
+                    <span class="food-stepper__count">0</span>
+                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div><!-- /.food-panel -->
+
+        <!-- 右：サイドバー -->
         <aside class="food-sidebar">
           <div class="sidebar-card">
+
             <div class="sidebar-section">
               <p class="sidebar-label">上映作品</p>
               <div class="movie-info">
-                <div class="movie-poster">
-                  <div class="movie-poster__placeholder"></div>
-                </div>
+                <div class="movie-poster"><div class="movie-poster__placeholder"></div></div>
                 <div class="movie-meta">
-                  <h3 class="movie-title">プラダを着た悪魔2</h3>
-                  <p class="movie-time">12:30〜</p>
-                  <span class="movie-rating">PC12</span>
-                  <p class="movie-duration">120分</p>
+                  <h3 class="movie-title" id="sb-movie-title">—</h3>
+                  <p class="movie-time" id="sb-movie-time">—</p>
+                  <p class="movie-duration" id="sb-movie-duration">—</p>
                 </div>
               </div>
             </div>
+
             <div class="sidebar-section">
               <p class="sidebar-label">スクリーン</p>
               <p class="venue-name">HAL CINEMA</p>
-              <p class="venue-screen">スクリーン7 IMAXスクリーン、</p>
+              <p class="venue-screen" id="sb-screen-detail">—</p>
             </div>
+
             <div class="sidebar-section">
-              <ul class="selected-list" id="js-sidebar-tickets">
-                <li>・小学生以下：1枚</li>
-                <li>・一般　　　：1枚</li>
-              </ul>
+              <p class="sidebar-label">チケット</p>
+              <ul class="selected-list" id="js-sidebar-tickets"></ul>
             </div>
+
+            <div class="sidebar-section">
+              <p class="sidebar-label">フード・グッズ</p>
+              <ul class="selected-list" id="js-sidebar-foods"></ul>
+            </div>
+
+            <div class="price-total">
+              <span class="price-amount" id="js-total-price">0</span>
+              <span class="price-unit">円（税込）</span>
+            </div>
+
+            <div class="sidebar-actions">
+              <button class="btn btn--back" onclick="history.back()">戻る</button>
+              <button class="btn btn--next" id="btn-next">次へ</button>
+            </div>
+
           </div>
         </aside>
 
       </div><!-- /.food-grid-layout -->
 
-      <!-- ボトムエリア：注文サマリー + 合計金額 -->
-      <div class="bottom-area">
-        <div class="order-summary">
-          <ul class="order-summary__list" id="js-order-summary">
-            <li>ポップコーンミックス：Sサイズ　1点</li>
-            <li>　　　　　　　　　　　mサイズ　1点</li>
-          </ul>
-          <span class="order-summary__more">・・・</span>
-        </div>
-        <div class="total-box">
-          <p class="total-label">合計</p>
-          <div class="total-price">
-            <span class="total-amount" id="js-total-price">4500</span>
-            <span class="total-unit">円（税込）</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 戻る / 次へ ボタン -->
-      <div class="page-actions">
-        <a href="ticket-select.html" class="btn btn--back">戻る</a>
-        <a href="order-confirm.html" class="btn btn--next">次へ</a>
-      </div>
-
-    </div><!-- /.page-wrapper -->
+    </div>
   </main>
 
-  <!-- フッター -->
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-logo">HAL<br>CINEMA</div>
-      <nav class="footer-nav">
-        <a href="#">トップ</a>
-        <a href="#">お問い合わせ</a>
-        <a href="#">Q&A</a>
-        <a href="#">個人情報</a>
-      </nav>
-      <p class="footer-copy">© All right reserved 2026</p>
+  <!-- ══════════════════════════════════════════
+       ポップアップ群
+  ══════════════════════════════════════════ -->
+
+  <!-- ポップコーン S -->
+  <div class="fs-popup" id="popup-popcorn-s" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🍿 ポップコーン Sサイズ</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">お好みの味を選んでください（300g）</p>
+      <div class="fs-popup__options" id="options-popcorn-s"></div>
     </div>
-  </footer>
+  </div>
+
+  <!-- ポップコーン M -->
+  <div class="fs-popup" id="popup-popcorn-m" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🍿 ポップコーン Mサイズ</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">お好みの味を選んでください（450g）</p>
+      <div class="fs-popup__options" id="options-popcorn-m"></div>
+    </div>
+  </div>
+
+  <!-- ポップコーン L -->
+  <div class="fs-popup" id="popup-popcorn-l" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🍿 ポップコーン Lサイズ</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">お好みの味を選んでください（600g）</p>
+      <div class="fs-popup__options" id="options-popcorn-l"></div>
+    </div>
+  </div>
+
+  <!-- ドリンク S -->
+  <div class="fs-popup" id="popup-drink-s" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🥤 ドリンク Sサイズ</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">種類を選んでください</p>
+      <div class="fs-popup__options" id="options-drink-s"></div>
+    </div>
+  </div>
+
+  <!-- ドリンク M -->
+  <div class="fs-popup" id="popup-drink-m" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🥤 ドリンク Mサイズ</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">種類を選んでください</p>
+      <div class="fs-popup__options" id="options-drink-m"></div>
+    </div>
+  </div>
+
+  <!-- ドリンク L -->
+  <div class="fs-popup" id="popup-drink-l" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🥤 ドリンク Lサイズ</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">種類を選んでください</p>
+      <div class="fs-popup__options" id="options-drink-l"></div>
+    </div>
+  </div>
+
+  <!-- ホットドッグ -->
+  <div class="fs-popup" id="popup-hotdog" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🌭 ホットドッグ</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">種類を選んでください</p>
+      <div class="fs-popup__options" id="options-hotdog"></div>
+    </div>
+  </div>
+
+  <!-- ナチョス -->
+  <div class="fs-popup" id="popup-nachos" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🧀 ナチョス</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">サイズとソースを選んでください</p>
+      <div class="fs-popup__options" id="options-nachos"></div>
+    </div>
+  </div>
+
+  <!-- フライドポテト -->
+  <div class="fs-popup" id="popup-fries" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🍟 フライドポテト</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">種類を選んでください</p>
+      <div class="fs-popup__options" id="options-fries"></div>
+    </div>
+  </div>
+
+  <!-- アイスクリーム -->
+  <div class="fs-popup" id="popup-ice" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🍦 アイスクリーム</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">フレーバーを選んでください</p>
+      <div class="fs-popup__options" id="options-ice"></div>
+    </div>
+  </div>
+
+  <!-- グッズ：Tシャツ -->
+  <div class="fs-popup" id="popup-goods-tshirt" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">👕 HAL限定Tシャツ</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">サイズを選んでください</p>
+      <div class="fs-popup__options" id="options-tshirt"></div>
+    </div>
+  </div>
+
+  <!-- グッズ：タンブラー -->
+  <div class="fs-popup" id="popup-goods-tumbler" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🥛 HALオリジナルタンブラー</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">カラーを選んでください</p>
+      <div class="fs-popup__options" id="options-tumbler"></div>
+    </div>
+  </div>
+
+  <!-- グッズ：缶バッジ -->
+  <div class="fs-popup" id="popup-goods-badge" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🎖️ 缶バッジセット</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">デザインを選んでください</p>
+      <div class="fs-popup__options" id="options-badge"></div>
+    </div>
+  </div>
+
+  <!-- グッズ：ポスター -->
+  <div class="fs-popup" id="popup-goods-poster" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🖼️ 映画ポスター</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">デザインを選んでください</p>
+      <div class="fs-popup__options" id="options-poster"></div>
+    </div>
+  </div>
+
+  <!-- グッズ：キーチェーン -->
+  <div class="fs-popup" id="popup-goods-keychain" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🔑 キーチェーン</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">種類を選んでください</p>
+      <div class="fs-popup__options" id="options-keychain"></div>
+    </div>
+  </div>
+
+  <!-- グッズ：ブランケット -->
+  <div class="fs-popup" id="popup-goods-blanket" role="dialog" aria-modal="true">
+    <div class="fs-popup__overlay"></div>
+    <div class="fs-popup__card">
+      <div class="fs-popup__header">
+        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
+        <h2 class="fs-popup__title">🧣 映画ブランケット</h2>
+        <button class="fs-popup__close" aria-label="閉じる">×</button>
+      </div>
+      <p class="fs-popup__hint">カラーを選んでください</p>
+      <div class="fs-popup__options" id="options-blanket"></div>
+    </div>
+  </div>
 
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script src="../js/voice-guide.js" defer></script>
+  <script src="../js/step-progress.js" defer></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
 
+    // ══════════════════════════════════════════
+    // メニューデータ定義
+    // ══════════════════════════════════════════
+    const MENU = {
+      'popcorn-s': {
+        countId: 'cnt-popcorn-s',
+        optionsId: 'options-popcorn-s',
+        items: [
+          { id:'pc-s-caramel', icon:'🍿', name:'キャラメル味',        sub:'ポップコーン S・300g', price:500 },
+          { id:'pc-s-salt',    icon:'🍿', name:'塩味',                sub:'ポップコーン S・300g', price:500 },
+          { id:'pc-s-mix',     icon:'🍿', name:'ミックス',            sub:'ポップコーン S・300g', price:520 },
+          { id:'pc-s-hal',     icon:'🍿', name:'HAL限定 矢場とん味',  sub:'ポップコーン S・300g', price:580, badge:'HAL限定' },
+          { id:'pc-s-sauce',   icon:'🍿', name:'HAL限定 名古屋ソース味', sub:'ポップコーン S・300g', price:580, badge:'HAL限定' },
+        ]
+      },
+      'popcorn-m': {
+        countId: 'cnt-popcorn-m',
+        optionsId: 'options-popcorn-m',
+        items: [
+          { id:'pc-m-caramel', icon:'🍿', name:'キャラメル味',        sub:'ポップコーン M・450g', price:600 },
+          { id:'pc-m-salt',    icon:'🍿', name:'塩味',                sub:'ポップコーン M・450g', price:600 },
+          { id:'pc-m-mix',     icon:'🍿', name:'ミックス',            sub:'ポップコーン M・450g', price:620 },
+          { id:'pc-m-hal',     icon:'🍿', name:'HAL限定 矢場とん味',  sub:'ポップコーン M・450g', price:680, badge:'HAL限定' },
+          { id:'pc-m-sauce',   icon:'🍿', name:'HAL限定 名古屋ソース味', sub:'ポップコーン M・450g', price:680, badge:'HAL限定' },
+        ]
+      },
+      'popcorn-l': {
+        countId: 'cnt-popcorn-l',
+        optionsId: 'options-popcorn-l',
+        items: [
+          { id:'pc-l-caramel', icon:'🍿', name:'キャラメル味',        sub:'ポップコーン L・600g', price:650 },
+          { id:'pc-l-salt',    icon:'🍿', name:'塩味',                sub:'ポップコーン L・600g', price:650 },
+          { id:'pc-l-mix',     icon:'🍿', name:'ミックス',            sub:'ポップコーン L・600g', price:670 },
+          { id:'pc-l-hal',     icon:'🍿', name:'HAL限定 矢場とん味',  sub:'ポップコーン L・600g', price:730, badge:'HAL限定' },
+          { id:'pc-l-sauce',   icon:'🍿', name:'HAL限定 名古屋ソース味', sub:'ポップコーン L・600g', price:730, badge:'HAL限定' },
+        ]
+      },
+      'drink-s': {
+        countId: 'cnt-drink-s',
+        optionsId: 'options-drink-s',
+        items: [
+          { id:'dr-s-cola',   icon:'🥤', name:'コーラ',              sub:'ドリンク S', price:300 },
+          { id:'dr-s-ginger', icon:'🥤', name:'ジンジャーエール',    sub:'ドリンク S', price:300 },
+          { id:'dr-s-oolong', icon:'🍵', name:'烏龍茶',              sub:'ドリンク S', price:280 },
+          { id:'dr-s-lemon',  icon:'🍋', name:'レモネード',          sub:'ドリンク S', price:320 },
+          { id:'dr-s-hal',    icon:'🥤', name:'HAL限定 みそソーダ',  sub:'ドリンク S', price:380, badge:'HAL限定' },
+        ]
+      },
+      'drink-m': {
+        countId: 'cnt-drink-m',
+        optionsId: 'options-drink-m',
+        items: [
+          { id:'dr-m-cola',   icon:'🥤', name:'コーラ',              sub:'ドリンク M', price:380 },
+          { id:'dr-m-ginger', icon:'🥤', name:'ジンジャーエール',    sub:'ドリンク M', price:380 },
+          { id:'dr-m-oolong', icon:'🍵', name:'烏龍茶',              sub:'ドリンク M', price:350 },
+          { id:'dr-m-lemon',  icon:'🍋', name:'レモネード',          sub:'ドリンク M', price:400 },
+          { id:'dr-m-hal',    icon:'🥤', name:'HAL限定 みそソーダ',  sub:'ドリンク M', price:460, badge:'HAL限定' },
+        ]
+      },
+      'drink-l': {
+        countId: 'cnt-drink-l',
+        optionsId: 'options-drink-l',
+        items: [
+          { id:'dr-l-cola',   icon:'🥤', name:'コーラ',              sub:'ドリンク L', price:450 },
+          { id:'dr-l-ginger', icon:'🥤', name:'ジンジャーエール',    sub:'ドリンク L', price:450 },
+          { id:'dr-l-oolong', icon:'🍵', name:'烏龍茶',              sub:'ドリンク L', price:420 },
+          { id:'dr-l-lemon',  icon:'🍋', name:'レモネード',          sub:'ドリンク L', price:470 },
+        ]
+      },
+      hotdog: {
+        countId: 'cnt-hotdog',
+        optionsId: 'options-hotdog',
+        items: [
+          { id:'hd-plain',   icon:'🌭', name:'プレーン',         sub:'マスタード＆ケチャップ',  price:350 },
+          { id:'hd-cheese',  icon:'🌭', name:'チーズホットドッグ', sub:'チェダーチーズソース',    price:420 },
+          { id:'hd-hal',     icon:'🌭', name:'HAL限定 どて煮ドッグ', sub:'名古屋名物どて煮ソース', price:480, badge:'HAL限定' },
+          { id:'hd-spicy',   icon:'🌭', name:'スパイシー',        sub:'ハラペーニョ＆チリソース', price:420 },
+        ]
+      },
+      nachos: {
+        countId: 'cnt-nachos',
+        optionsId: 'options-nachos',
+        items: [
+          { id:'na-s-cheese', icon:'🧀', name:'ナチョス',    sub:'Sサイズ チーズソース',       price:400 },
+          { id:'na-l-cheese', icon:'🧀', name:'ナチョス',    sub:'Lサイズ チーズソース',       price:550 },
+          { id:'na-s-salsa',  icon:'🧀', name:'ナチョス',    sub:'Sサイズ サルサソース',       price:400 },
+          { id:'na-l-salsa',  icon:'🧀', name:'ナチョス',    sub:'Lサイズ サルサソース',       price:550 },
+          { id:'na-s-hal',    icon:'🧀', name:'ナチョス',    sub:'Sサイズ HAL限定 赤味噌ソース', price:450, badge:'HAL限定' },
+          { id:'na-l-hal',    icon:'🧀', name:'ナチョス',    sub:'Lサイズ HAL限定 赤味噌ソース', price:600, badge:'HAL限定' },
+        ]
+      },
+      fries: {
+        countId: 'cnt-fries',
+        optionsId: 'options-fries',
+        items: [
+          { id:'fr-s-salt',   icon:'🍟', name:'フライドポテト', sub:'Sサイズ 塩',       price:280 },
+          { id:'fr-m-salt',   icon:'🍟', name:'フライドポテト', sub:'Mサイズ 塩',       price:380 },
+          { id:'fr-s-cheese', icon:'🍟', name:'フライドポテト', sub:'Sサイズ チーズ',   price:320 },
+          { id:'fr-m-cheese', icon:'🍟', name:'フライドポテト', sub:'Mサイズ チーズ',   price:420 },
+          { id:'fr-s-hal',    icon:'🍟', name:'フライドポテト', sub:'Sサイズ HAL限定 台湾風', price:350, badge:'HAL限定' },
+          { id:'fr-m-hal',    icon:'🍟', name:'フライドポテト', sub:'Mサイズ HAL限定 台湾風', price:450, badge:'HAL限定' },
+        ]
+      },
+      ice: {
+        countId: 'cnt-ice',
+        optionsId: 'options-ice',
+        items: [
+          { id:'ic-vanilla',  icon:'🍦', name:'バニラ',           sub:'カップ',            price:350 },
+          { id:'ic-choco',    icon:'🍫', name:'チョコレート',     sub:'カップ',            price:350 },
+          { id:'ic-matcha',   icon:'🍵', name:'抹茶',             sub:'カップ',            price:380 },
+          { id:'ic-hal',      icon:'🍦', name:'HAL限定 小倉バニラ', sub:'カップ・小倉あん入り', price:420, badge:'HAL限定' },
+          { id:'ic-hal2',     icon:'🍦', name:'HAL限定 えびせんフレーバー', sub:'カップ・名古屋限定', price:400, badge:'HAL限定' },
+        ]
+      },
+      tshirt: {
+        countId: 'cnt-tshirt',
+        optionsId: 'options-tshirt',
+        items: [
+          { id:'ts-s', icon:'👕', name:'HAL限定Tシャツ', sub:'Sサイズ', price:2800 },
+          { id:'ts-m', icon:'👕', name:'HAL限定Tシャツ', sub:'Mサイズ', price:2800 },
+          { id:'ts-l', icon:'👕', name:'HAL限定Tシャツ', sub:'Lサイズ', price:2800 },
+          { id:'ts-xl',icon:'👕', name:'HAL限定Tシャツ', sub:'XLサイズ',price:2800 },
+        ]
+      },
+      tumbler: {
+        countId: 'cnt-tumbler',
+        optionsId: 'options-tumbler',
+        items: [
+          { id:'tum-black', icon:'🥛', name:'HALタンブラー', sub:'ブラック', price:1800 },
+          { id:'tum-red',   icon:'🥛', name:'HALタンブラー', sub:'レッド',   price:1800 },
+        ]
+      },
+      badge: {
+        countId: 'cnt-badge',
+        optionsId: 'options-badge',
+        items: [
+          { id:'bdg-a', icon:'🎖️', name:'缶バッジセット', sub:'Aセット（シネマデザイン）', price:800 },
+          { id:'bdg-b', icon:'🎖️', name:'缶バッジセット', sub:'Bセット（HALロゴデザイン）', price:800 },
+          { id:'bdg-c', icon:'🎖️', name:'缶バッジセット', sub:'Cセット（上映作品デザイン）', price:900 },
+        ]
+      },
+      poster: {
+        countId: 'cnt-poster',
+        optionsId: 'options-poster',
+        items: [
+          { id:'pos-a', icon:'🖼️', name:'映画ポスター A3', sub:'縦型・スタンダード', price:1200 },
+          { id:'pos-b', icon:'🖼️', name:'映画ポスター A3', sub:'横型・パノラマ版',   price:1200 },
+        ]
+      },
+      keychain: {
+        countId: 'cnt-keychain',
+        optionsId: 'options-keychain',
+        items: [
+          { id:'key-a', icon:'🔑', name:'キーチェーン', sub:'映写機デザイン', price:600 },
+          { id:'key-b', icon:'🔑', name:'キーチェーン', sub:'HALロゴデザイン', price:600 },
+          { id:'key-c', icon:'🔑', name:'キーチェーン', sub:'ポップコーンデザイン', price:600 },
+        ]
+      },
+      blanket: {
+        countId: 'cnt-blanket',
+        optionsId: 'options-blanket',
+        items: [
+          { id:'blk-navy',  icon:'🧣', name:'映画ブランケット', sub:'ネイビー', price:2200 },
+          { id:'blk-gray',  icon:'🧣', name:'映画ブランケット', sub:'グレー',   price:2200 },
+          { id:'blk-black', icon:'🧣', name:'映画ブランケット', sub:'ブラック', price:2200 },
+        ]
+      },
+    };
 
-  <!--
-    ▼ 2次開発（JS）で実装する部分 ▼
-    ・ .has-size-options アイテムのクリック → 対応するポップアップを .is-open にする
-    ・ [data-close-popup] のクリック → ポップアップを閉じる（.is-open を外す）
-    ・ サイズ選択のステッパーで数量変更 → .size-selector-btn__count を更新
-    ・ 固定価格アイテムのステッパーで数量変更
-    ・ #js-order-summary を現在の選択内容で更新
-    ・ #js-total-price を現在の合計金額で更新
-  -->
+    // ══════════════════════════════════════════
+    // 選択状態（key: item.id, value: count）
+    // ══════════════════════════════════════════
+    const selection = {};
+
+    // ══════════════════════════════════════════
+    // ポップアップオプション生成
+    // ══════════════════════════════════════════
+    function buildOptions(menuKey) {
+      const menu = MENU[menuKey];
+      if (!menu) return;
+      const container = document.getElementById(menu.optionsId);
+      if (!container || container.children.length > 0) return;
+
+      menu.items.forEach(function(item) {
+        const div = document.createElement('div');
+        div.className = 'fs-option';
+        div.innerHTML =
+          '<div class="fs-option__icon">' + item.icon + (item.badge ? '<span class="fs-option__badge">' + item.badge + '</span>' : '') + '</div>' +
+          '<div class="fs-option__info">' +
+            '<span class="fs-option__name">' + item.name + '</span>' +
+            '<span class="fs-option__sub">' + item.sub + '</span>' +
+            '<span class="fs-option__price">' + item.price.toLocaleString() + '円（税込）</span>' +
+          '</div>' +
+          '<div class="fs-option__stepper">' +
+            '<button class="fs-option__btn minus" type="button">&#9664;</button>' +
+            '<span class="fs-option__count">0</span>' +
+            '<button class="fs-option__btn plus" type="button">&#9654;</button>' +
+          '</div>';
+
+        const minusBtn = div.querySelector('.minus');
+        const plusBtn  = div.querySelector('.plus');
+        const countEl  = div.querySelector('.fs-option__count');
+
+        // 既存選択を反映
+        if (selection[item.id]) {
+          countEl.textContent = selection[item.id];
+        }
+        minusBtn.disabled = (parseInt(countEl.textContent) || 0) <= 0;
+
+        minusBtn.addEventListener('click', function() {
+          let val = parseInt(countEl.textContent) || 0;
+          if (val <= 0) return;
+          val--;
+          countEl.textContent = val;
+          if (val <= 0) { delete selection[item.id]; } else { selection[item.id] = val; }
+          minusBtn.disabled = val <= 0;
+          updateCountBadge(menu.countId, menuKey);
+          updateSidebar();
+        });
+
+        plusBtn.addEventListener('click', function() {
+          let val = parseInt(countEl.textContent) || 0;
+          val++;
+          countEl.textContent = val;
+          selection[item.id] = val;
+          minusBtn.disabled = false;
+          updateCountBadge(menu.countId, menuKey);
+          updateSidebar();
+        });
+
+        container.appendChild(div);
+      });
+    }
+
+    function updateCountBadge(countId, menuKey) {
+      const menu = MENU[menuKey];
+      const total = menu.items.reduce(function(sum, item) {
+        return sum + (selection[item.id] || 0);
+      }, 0);
+      const el = document.getElementById(countId);
+      if (!el) return;
+      el.textContent = total;
+      el.classList.toggle('is-zero', total === 0);
+    }
+
+    // ══════════════════════════════════════════
+    // ポップアップ開閉
+    // ══════════════════════════════════════════
+    document.querySelectorAll('.has-popup').forEach(function(item) {
+      item.querySelector('.size-selector-btn').addEventListener('click', function() {
+        const popupId = item.dataset.popup;
+        const popup   = document.getElementById(popupId);
+        if (!popup) return;
+        // メニューキーを特定してオプション生成
+        const menuKey = popupId.replace('popup-', '').replace('goods-', '').replace('-', '_');
+        const keyMap = {
+          'popcorn': 'popcorn', 'drink': 'drink', 'hotdog': 'hotdog',
+          'nachos': 'nachos', 'fries': 'fries', 'ice': 'ice',
+          'goods_tshirt': 'tshirt', 'goods_tumbler': 'tumbler',
+          'goods_badge': 'badge', 'goods_poster': 'poster',
+          'goods_keychain': 'keychain', 'goods_blanket': 'blanket'
+        };
+        // popupIdからキーを直接マッピング
+        const directMap = {
+          'popup-popcorn-s':     'popcorn-s',
+          'popup-popcorn-m':     'popcorn-m',
+          'popup-popcorn-l':     'popcorn-l',
+          'popup-drink-s':       'drink-s',
+          'popup-drink-m':       'drink-m',
+          'popup-drink-l':       'drink-l',
+          'popup-hotdog':        'hotdog',
+          'popup-nachos':        'nachos',
+          'popup-fries':         'fries',
+          'popup-ice':           'ice',
+          'popup-goods-tshirt':  'tshirt',
+          'popup-goods-tumbler': 'tumbler',
+          'popup-goods-badge':   'badge',
+          'popup-goods-poster':  'poster',
+          'popup-goods-keychain':'keychain',
+          'popup-goods-blanket': 'blanket',
+        };
+        buildOptions(directMap[popupId]);
+        popup.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    document.querySelectorAll('.fs-popup').forEach(function(popup) {
+      popup.querySelector('.fs-popup__overlay').addEventListener('click', closePopup);
+      popup.querySelector('.fs-popup__close').addEventListener('click', closePopup);
+      function closePopup() {
+        popup.classList.remove('is-open');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // ══════════════════════════════════════════
+    // サービスアイテム（シンプルステッパー）
+    // ══════════════════════════════════════════
+    document.querySelectorAll('.simple-item').forEach(function(item) {
+      const id    = item.dataset.itemId;
+      const price = parseInt(item.dataset.price) || 0;
+      const minusBtn = item.querySelectorAll('.food-stepper__btn')[0];
+      const plusBtn  = item.querySelectorAll('.food-stepper__btn')[1];
+      const countEl  = item.querySelector('.food-stepper__count');
+
+      minusBtn.disabled = true;
+
+      minusBtn.addEventListener('click', function() {
+        let val = parseInt(countEl.textContent) || 0;
+        if (val <= 0) return;
+        val--;
+        countEl.textContent = val;
+        if (val <= 0) { delete selection['svc-' + id]; } else { selection['svc-' + id] = { count: val, price: price, name: item.querySelector('.food-item__name').textContent }; }
+        minusBtn.disabled = val <= 0;
+        updateSidebar();
+      });
+
+      plusBtn.addEventListener('click', function() {
+        let val = parseInt(countEl.textContent) || 0;
+        val++;
+        countEl.textContent = val;
+        selection['svc-' + id] = { count: val, price: price, name: item.querySelector('.food-item__name').textContent };
+        minusBtn.disabled = false;
+        updateSidebar();
+      });
+    });
+
+    // ══════════════════════════════════════════
+    // カテゴリタブ切替
+    // ══════════════════════════════════════════
+    document.querySelectorAll('.category-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.category-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ══════════════════════════════════════════
+    // sessionStorageから情報読み込み
+    // ══════════════════════════════════════════
+    const seatData = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null');
+    if (seatData) {
+      if (seatData.movie)  document.getElementById('sb-movie-title').textContent   = seatData.movie;
+      if (seatData.time)   document.getElementById('sb-movie-time').textContent    = seatData.time;
+      if (seatData.screen) document.getElementById('sb-screen-detail').textContent = seatData.screen;
+
+      const ticketListEl = document.getElementById('js-sidebar-tickets');
+      const nameMap = { small:'小学生以下', general:'一般', junior:'中学生・高校生', college:'大学生', senior:'シニア', oyako:'親子割', couple:'カップル割', 'senior-discount':'シニア割' };
+      if (seatData.tickets && seatData.tickets.length > 0) {
+        seatData.tickets.forEach(function(t) {
+          const li = document.createElement('li');
+          li.textContent = '・' + (nameMap[t.type] || t.type) + '：' + t.count + '枚';
+          ticketListEl.appendChild(li);
+        });
+      } else {
+        const li = document.createElement('li');
+        li.textContent = 'チケット情報なし';
+        ticketListEl.appendChild(li);
+      }
+    }
+
+    // ══════════════════════════════════════════
+    // サイドバー更新
+    // ══════════════════════════════════════════
+    function updateSidebar() {
+      const foodListEl = document.getElementById('js-sidebar-foods');
+      foodListEl.innerHTML = '';
+      let foodTotal = 0;
+
+      // ポップアップ系
+      Object.keys(MENU).forEach(function(menuKey) {
+        const menu = MENU[menuKey];
+        menu.items.forEach(function(item) {
+          const cnt = selection[item.id] || 0;
+          if (cnt > 0) {
+            const li = document.createElement('li');
+            li.textContent = '・' + item.sub + '：' + cnt + '個';
+            foodListEl.appendChild(li);
+            foodTotal += item.price * cnt;
+          }
+        });
+      });
+
+      // サービス系
+      Object.keys(selection).forEach(function(key) {
+        if (key.startsWith('svc-')) {
+          const svc = selection[key];
+          const li = document.createElement('li');
+          li.textContent = '・' + svc.name + '：' + svc.count + '個';
+          foodListEl.appendChild(li);
+          foodTotal += svc.price * svc.count;
+        }
+      });
+
+      if (!foodListEl.children.length) {
+        const li = document.createElement('li');
+        li.textContent = '未選択';
+        li.style.color = 'var(--fs-text-muted)';
+        foodListEl.appendChild(li);
+      }
+
+      // チケット金額 + フード金額の合計
+      const ticketTotal = seatData ? (seatData.totalPrice || 0) : 0;
+      document.getElementById('js-total-price').textContent = (ticketTotal + foodTotal).toLocaleString();
+    }
+
+    updateSidebar();
+
+    // ══════════════════════════════════════════
+    // 次へボタン
+    // ══════════════════════════════════════════
+    document.getElementById('btn-next').addEventListener('click', function() {
+      const foodItems = [];
+      Object.keys(MENU).forEach(function(menuKey) {
+        MENU[menuKey].items.forEach(function(item) {
+          const cnt = selection[item.id] || 0;
+          if (cnt > 0) foodItems.push({ id: item.id, name: item.sub, price: item.price, count: cnt });
+        });
+      });
+      Object.keys(selection).forEach(function(key) {
+        if (key.startsWith('svc-')) {
+          const svc = selection[key];
+          foodItems.push({ id: key, name: svc.name, price: svc.price, count: svc.count });
+        }
+      });
+      const existing = JSON.parse(sessionStorage.getItem('halcinema_seats') || '{}');
+      existing.foods = foodItems;
+      sessionStorage.setItem('halcinema_seats', JSON.stringify(existing));
+      window.location.href = 'order-confirm.html';
+    });
+
+  });
+  </script>
+
 </body>
 </html>

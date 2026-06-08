@@ -1,0 +1,75 @@
+/* ============================================================
+   step-progress.css
+   予約フロー共通ステップ進捗バー
+   ============================================================ */
+
+.flow-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 24px;
+  background: var(--c-bg, #0D0F14);
+  border-bottom: none;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.flow-progress::-webkit-scrollbar { display: none; }
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+  color: var(--c-text-muted, #555C72);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.flow-step.done  { color: var(--c-text-sub, #9AA0B4); }
+.flow-step.active { color: var(--c-text, #F0F0F0); font-weight: 600; }
+
+.flow-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--c-bg-4, #252A3A);
+  border: 1px solid var(--c-border, rgba(255,255,255,0.08));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.flow-step.done .flow-step-num {
+  background: var(--c-bg-3, #1E2230);
+  border-color: var(--c-border-em, rgba(255,255,255,0.18));
+  color: var(--c-text-sub, #9AA0B4);
+}
+
+.flow-step.active .flow-step-num {
+  background: var(--c-red, #E8212B);
+  border-color: var(--c-red, #E8212B);
+  color: #fff;
+}
+
+.flow-line {
+  width: 40px;
+  height: 1px;
+  background: var(--c-border, rgba(255,255,255,0.08));
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.flow-line.done {
+  background: var(--c-border-em, rgba(255,255,255,0.18));
+}
+
+@media (max-width: 600px) {
+  .flow-step-label { display: none; }
+  .flow-line { width: 20px; }
+  .flow-step-num { width: 24px; height: 24px; font-size: 11px; }
+}

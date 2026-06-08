@@ -2,45 +2,110 @@
    zaseki.css — 座席選択ページ専用スタイル
    ============================================================ */
 
-/* ページ全体をビューポート高さに固定 */
+:root {
+  --step-bar-h: 72px;
+  --flow-progress-h: 84px; /* フロー進捗バー分 */
+}
+
 body:has(.zaseki-layout) {
   overflow: hidden;
 }
 
-/* ── 音声案内バー ──────────────────────────────────────────── */
-:root {
-  --voice-bar-h: 64px;
-}
-
-.zaseki-voice-bar {
-  height: var(--voice-bar-h);
-  background: var(--c-bg-2, #151926);
-  border-bottom: 1px solid var(--c-border, #2a2f42);
+/* ── ステップヘッダー ─────────────────────────────────────── */
+.zaseki-step-header {
+  background: var(--c-bg);
+  border-bottom: 1px solid var(--c-border);
+  height: var(--step-bar-h);
   display: flex;
   align-items: center;
-  padding: 0 20px;
-}
-
-.zaseki-voice-bar__inner {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-}
-
-.zaseki-page-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  color: var(--c-text, #F0F0F0);
   flex-shrink: 0;
+}
+
+.zaseki-step-header-inner {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ステップ番号＋タイトル */
+.step-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.step-num {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--c-red);
+  border: 2px solid var(--c-red);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.step-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* 音声案内（voice-guide.cssの.voice-guideを上書き） */
+.zaseki-step-header .voice-guide {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--c-red);
+  border-radius: 999px;
+  padding: 10px 10px 10px 20px;
+  max-width: 900px;
+}
+
+.zaseki-step-header .voice-guide-text {
+  flex: 1;
+  font-size: 13px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.zaseki-step-header .voice-guide-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.zaseki-step-header .voice-guide-btn img {
+  width: 65%;
+  height: 65%;
+  object-fit: contain;
 }
 
 /* ── レイアウト ────────────────────────────────────────────── */
 .zaseki-layout {
   display: flex;
-  height: calc(100vh - var(--nav-h) - var(--voice-bar-h));
+  height: calc(100vh - var(--nav-h) - var(--step-bar-h) - var(--flow-progress-h, 84px));
   overflow: hidden;
 }
 
@@ -58,15 +123,77 @@ body:has(.zaseki-layout) {
   height: 100%;
 }
 
-/* ── オーバーレイUI ────────────────────────────────────────── */
+/* 2D座席マップ */
+.zaseki-2d-wrap {
+  display: none;
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  background: var(--c-bg);
+  padding: 24px;
+}
 
-/* 操作ガイド */
+.zaseki-2d-wrap.active {
+  display: block;
+}
+
+.zaseki-2d-grid {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: max-content;
+}
+
+.zaseki-2d-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zaseki-2d-row-label {
+  width: 24px;
+  font-size: 11px;
+  color: var(--c-text-muted);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.zaseki-2d-seat {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: #6a7090;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+
+.zaseki-2d-seat:hover {
+  transform: scale(1.15);
+}
+
+.zaseki-2d-seat--selected {
+  background: var(--c-red);
+}
+
+.zaseki-2d-seat--taken {
+  background: #353845;
+  cursor: not-allowed;
+}
+
+.zaseki-2d-aisle {
+  width: 12px;
+  flex-shrink: 0;
+}
+
+/* ── オーバーレイUI ────────────────────────────────────────── */
 .zaseki-guide {
   position: absolute;
   bottom: 56px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0,0,0,0.55);
   backdrop-filter: blur(8px);
   border: 1px solid var(--c-border);
   border-radius: 20px;
@@ -90,8 +217,9 @@ body:has(.zaseki-layout) {
   top: 16px;
   left: 16px;
   display: flex;
+  align-items: center;
   gap: 16px;
-  background: rgba(13, 15, 20, 0.75);
+  background: rgba(13,15,20,0.75);
   backdrop-filter: blur(8px);
   border: 1px solid var(--c-border);
   border-radius: 10px;
@@ -117,10 +245,37 @@ body:has(.zaseki-layout) {
 .zaseki-dot-selected  { background: #E8212B; }
 .zaseki-dot-taken     { background: #353845; border: 1px solid rgba(255,255,255,0.08); }
 
+/* 3D/2D切替 */
+.zaseki-view-toggle {
+  display: flex;
+  gap: 2px;
+  margin-left: 8px;
+  border-left: 1px solid var(--c-border);
+  padding-left: 16px;
+}
+
+.zaseki-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--c-border);
+  color: var(--c-text-sub);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.zaseki-toggle-btn.active {
+  background: var(--c-red);
+  border-color: var(--c-red);
+  color: #fff;
+}
+
 /* ホバーツールチップ */
 .zaseki-tooltip {
   position: absolute;
-  background: rgba(13, 15, 20, 0.9);
+  background: rgba(13,15,20,0.9);
   border: 1px solid var(--c-border-em);
   border-radius: 6px;
   padding: 5px 10px;
@@ -145,7 +300,6 @@ body:has(.zaseki-layout) {
   border-left: 1px solid var(--c-border);
   display: flex;
   flex-direction: column;
-  gap: 0;
   overflow-y: auto;
 }
 
@@ -178,17 +332,17 @@ body:has(.zaseki-layout) {
   line-height: 1;
 }
 
-/* 上映情報 */
 .zaseki-movie-name {
-  font-size: 15px;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.06em;
   color: var(--c-text);
 }
 
 .zaseki-movie-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  letter-spacing: 0.06em;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-text);
 }
 
 .zaseki-movie-sub {
@@ -207,7 +361,7 @@ body:has(.zaseki-layout) {
   display: inline-flex;
   align-items: center;
   background: var(--c-red-dim);
-  border: 1px solid rgba(232, 33, 43, 0.3);
+  border: 1px solid rgba(232,33,43,0.3);
   border-radius: 5px;
   padding: 4px 10px;
   font-size: 12px;
@@ -218,7 +372,7 @@ body:has(.zaseki-layout) {
 }
 
 .zaseki-seat-tag:hover {
-  background: rgba(232, 33, 43, 0.25);
+  background: rgba(232,33,43,0.25);
 }
 
 .zaseki-empty-msg {
@@ -227,48 +381,17 @@ body:has(.zaseki-layout) {
   line-height: 1.5;
 }
 
-/* 料金セクション */
-.zaseki-price-section {
-  gap: 8px;
-}
-
-.zaseki-price-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  color: var(--c-text-sub);
-}
-
-.zaseki-price-total {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--c-text);
-  padding-top: 8px;
-  border-top: 1px solid var(--c-border);
-  margin-top: 4px;
-}
-
-.zaseki-total-price {
-  font-family: var(--font-display);
-  font-size: 24px;
-  color: var(--c-red);
-  letter-spacing: 0.04em;
-}
-
-/* ナビゲーションセクション（戻る・次へ） */
-.zaseki-nav-section {
+/* 確定セクション */
+.zaseki-confirm-section {
   margin-top: auto;
-  flex-direction: row;
   gap: 10px;
 }
 
-.zaseki-nav-back,
-.zaseki-nav-next {
-  flex: 1;
+.zaseki-confirm-note {
+  text-align: center;
+  line-height: 1.5;
 }
 
-/* 次へボタン無効状態 */
 #confirm-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -278,152 +401,33 @@ body:has(.zaseki-layout) {
   transform: none;
 }
 
-/* ── 2D/3Dトグルボタン ─────────────────────────────────────── */
-.zaseki-view-toggle {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: flex;
-  background: rgba(13, 15, 20, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--c-border);
-  border-radius: 8px;
-  overflow: hidden;
-  z-index: 10;
-}
-
-.zaseki-view-toggle button {
-  background: none;
-  border: none;
-  color: var(--c-text-sub);
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 7px 16px;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.zaseki-view-toggle button.active {
-  background: var(--c-bg-4);
-  color: var(--c-text);
-}
-
-/* ── 2D座席マップ ──────────────────────────────────────────── */
-.zaseki-2d-wrap {
-  position: absolute;
-  inset: 0;
-  background: var(--c-bg);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  overflow-y: auto;
-  padding: 48px 24px 32px;
-  gap: 20px;
-}
-
-.zaseki-2d-wrap.active {
-  display: flex;
-}
-
-.zaseki-2d-screen {
-  width: min(90%, 490px);
-  background: rgba(68, 136, 255, 0.18);
-  border: 1px solid rgba(68, 136, 255, 0.7);
-  border-radius: 4px;
-  text-align: center;
-  padding: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: rgba(68, 136, 255, 1.0);
-}
-
-.zaseki-2d-grid {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.zaseki-2d-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.zaseki-2d-row-label {
-  font-size: 10px;
-  color: var(--c-text-muted);
-  width: 16px;
-  text-align: right;
-  flex-shrink: 0;
-  margin-right: 4px;
-}
-
-.zaseki-2d-right-spacer {
-  width: 24px;
-  margin-left: 4px;
-  flex-shrink: 0;
-  visibility: hidden;
-}
-
-.zaseki-2d-col-num {
-  width: 24px;
-  font-size: 9px;
-  text-align: center;
-  color: var(--c-text-muted);
-  flex-shrink: 0;
-}
-
-.zaseki-2d-seat {
-  width: 24px;
-  height: 20px;
-  border-radius: 4px;
-  border: none;
-  background: #6a7090;
-  cursor: pointer;
-  transition: background 0.12s, transform 0.1s;
-  flex-shrink: 0;
-  padding: 0;
-  position: relative;
-}
-
-.zaseki-2d-seat:hover:not(.zaseki-2d-seat--taken) {
-  transform: scale(1.2);
-  z-index: 1;
-}
-
-.zaseki-2d-seat--selected {
-  background: #E8212B;
-}
-
-.zaseki-2d-seat--taken {
-  background: #252A3A;
-  cursor: not-allowed;
-}
-
-.zaseki-2d-aisle {
-  width: 44px;
-  flex-shrink: 0;
-}
-
 /* ── スマホ対応 ────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  :root { --step-bar-h: 90px; }
+
+  .zaseki-step-header { height: auto; min-height: var(--step-bar-h); }
+
+  .zaseki-step-header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .zaseki-step-header .voice-guide {
+    max-width: 100%;
+    width: 100%;
+  }
+
   .zaseki-layout {
     flex-direction: column;
     height: auto;
     overflow: auto;
   }
 
-  body:has(.zaseki-layout) {
-    overflow: auto;
-  }
+  body:has(.zaseki-layout) { overflow: auto; }
 
-  .zaseki-canvas-wrap {
-    height: 55vh;
-    min-height: 300px;
-  }
+  .zaseki-canvas-wrap { height: 55vh; min-height: 300px; }
 
   .zaseki-panel {
     width: 100%;
@@ -432,13 +436,6 @@ body:has(.zaseki-layout) {
     border-top: 1px solid var(--c-border);
   }
 
-  .zaseki-legend {
-    gap: 10px;
-    padding: 8px 12px;
-  }
-
-  .zaseki-guide {
-    font-size: 11px;
-    padding: 6px 14px;
-  }
+  .zaseki-legend { gap: 10px; padding: 8px 12px; }
+  .zaseki-guide  { font-size: 11px; padding: 6px 14px; }
 }

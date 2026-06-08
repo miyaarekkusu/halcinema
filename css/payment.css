@@ -3,16 +3,16 @@
 .payment-wrap {
   max-width: 960px;
   margin: 0 auto;
-  padding: 40px 20px 80px;
+  padding: 24px 20px 80px;
 }
 
-/* ステッププログレス */
+/* ステッププログレス（flow-progressに統一済み） */
 .payment-steps {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0;
-  margin-bottom: 40px;
+  margin-bottom: 0;
 }
 .payment-step {
   display: flex;
@@ -48,15 +48,22 @@
   margin: 0 4px;
 }
 
-/* 2カラムレイアウト */
+/* レイアウト */
 .payment-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   align-items: start;
 }
+
+/* 統合レイアウト：左に合計+支払方法、右にカード入力 */
+.payment-layout--unified {
+  grid-template-columns: 380px 1fr;
+}
+
 @media (max-width: 720px) {
   .payment-layout { grid-template-columns: 1fr; }
+  .payment-layout--unified { grid-template-columns: 1fr; }
 }
 
 /* ─── 左パネル：合計＋支払方法 ─── */
@@ -310,4 +317,45 @@
   justify-content: flex-end;
   gap: 12px;
   margin-top: 32px;
+}
+
+/* ─── フローバッジ ──────────────────────────────────────────── */
+.payment-flow-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 24px;
+}
+.payment-flow-badge.ticket {
+  background: rgba(232, 33, 43, 0.12);
+  border: 1px solid rgba(232, 33, 43, 0.4);
+  color: var(--c-red);
+}
+.payment-flow-badge.goods {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--c-border-em);
+  color: var(--c-text-sub);
+}
+
+/* ─── テスト入力ボタン ──────────────────────────────────────── */
+.payment-test-btn {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px dashed var(--c-border-em);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.payment-test-btn:hover {
+  background: var(--c-bg-4);
+  color: var(--c-text-sub);
+  border-color: var(--c-border-em);
 }

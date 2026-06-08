@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -6,6 +6,7 @@
   <title>決済 | HAL CINEMA</title>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/step-progress.css">
   <link rel="stylesheet" href="../css/payment.css">
 </head>
 <body>
@@ -13,17 +14,17 @@
   <!-- ヘッダー -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
       <nav class="site-nav" id="site-nav">
-        <a href="index.html">上映スケジュール</a>
-        <a href="movies.html">作品一覧</a>
-        <a href="goods.html">グッズ・物販</a>
-        <a href="event.html">イベント情報</a>
-        <a href="theater.html">劇場情報</a>
+        <a href="../html/schedule.html">上映スケジュール</a>
+        <a href="../html/movies.html">作品一覧</a>
+        <a href="../html/goods.html">グッズ・物販</a>
+        <a href="../html/event.html">イベント情報</a>
+        <a href="../html/theater.html">劇場情報</a>
       </nav>
       <div class="header-actions">
-        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
-        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
         <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
           <span></span><span></span><span></span>
         </button>
@@ -34,35 +35,17 @@
   <main class="page-main">
     <div class="payment-wrap">
 
-      <!-- ステップ表示 -->
-      <div class="payment-steps">
-        <div class="payment-step done">
-          <span class="payment-step-num">1</span>
-          <span>座席選択</span>
-        </div>
-        <div class="payment-step-line done"></div>
-        <div class="payment-step done">
-          <span class="payment-step-num">2</span>
-          <span>グッズ選択</span>
-        </div>
-        <div class="payment-step-line done"></div>
-        <div class="payment-step active">
-          <span class="payment-step-num">3</span>
-          <span>決済</span>
-        </div>
-        <div class="payment-step-line"></div>
-        <div class="payment-step">
-          <span class="payment-step-num">4</span>
-          <span>チケット発行</span>
-        </div>
-      </div>
+      <!-- ステップバー（JSで動的に生成） -->
+      <div class="flow-progress" id="payment-steps"></div>
 
-      <div class="payment-layout">
+      <!-- フローモードバッジ -->
+      <div class="payment-flow-badge" id="flow-badge"></div>
 
-        <!-- ─── 左パネル：合計 + 支払方法 ─── -->
+      <div class="payment-layout payment-layout--unified">
+
+        <!-- 左パネル：合計 + 支払方法 -->
         <div class="payment-summary-panel">
 
-          <!-- 合計金額 -->
           <div class="payment-total-box">
             <p class="payment-total-label">合計</p>
             <p class="payment-total-amount">
@@ -105,34 +88,28 @@
           <div>
             <p class="payment-method-label" style="margin-bottom:12px;">決済方法を選択してください</p>
             <div class="payment-methods" id="payment-methods">
-
               <label class="payment-method-item selected" data-method="card">
                 <input type="radio" name="method" value="card" checked>
                 <span class="payment-method-name">クレジットカード</span>
               </label>
-
               <label class="payment-method-item" data-method="paypay">
                 <input type="radio" name="method" value="paypay">
                 <span class="payment-method-name">PayPay</span>
               </label>
-
               <label class="payment-method-item" data-method="paypal">
                 <input type="radio" name="method" value="paypal">
                 <span class="payment-method-name">PayPal</span>
               </label>
-
               <label class="payment-method-item" data-method="cash">
                 <input type="radio" name="method" value="cash">
                 <span class="payment-method-name">映画館で現金払い</span>
               </label>
-
             </div>
           </div>
         </div>
 
-        <!-- ─── 右パネル：カード入力フォーム ─── -->
+        <!-- 右パネル：カード入力フォーム -->
         <div class="payment-card-panel" id="card-panel">
-
           <div class="payment-card-panel-header">
             <span class="payment-panel-logo">HAL <span>CINEMA</span></span>
             <div class="payment-card-logos">
@@ -141,22 +118,22 @@
               <span class="payment-card-logo-badge">JCB</span>
             </div>
           </div>
-
-          <p class="payment-card-title">カード情報を入力</p>
-
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <p class="payment-card-title">カード情報を入力</p>
+            <button type="button" id="test-fill-btn" class="payment-test-btn">
+              🧪 テストデータを入力
+            </button>
+          </div>
           <div class="form-group">
             <label class="form-label" for="card-number">カード番号</label>
             <input class="form-input" type="text" id="card-number"
               placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number">
           </div>
-
           <div class="form-group">
             <label class="form-label" for="card-name">カード名義</label>
             <input class="form-input" type="text" id="card-name"
-              placeholder="TARO YAMADA" autocomplete="cc-name"
-              style="text-transform:uppercase;">
+              placeholder="TARO YAMADA" autocomplete="cc-name" style="text-transform:uppercase;">
           </div>
-
           <div class="payment-card-row">
             <div class="form-group">
               <label class="form-label" for="card-expiry">有効期限</label>
@@ -169,21 +146,17 @@
                 placeholder="123" maxlength="4" autocomplete="cc-csc">
             </div>
           </div>
-
           <div class="payment-card-warning">
             カード番号・有効期限・セキュリティコードが一致していることを確認してから次へ進んでください。
           </div>
-
           <label class="payment-save-label">
             <input type="checkbox" id="save-card">
             このカードを登録する
           </label>
-
           <p class="payment-ssl-note">🔒 SSL により暗号化されています</p>
-
         </div>
 
-        <!-- 他の支払方法パネル（カード以外選択時に表示） -->
+        <!-- 他の支払方法パネル -->
         <div class="payment-method-panel" id="other-panel" style="display:none;">
           <p id="other-panel-text">選択した決済方法の手続き画面へ移動します</p>
         </div>
@@ -199,18 +172,14 @@
     </div>
   </main>
 
-  <!-- フッター -->
   <footer class="site-footer">
     <div class="footer-inner">
       <div>
         <p class="footer-logo">HAL <span>CINEMA</span></p>
-        <p class="footer-desc">
-          HALシネマは全8スクリーン・1,500席を誇る<br>
-          名古屋最大級のシネマコンプレックスです。
-        </p>
+        <p class="footer-desc">HALシネマは全8スクリーン・1,500席を誇る<br>名古屋最大級のシネマコンプレックスです。</p>
       </div>
       <nav class="footer-links">
-        <a href="index.html">トップ</a>
+        <a href="../index.html">トップ</a>
         <a href="#">お問い合わせ</a>
         <a href="#">Q&amp;A</a>
         <a href="#">個人情報保護方針</a>
@@ -222,135 +191,234 @@
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script>
-    // ── sessionStorage から予約・グッズ情報を読み込む ──────────
-    var reservation   = JSON.parse(sessionStorage.getItem('reservationData') || '{}')
-    var goodsCart     = JSON.parse(sessionStorage.getItem('goodsCart') || '[]')
-    var ticketAmount  = reservation.totalAmount || 0
-    var goodsSubtotal = goodsCart.reduce(function(s, i) { return s + i.price * i.qty }, 0)
-    var baseAmount    = ticketAmount + goodsSubtotal
-    var pointsUsed    = 0
-    var POINT_BALANCE = 1450
+  // ══════════════════════════════════════════════════════════
+  // フロー判定
+  // halcinema_seats があればチケット予約フロー
+  // reservationData / goodsCart があればグッズ購入フロー
+  // ══════════════════════════════════════════════════════════
+  var ticketData  = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null');
+  var reservation = JSON.parse(sessionStorage.getItem('reservationData')  || '{}');
+  var goodsCart   = JSON.parse(sessionStorage.getItem('goodsCart')         || '[]');
 
-    function updateTotal() {
-      var final = Math.max(0, baseAmount - pointsUsed)
-      document.getElementById('total-yen').textContent = final.toLocaleString()
-    }
+  var isTicketFlow = !!ticketData;
+  var baseAmount   = 0;
+  var pointsUsed   = 0;
+  var POINT_BALANCE = 1450;
 
-    updateTotal()
+  // ── ステップバー生成 ──────────────────────────────────────
+  var TICKET_STEPS = [
+    '座席選択', '券種選択', 'フード・グッズ', '注文確認', '決済', '完了'
+  ];
+  var GOODS_STEPS = [
+    '座席選択', 'グッズ選択', '決済', 'チケット発行'
+  ];
 
-    ;(function () {
-      var lines = []
-      if (reservation.movieTitle)    lines.push(reservation.movieTitle)
-      if (reservation.screenInfo)    lines.push(reservation.screenInfo)
-      if (reservation.screeningInfo) lines.push(reservation.screeningInfo)
-      if (reservation.seats)         lines.push('座席：' + reservation.seats.join('・'))
-      if (reservation.ticketCount)   lines.push('チケット ' + reservation.ticketCount + '枚　¥' + ticketAmount.toLocaleString())
-      if (goodsCart.length > 0) {
-        lines.push('─────')
-        goodsCart.forEach(function(item) {
-          lines.push(item.name + ' ×' + item.qty + '　¥' + (item.price * item.qty).toLocaleString())
-        })
-        lines.push('グッズ小計　¥' + goodsSubtotal.toLocaleString())
+  function buildSteps(steps, activeIndex) {
+    var stepsEl = document.getElementById('payment-steps');
+    stepsEl.innerHTML = '';
+    steps.forEach(function(label, i) {
+      var state = i < activeIndex ? 'done' : i === activeIndex ? 'active' : '';
+      var stepDiv = document.createElement('div');
+      stepDiv.className = 'flow-step ' + state;
+      stepDiv.innerHTML =
+        '<span class="flow-step-num">' + (i + 1) + '</span>' +
+        '<span class="flow-step-label">' + label + '</span>';
+      stepsEl.appendChild(stepDiv);
+      if (i < steps.length - 1) {
+        var line = document.createElement('div');
+        line.className = 'flow-line' + (i < activeIndex ? ' done' : '');
+        stepsEl.appendChild(line);
       }
-      document.getElementById('reservation-summary').innerHTML =
-        lines.map(function(l) {
-          return l === '─────'
-            ? '<hr style="border:none;border-top:1px solid var(--c-border);margin:6px 0;">'
-            : '<p>' + l + '</p>'
-        }).join('')
-    })()
+    });
+  }
 
-    // ── ポイント割引トグル ────────────────────────────────────
-    var pointsToggle = document.getElementById('points-toggle')
-    var pointsBody   = document.getElementById('points-body')
-    var pointsArrow  = document.getElementById('points-arrow')
-    var pointsInput  = document.getElementById('points-input')
+  // ── フローバッジ ──────────────────────────────────────────
+  var badge = document.getElementById('flow-badge');
+  if (isTicketFlow) {
+    badge.textContent = '🎫 チケット予約フロー';
+    badge.classList.add('ticket');
+    buildSteps(TICKET_STEPS, 4);
+  } else {
+    badge.textContent = '🛍️ グッズ購入フロー';
+    badge.classList.add('goods');
+    buildSteps(GOODS_STEPS, 2);
+  }
 
-    pointsToggle.addEventListener('click', function() {
-      var open = pointsBody.style.display === 'none'
-      pointsBody.style.display = open ? '' : 'none'
-      pointsArrow.classList.toggle('open', open)
-      pointsToggle.classList.toggle('active', open)
-    })
+  // ── 金額計算 ──────────────────────────────────────────────
+  if (isTicketFlow) {
+    baseAmount = ticketData.totalPrice || 0;
+  } else {
+    var ticketAmount  = reservation.totalAmount || 0;
+    var goodsSubtotal = goodsCart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+    baseAmount = ticketAmount + goodsSubtotal;
+  }
 
-    pointsInput.addEventListener('input', function() {
-      var val = parseInt(this.value) || 0
-      val = Math.max(0, Math.min(val, POINT_BALANCE, baseAmount))
-      this.value = val
-      pointsUsed = val
-      document.getElementById('discount-display').textContent = '- ' + val.toLocaleString() + ' 円'
-      updateTotal()
-    })
+  function updateTotal() {
+    var final = Math.max(0, baseAmount - pointsUsed);
+    document.getElementById('total-yen').textContent = final.toLocaleString();
+  }
+  updateTotal();
 
-    // ── 支払方法の切り替え ────────────────────────────────────
-    var cardPanel  = document.getElementById('card-panel')
-    var otherPanel = document.getElementById('other-panel')
-    var otherText  = document.getElementById('other-panel-text')
+  // ── 予約内容サマリー ──────────────────────────────────────
+  var summaryEl = document.getElementById('reservation-summary');
+  var lines = [];
 
-    var methodMessages = {
-      paypay : 'PayPay アプリでのお支払い画面へ移動します',
-      paypal : 'PayPal のお支払い画面へ移動します',
-      cash   : '映画館窓口でのお支払いになります。\nチケット発行後、受付にてお支払いください。'
+  if (isTicketFlow) {
+    var nameMap = { small:'小学生以下', general:'一般', junior:'中学生・高校生', college:'大学生', senior:'シニア', oyako:'親子割', couple:'カップル割', 'senior-discount':'シニア割' };
+    if (ticketData.movie)  lines.push('🎬 ' + ticketData.movie);
+    if (ticketData.screen) lines.push('📍 ' + ticketData.screen);
+    if (ticketData.time)   lines.push('🕐 ' + ticketData.time);
+    if (ticketData.seats && ticketData.seats.length)
+      lines.push('💺 座席：' + ticketData.seats.join('・'));
+    if (ticketData.tickets && ticketData.tickets.length) {
+      lines.push('─────');
+      ticketData.tickets.forEach(function(t) {
+        lines.push((nameMap[t.type] || t.type) + ' ×' + t.count + '　¥' + (t.price * t.count).toLocaleString());
+      });
     }
+    if (ticketData.foods && ticketData.foods.length) {
+      lines.push('─────');
+      ticketData.foods.forEach(function(f) {
+        if (f.count > 0) lines.push(f.name + ' ×' + f.count + '　¥' + (f.price * f.count).toLocaleString());
+      });
+    }
+  } else {
+    if (reservation.movieTitle)    lines.push('🎬 ' + reservation.movieTitle);
+    if (reservation.screenInfo)    lines.push('📍 ' + reservation.screenInfo);
+    if (reservation.screeningInfo) lines.push('🕐 ' + reservation.screeningInfo);
+    if (reservation.seats)         lines.push('💺 座席：' + reservation.seats.join('・'));
+    if (reservation.ticketCount)   lines.push('🎫 チケット ' + reservation.ticketCount + '枚　¥' + (reservation.totalAmount || 0).toLocaleString());
+    if (goodsCart.length > 0) {
+      lines.push('─────');
+      goodsCart.forEach(function(item) {
+        lines.push(item.name + ' ×' + item.qty + '　¥' + (item.price * item.qty).toLocaleString());
+      });
+    }
+  }
 
-    document.querySelectorAll('.payment-method-item').forEach(function(item) {
-      item.addEventListener('click', function() {
-        document.querySelectorAll('.payment-method-item').forEach(function(i) {
-          i.classList.remove('selected')
-        })
-        this.classList.add('selected')
-        var method = this.dataset.method
-        if (method === 'card') {
-          cardPanel.style.display  = ''
-          otherPanel.style.display = 'none'
-        } else {
-          cardPanel.style.display  = 'none'
-          otherPanel.style.display = ''
-          otherText.textContent    = methodMessages[method] || ''
-        }
-      })
-    })
+  summaryEl.innerHTML = lines.map(function(l) {
+    return l === '─────'
+      ? '<hr style="border:none;border-top:1px solid var(--c-border);margin:6px 0;">'
+      : '<p>' + l + '</p>';
+  }).join('');
 
-    // ── カード番号の自動スペース区切り ────────────────────────
-    document.getElementById('card-number').addEventListener('input', function() {
-      var v = this.value.replace(/\D/g, '').slice(0, 16)
-      this.value = v.replace(/(.{4})/g, '$1 ').trim()
-    })
+  // ── ポイント割引 ──────────────────────────────────────────
+  var pointsToggle = document.getElementById('points-toggle');
+  var pointsBody   = document.getElementById('points-body');
+  var pointsArrow  = document.getElementById('points-arrow');
+  var pointsInput  = document.getElementById('points-input');
 
-    // ── 有効期限の自動スラッシュ ──────────────────────────────
-    document.getElementById('card-expiry').addEventListener('input', function() {
-      var v = this.value.replace(/\D/g, '').slice(0, 4)
-      if (v.length >= 3) v = v.slice(0, 2) + ' / ' + v.slice(2)
-      this.value = v
-    })
+  pointsToggle.addEventListener('click', function() {
+    var open = pointsBody.style.display === 'none';
+    pointsBody.style.display = open ? '' : 'none';
+    pointsArrow.classList.toggle('open', open);
+    pointsToggle.classList.toggle('active', open);
+  });
 
-    // ── 戻るボタン ────────────────────────────────────────────
-    document.getElementById('back-btn').addEventListener('click', function() {
-      location.href = 'goods.html'
-    })
+  pointsInput.addEventListener('input', function() {
+    var val = parseInt(this.value) || 0;
+    val = Math.max(0, Math.min(val, POINT_BALANCE, baseAmount));
+    this.value = val;
+    pointsUsed = val;
+    document.getElementById('discount-display').textContent = '- ' + val.toLocaleString() + ' 円';
+    updateTotal();
+  });
 
-    // ── 次へボタン → ticket.html へ遷移 ──────────────────────
-    document.getElementById('next-btn').addEventListener('click', function() {
-      var method = document.querySelector('input[name="method"]:checked').value
+  // ── 支払方法切替 ──────────────────────────────────────────
+  var cardPanel  = document.getElementById('card-panel');
+  var otherPanel = document.getElementById('other-panel');
+  var otherText  = document.getElementById('other-panel-text');
+  var methodMessages = {
+    paypay: 'PayPay アプリでのお支払い画面へ移動します',
+    paypal: 'PayPal のお支払い画面へ移動します',
+    cash:   '映画館窓口でのお支払いになります。\nチケット発行後、受付にてお支払いください。'
+  };
 
+  document.querySelectorAll('.payment-method-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.payment-method-item').forEach(function(i) { i.classList.remove('selected'); });
+      this.classList.add('selected');
+      var method = this.dataset.method;
       if (method === 'card') {
-        var num  = document.getElementById('card-number').value.replace(/\s/g, '')
-        var name = document.getElementById('card-name').value.trim()
-        var exp  = document.getElementById('card-expiry').value.trim()
-        var cvc  = document.getElementById('card-cvc').value.trim()
-        if (num.length < 16 || !name || exp.length < 7 || cvc.length < 3) {
-          alert('カード情報を正しく入力してください。')
-          return
-        }
+        cardPanel.style.display  = '';
+        otherPanel.style.display = 'none';
+      } else {
+        cardPanel.style.display  = 'none';
+        otherPanel.style.display = '';
+        otherText.textContent    = methodMessages[method] || '';
       }
+    });
+  });
 
-      reservation.paymentMethod  = method
-      reservation.pointsUsed     = pointsUsed
-      reservation.finalAmount    = Math.max(0, baseAmount - pointsUsed)
-      sessionStorage.setItem('reservationData', JSON.stringify(reservation))
+  // ── カード番号フォーマット ────────────────────────────────
+  document.getElementById('card-number').addEventListener('input', function() {
+    var v = this.value.replace(/\D/g, '').slice(0, 16);
+    this.value = v.replace(/(.{4})/g, '$1 ').trim();
+  });
 
-      location.href = 'ticket.html'
-    })
+  document.getElementById('card-expiry').addEventListener('input', function() {
+    var v = this.value.replace(/\D/g, '').slice(0, 4);
+    if (v.length >= 3) v = v.slice(0, 2) + ' / ' + v.slice(2);
+    this.value = v;
+  });
+
+  // ── テストデータ入力ボタン ───────────────────────────────
+  document.getElementById('test-fill-btn').addEventListener('click', function() {
+    document.getElementById('card-number').value = '4242 4242 4242 4242';
+    document.getElementById('card-name').value   = 'TARO YAMADA';
+    document.getElementById('card-expiry').value = '12 / 28';
+    document.getElementById('card-cvc').value    = '123';
+    // カードパネルが非表示なら切り替え
+    if (cardPanel.style.display === 'none') {
+      cardPanel.style.display  = '';
+      otherPanel.style.display = 'none';
+      document.querySelectorAll('.payment-method-item').forEach(function(i) { i.classList.remove('selected'); });
+      document.querySelector('[data-method="card"]').classList.add('selected');
+      document.querySelector('input[value="card"]').checked = true;
+    }
+  });
+
+  // ── 戻るボタン ────────────────────────────────────────────
+  document.getElementById('back-btn').addEventListener('click', function() {
+    if (isTicketFlow) {
+      location.href = 'order-confirm.html';
+    } else {
+      location.href = 'goods.html';
+    }
+  });
+
+  // ── 次へボタン ────────────────────────────────────────────
+  document.getElementById('next-btn').addEventListener('click', function() {
+    var method = document.querySelector('input[name="method"]:checked').value;
+
+    if (method === 'card') {
+      var num  = document.getElementById('card-number').value.replace(/\s/g, '');
+      var name = document.getElementById('card-name').value.trim();
+      var exp  = document.getElementById('card-expiry').value.trim();
+      var cvc  = document.getElementById('card-cvc').value.trim();
+      if (num.length < 16 || !name || exp.length < 7 || cvc.length < 3) {
+        alert('カード情報を正しく入力してください。');
+        return;
+      }
+    }
+
+    // 決済情報をsessionStorageに保存
+    if (isTicketFlow) {
+      ticketData.paymentMethod = method;
+      ticketData.pointsUsed    = pointsUsed;
+      ticketData.finalAmount   = Math.max(0, baseAmount - pointsUsed);
+      ticketData.paidAt        = new Date().toISOString();
+      sessionStorage.setItem('halcinema_seats', JSON.stringify(ticketData));
+      location.href = 'complete.html';
+    } else {
+      reservation.paymentMethod = method;
+      reservation.pointsUsed    = pointsUsed;
+      reservation.finalAmount   = Math.max(0, baseAmount - pointsUsed);
+      reservation.paidAt        = new Date().toISOString();
+      sessionStorage.setItem('reservationData', JSON.stringify(reservation));
+      location.href = 'ticket.html';
+    }
+  });
   </script>
 
 </body>
