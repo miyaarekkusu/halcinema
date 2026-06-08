@@ -11,8 +11,13 @@ const SPACING_X  = 1.5
 const SPACING_Z  = 2.0
 const HEIGHT_STEP = 0.5
 const AISLE_WIDTH = 2.5
+<<<<<<< Updated upstream
 const PRICE_PER_SEAT = 1800
 const TAKEN_RATE = 0.28
+=======
+const PRICE_PER_SEAT = 1800  // ※ 2次開発で券種選択から受け取る予定。現在は未使用。
+const TAKEN_RATE = 0.28   // 事前に埋まっている席の割合
+>>>>>>> Stashed changes
 
 const ROW_LABELS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N']
 
@@ -25,7 +30,7 @@ const canvas       = document.querySelector('canvas.webgl')
 const canvasWrap   = document.querySelector('.zaseki-canvas-wrap')
 const selectedList = document.getElementById('selected-list')
 const countEl      = document.getElementById('selected-count')
-const totalPriceEl = document.getElementById('total-price')
+// totalPriceEl は料金表示削除のため不使用
 const confirmBtn   = document.getElementById('confirm-btn')
 const viewSection  = document.getElementById('view-section')
 const viewBtn      = document.getElementById('view-btn')
@@ -356,9 +361,15 @@ function updateUI() {
   const selected = seatObjects.filter(s => s.state === STATE_SELECTED)
   const count    = selected.length
 
+<<<<<<< Updated upstream
   countEl.textContent      = count
   totalPriceEl.textContent = (count * PRICE_PER_SEAT).toLocaleString()
   confirmBtn.disabled      = count === 0
+=======
+  countEl.textContent = count
+  // 料金は券種選択ページで決まるため、ここでは非表示
+  confirmBtn.disabled = count === 0
+>>>>>>> Stashed changes
 
   if (count === 0) {
     selectedList.innerHTML = '<p class="zaseki-empty-msg">座席をクリックして選択してください</p>'
@@ -388,7 +399,9 @@ function updateUI() {
 
 // 次へボタン
 confirmBtn.addEventListener('click', () => {
+  // 選択座席をsessionStorageに保存して次ページへ（2次開発で活用）
   const selected = seatObjects.filter(s => s.state === STATE_SELECTED)
+<<<<<<< Updated upstream
   const reservationData = {
     reservationId : 'HAL-' + Date.now() + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0'),
     movieTitle    : document.querySelector('.zaseki-movie-name').textContent,
@@ -401,6 +414,14 @@ confirmBtn.addEventListener('click', () => {
   }
   sessionStorage.setItem('reservationData', JSON.stringify(reservationData))
   location.href = 'goods.html'
+=======
+  const labels   = selected.map(s => s.label)
+  sessionStorage.setItem('selectedSeats', JSON.stringify(labels))
+  sessionStorage.setItem('seatCount', labels.length)
+
+  // 券種選択ページへ遷移
+  window.location.href = 'ticket-select.html'
+>>>>>>> Stashed changes
 })
 
 // ─── 2D座席マップ ──────────────────────────────────────────────────

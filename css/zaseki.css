@@ -7,10 +7,40 @@ body:has(.zaseki-layout) {
   overflow: hidden;
 }
 
+/* ── 音声案内バー ──────────────────────────────────────────── */
+:root {
+  --voice-bar-h: 64px;
+}
+
+.zaseki-voice-bar {
+  height: var(--voice-bar-h);
+  background: var(--c-bg-2, #151926);
+  border-bottom: 1px solid var(--c-border, #2a2f42);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.zaseki-voice-bar__inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.zaseki-page-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  color: var(--c-text, #F0F0F0);
+  flex-shrink: 0;
+}
+
 /* ── レイアウト ────────────────────────────────────────────── */
 .zaseki-layout {
   display: flex;
-  height: calc(100vh - var(--nav-h));
+  height: calc(100vh - var(--nav-h) - var(--voice-bar-h));
   overflow: hidden;
 }
 

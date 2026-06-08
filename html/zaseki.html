@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/zaseki.css">
+  <link rel="stylesheet" href="../css/voice-guide.css">
 
   <!-- Three.js CDN (importmap) -->
   <script type="importmap">
@@ -42,6 +43,22 @@
       </div>
     </div>
   </header>
+
+  <!-- 音声案内バー（座席選択ページ） -->
+  <div class="zaseki-voice-bar">
+    <div class="zaseki-voice-bar__inner">
+      <h1 class="zaseki-page-title">1. 座席選択</h1>
+      <div class="voice-guide"
+           data-audio="../audio/01_seat-select.mp3"
+           data-autoplay="false">
+        <button class="voice-guide__body" type="button">
+          予約する座席を選択してください。座席は複数選択することが可能です。<br>
+          また、右下のボタンから座席からの視点で確認することも可能です。選択が完了後「次へ」を押してください。
+        </button>
+        <button class="voice-guide__speaker" type="button"></button>
+      </div>
+    </div>
+  </div>
 
   <!-- メインレイアウト（3D + パネル） -->
   <div class="zaseki-layout">
@@ -117,25 +134,13 @@
         </button>
       </div>
 
-      <!-- 料金 -->
-      <div class="zaseki-panel-section zaseki-price-section">
-        <div class="zaseki-price-row">
-          <span class="text-sub text-sm">1席あたり</span>
-          <span class="text-sm">¥1,800</span>
-        </div>
-        <div class="zaseki-price-row zaseki-price-total">
-          <span>合計金額</span>
-          <span class="zaseki-total-price">¥<span id="total-price">0</span></span>
-        </div>
-      </div>
-
       <!-- 確定ボタン -->
       <div class="zaseki-panel-section zaseki-confirm-section">
         <button class="btn btn-primary btn-lg" id="confirm-btn" disabled style="width:100%;">
-          予約を確定する
+          次へ
         </button>
         <p class="zaseki-confirm-note text-muted text-xs">
-          ※ 選択後、内容確認画面へ進みます
+          ※ 座席を選択後、次へを押してください
         </p>
       </div>
 
@@ -146,6 +151,7 @@
   <script type="module" src="../js/zaseki.js"></script>
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
+  <script src="../js/voice-guide.js" defer></script>
 
 </body>
 </html>

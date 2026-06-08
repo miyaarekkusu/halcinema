@@ -157,8 +157,14 @@ halcinema/
 | `html/mypage.html`    | マイページ       | ✅ 完成 |
 | `html/schedule.html`  | 上映スケジュール | 🔲 未作成 |
 | `html/movies.html`    | 作品一覧       | ✅ 完成 |
+<<<<<<< Updated upstream
 | `html/goods.html`     | グッズ・売店   | ✅ 完成 |
 | `html/event.html`     | イベント情報   | ✅ 完成 |
 | `html/theater.html`   | 劇場情報       | 🔲 未作成 |
 | `html/payment.html`   | 決済           | ✅ 完成 |
 | `html/ticket.html`    | 予約完了       | ✅ 完成 |
+=======
+| `html/goods.html`     | グッズ・物販   | 🔲 未作成 |
+| `html/event.html`     | イベント情報   | 🔲 未作成 |
+| `html/theater.html`   | 劇場情報       | ✅ 未作成 |
+>>>>>>> Stashed changes
