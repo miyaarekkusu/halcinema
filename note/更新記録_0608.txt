@@ -1,0 +1,32 @@
+　田邉誉志英
+2026/05/19/
+
+    common.css、common.js、chatbot.css、chatbot.jsを作成
+
+---
+
+　田邉誉志英
+2026/06/（日付を記入）
+
+    予約フロー各ページの実装・改修
+
+    【新規作成】
+    - css/step-progress.css：予約フロー共通ステップ進捗バー
+    - js/step-progress.js：ステップ進捗バー自動挿入スクリプト
+
+    【改修】
+    - html/zaseki.html：ステップヘッダー・音声案内バー追加、3D/2D切替ボタン追加、sessionStorage保存（halcinema_seats）、戻り時に座席選択状態を復元
+    - css/zaseki.css：ステップヘッダースタイル、フロー進捗バー対応レイアウト調整
+    - js/zaseki.js：座席選択データをhalcinema_seatsキーで保存、戻った時の復元処理追加
+
+    - html/ticket-select.html：ステップヘッダー追加、ステッパーJS実装（増減・上限制御）、お得チケット2席消費対応、sessionStorageから座席データ読込・チケットデータ保存・復元
+    - css/ticket-select.css：ステップヘッダースタイル、年齢詳細表示、サイドバー内ボタン配置
+
+    - html/food-select.html：カテゴリタブ（フード/グッズ/サービス）追加、S/M/L別カード構成、味・種類選択ポップアップ実装、HAL限定メニュー追加、sessionStorage連携
+    - css/food-select.css：カテゴリタブ・ポップアップ・ステップヘッダースタイル
+
+    - html/order-confirm.html：ステップヘッダー追加、sessionStorageから座席・チケット・フードデータを読込んで動的表示
+    - css/order-confirm.css：ステップヘッダースタイル
+
+    - html/payment.html：チケット予約フロー/グッズ購入フローの自動判定・表示切替、フローバッジ表示、テストデータ入力ボタン追加、決済情報sessionStorage保存
+    - css/payment.css：フローバッジ・テストボタンスタイル、レイアウト調整
