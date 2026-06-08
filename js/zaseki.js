@@ -11,13 +11,8 @@ const SPACING_X  = 1.5
 const SPACING_Z  = 2.0
 const HEIGHT_STEP = 0.5
 const AISLE_WIDTH = 2.5
-<<<<<<< Updated upstream
-const PRICE_PER_SEAT = 1800
-const TAKEN_RATE = 0.28
-=======
 const PRICE_PER_SEAT = 1800  // ※ 2次開発で券種選択から受け取る予定。現在は未使用。
 const TAKEN_RATE = 0.28   // 事前に埋まっている席の割合
->>>>>>> Stashed changes
 
 const ROW_LABELS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N']
 
