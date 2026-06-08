@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2. 券種選択 | HAL CINEMA</title>
+  <!-- common.css はプロジェクト共通のもの -->
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/voice-guide.css">
+  <link rel="stylesheet" href="../css/ticket-select.css">
+</head>
+<body>
+
+<!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../html/schedule.html">上映スケジュール</a>
+        <a href="../html/movies.html">作品一覧</a>
+        <a href="../html/goods.html">グッズ・物販</a>
+        <a href="../html/event.html">イベント情報</a>
+        <a href="../html/theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ====================================================
+       メインコンテンツ
+       ==================================================== -->
+  <main class="page-main">
+    <div class="page-wrapper">
+
+      <!-- ページ見出し + 音声案内 -->
+      <div class="page-top">
+        <h1 class="page-title"><span class="page-num">2.</span> 券種選択</h1>
+
+        <!-- 音声案内コンポーネント（voice-guide.js が初期化） -->
+        <div class="voice-guide"
+             data-audio="audio/02-ticket-select.mp3"
+             data-autoplay="false">
+          <button class="voice-guide__body" type="button">
+            当てはまる券種を、座席の数だけ選択してください。指定のペアチケットに当てはまる場合、<br>
+            そちらの方がお安くなっております。選択が完了後「次へ」を押してください。
+          </button>
+          <button class="voice-guide__speaker" type="button"></button>
+        </div>
+      </div>
+
+      <!-- チケット選択グリッド（左：選択 / 右：サイドバー） -->
+      <div class="ticket-grid">
+
+        <!-- ========================================
+             左カラム：チケット種別・数量選択
+             ======================================== -->
+        <div class="ticket-panel">
+
+          <!-- 通常チケット --------------------------------- -->
+          <section class="ticket-section">
+            <div class="section-header">
+              <h2 class="section-title">通常チケット</h2>
+              <!-- JS（2次）で選択数に合わせて更新する -->
+              <p class="seat-remain" id="js-seat-remain">
+                残り座席数 <strong id="js-remain-count">2</strong> 枚（合計3枚）
+              </p>
+            </div>
+
+            <ul class="ticket-list" id="js-normal-list">
+
+              <li class="ticket-row">
+                <div class="ticket-info">
+                  <span class="ticket-name">小学生以下</span>
+                </div>
+                <span class="ticket-price">1000円</span>
+                <div class="stepper" data-type="small" data-price="1000">
+                  <button class="stepper__btn stepper__btn--minus" type="button" aria-label="減らす">&#9664;</button>
+                  <span class="stepper__count">1</span><!-- JS が書き換える -->
+                  <button class="stepper__btn stepper__btn--plus"  type="button" aria-label="増やす">&#9654;</button>
+                </div>
+              </li>
+
+              <li class="ticket-row">
+                <div class="ticket-info">
+                  <span class="ticket-name">一般</span>
+                </div>
+                <span class="ticket-price">1800円</span>
+                <div class="stepper" data-type="general" data-price="1800">
+                  <button class="stepper__btn stepper__btn--minus" type="button" aria-label="減らす">&#9664;</button>
+                  <span class="stepper__count">0</span>
+                  <button class="stepper__btn stepper__btn--plus"  type="button" aria-label="増やす">&#9654;</button>
+                </div>
+              </li>
+
+              <li class="ticket-row">
+                <div class="ticket-info">
+                  <span class="ticket-name">中学生、高校生</span>
+                </div>
+                <span class="ticket-price">1400円</span>
+                <div class="stepper" data-type="junior" data-price="1400">
+                  <button class="stepper__btn stepper__btn--minus" type="button" aria-label="減らす">&#9664;</button>
+                  <span class="stepper__count">0</span>
+                  <button class="stepper__btn stepper__btn--plus"  type="button" aria-label="増やす">&#9654;</button>
+                </div>
+              </li>
+
+              <li class="ticket-row">
+                <div class="ticket-info">
+                  <span class="ticket-name">大学生</span>
+                </div>
+                <span class="ticket-price">1600円</span>
+                <div class="stepper" data-type="college" data-price="1600">
+                  <button class="stepper__btn stepper__btn--minus" type="button" aria-label="減らす">&#9664;</button>
+                  <span class="stepper__count">0</span>
+                  <button class="stepper__btn stepper__btn--plus"  type="button" aria-label="増やす">&#9654;</button>
+                </div>
+              </li>
+
+              <li class="ticket-row">
+                <div class="ticket-info">
+                  <span class="ticket-name">シニア</span>
+                </div>
+                <span class="ticket-price">1200円</span>
+                <div class="stepper" data-type="senior" data-price="1200">
+                  <button class="stepper__btn stepper__btn--minus" type="button" aria-label="減らす">&#9664;</button>
+                  <span class="stepper__count">0</span>
+                  <button class="stepper__btn stepper__btn--plus"  type="button" aria-label="増やす">&#9654;</button>
+                </div>
+              </li>
+
+            </ul>
+          </section>
+
+          <!-- お得チケット --------------------------------- -->
+          <section class="ticket-section">
+            <div class="section-header">
+              <h2 class="section-title">お得チケット</h2>
+            </div>
+
+            <ul class="ticket-list">
+
+              <li class="ticket-row">
+                <div class="ticket-info">
+                  <span class="ticket-name">親子割</span>
+                  <span class="ticket-note">※小学生以下1〜親一般のお客様専用</span>
+                </div>
+                <span class="ticket-price">2500円</span>
+                <div class="stepper" data-type="oyako" data-price="2500">
+                  <button class="stepper__btn stepper__btn--minus" type="button" aria-label="減らす">&#9664;</button>
+                  <span class="stepper__count">0</span>
+                  <button class="stepper__btn stepper__btn--plus"  type="button" aria-label="増やす">&#9654;</button>
+                </div>
+              </li>
+
+              <li class="ticket-row">
+                <div class="ticket-info">
+                  <span class="ticket-name">カップル割</span>
+                  <span class="ticket-note">※カップル限定</span>
+                </div>
+                <span class="ticket-price">3000円</span>
+                <div class="stepper" data-type="couple" data-price="3000">
+                  <button class="stepper__btn stepper__btn--minus" type="button" aria-label="減らす">&#9664;</button>
+                  <span class="stepper__count">0</span>
+                  <button class="stepper__btn stepper__btn--plus"  type="button" aria-label="増やす">&#9654;</button>
+                </div>
+              </li>
+
+              <li class="ticket-row">
+                <div class="ticket-info">
+                  <span class="ticket-name">シニア割</span>
+                  <span class="ticket-note">※65歳以上の方2名から限定</span>
+                </div>
+                <span class="ticket-price">2000円</span>
+                <div class="stepper" data-type="senior-discount" data-price="2000">
+                  <button class="stepper__btn stepper__btn--minus" type="button" aria-label="減らす">&#9664;</button>
+                  <span class="stepper__count">0</span>
+                  <button class="stepper__btn stepper__btn--plus"  type="button" aria-label="増やす">&#9654;</button>
+                </div>
+              </li>
+
+            </ul>
+          </section>
+
+        </div><!-- /.ticket-panel -->
+
+        <!-- ========================================
+             右カラム：サイドバー（上映情報・合計）
+             ======================================== -->
+        <aside class="ticket-sidebar">
+          <div class="sidebar-card">
+
+            <!-- 上映作品 -->
+            <div class="sidebar-section">
+              <p class="sidebar-label">上映作品</p>
+              <div class="movie-info">
+                <div class="movie-poster">
+                  <!-- ▼ 実際のポスター画像があれば img タグに差し替え -->
+                  <!-- <img src="img/prada2.jpg" alt="プラダを着た悪魔2"> -->
+                  <div class="movie-poster__placeholder"></div>
+                </div>
+                <div class="movie-meta">
+                  <h3 class="movie-title">プラダを着た悪魔2</h3>
+                  <p class="movie-time">12:30〜</p>
+                  <span class="movie-rating">PC12</span>
+                  <p class="movie-duration">120分</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- スクリーン情報 -->
+            <div class="sidebar-section">
+              <p class="sidebar-label">スクリーン</p>
+              <p class="venue-name">HAL CINEMA</p>
+              <p class="venue-screen">スクリーン7 IMAXスクリーン、</p>
+            </div>
+
+            <!-- 選択済みチケット一覧（JS で更新） -->
+            <div class="sidebar-section">
+              <ul class="selected-list" id="js-selected-list">
+                <li>・小学生以下：1枚</li>
+              </ul>
+            </div>
+
+            <!-- 合計金額（JS で更新） -->
+            <div class="price-total">
+              <span class="price-amount" id="js-total-price">4500</span>
+              <span class="price-unit">円（税込）</span>
+            </div>
+
+          </div>
+        </aside>
+
+      </div><!-- /.ticket-grid -->
+
+      <!-- 戻る / 次へ ボタン -->
+      <div class="page-actions">
+        <a href="seat-select.html"  class="btn btn--back">戻る</a>
+        <a href="food-select.html"  class="btn btn--next">次へ</a>
+      </div>
+
+    </div><!-- /.page-wrapper -->
+  </main>
+
+  <!-- ====================================================
+       フッター
+       common.js で自動挿入している場合はこの <footer> を削除
+       ==================================================== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">HAL<br>CINEMA</div>
+      <nav class="footer-nav">
+        <a href="#">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&A</a>
+        <a href="#">個人情報</a>
+      </nav>
+      <p class="footer-copy">© All right reserved 2026</p>
+    </div>
+  </footer>
+
+  <!-- ====================================================
+       スクリプト
+       ==================================================== -->
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script src="../js/voice-guide.js" defer></script>
+
+  <!--
+    ▼ 2次開発（座席予約 JS）で実装する部分 ▼
+    - .stepper__btn--minus / plus のクリックで stepper__count を増減
+    - #js-remain-count を「合計座席数 - 現在の合計選択数」で更新
+    - #js-selected-list を現在の選択状態のリストに更新
+    - #js-total-price を合計金額に更新
+    - 合計選択数が座席数を超えたら + ボタンを disabled にする
+  -->
+</body>
+</html>

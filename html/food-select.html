@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3. フード・グッズ | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/voice-guide.css">
+  <link rel="stylesheet" href="../css/food-select.css">
+</head>
+<body>
+
+<!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../html/schedule.html">上映スケジュール</a>
+        <a href="../html/movies.html">作品一覧</a>
+        <a href="../html/goods.html">グッズ・物販</a>
+        <a href="../html/event.html">イベント情報</a>
+        <a href="../html/theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="page-wrapper">
+
+      <!-- ページ見出し + 音声案内 -->
+      <div class="page-top">
+        <h1 class="page-title"><span class="page-num">3.</span> フード・グッズ</h1>
+
+        <div class="voice-guide"
+             data-audio="audio/03_food-select.mp3"
+             data-autoplay="false">
+          <button class="voice-guide__body" type="button">
+            ご一緒にポップコーンやお飲み物はいかがですか？私はポップコーンのキャラメル味がおすすめです！<br>
+            必要のない方はそのまま次へお進みください。
+          </button>
+          <button class="voice-guide__speaker" type="button"></button>
+        </div>
+      </div>
+
+      <!-- メイングリッド（左：フード / 右：サイドバー） -->
+      <div class="food-grid-layout" style="position:relative;">
+
+        <!-- ========================================
+             左カラム：フード選択グリッド
+             ======================================== -->
+        <div class="food-panel">
+          <div class="food-items-grid">
+
+            <!-- ポップコーン キャラメル味（サイズ選択型） -->
+            <div class="food-item has-size-options" id="item-popcorn-caramel"
+                 data-popup-target="popup-popcorn-caramel">
+              <div class="food-item__img">
+                <!-- <img src="img/popcorn-caramel.jpg" alt="ポップコーンキャラメル味"> -->
+                <div class="food-item__img-placeholder">
+                  <span class="ph-icon">🍿</span>
+                  <span class="ph-label">サンプル</span>
+                </div>
+              </div>
+              <div class="food-item__body">
+                <span class="food-item__name">ポップコーンキャラメル味</span>
+                <button class="size-selector-btn" type="button" aria-expanded="false">
+                  <span>サイズを選んでください</span>
+                  <span class="size-selector-btn__count is-zero" id="count-caramel">0</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ポップコーン 塩味（サイズ選択型） -->
+            <div class="food-item has-size-options" id="item-popcorn-salt"
+                 data-popup-target="popup-popcorn-salt">
+              <div class="food-item__img">
+                <div class="food-item__img-placeholder">
+                  <span class="ph-icon">🍿</span>
+                  <span class="ph-label">サンプル</span>
+                </div>
+              </div>
+              <div class="food-item__body">
+                <span class="food-item__name">ポップコーン塩味</span>
+                <button class="size-selector-btn" type="button" aria-expanded="false">
+                  <span>サイズを選んでください</span>
+                  <span class="size-selector-btn__count is-zero" id="count-salt">0</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ポップコーン ミックス（サイズ選択型） -->
+            <div class="food-item has-size-options" id="item-popcorn-mix"
+                 data-popup-target="popup-popcorn-mix">
+              <div class="food-item__img">
+                <div class="food-item__img-placeholder">
+                  <span class="ph-icon">🍿</span>
+                  <span class="ph-label">サンプル</span>
+                </div>
+              </div>
+              <div class="food-item__body">
+                <span class="food-item__name">ポップコーンミックス</span>
+                <button class="size-selector-btn" type="button" aria-expanded="false">
+                  <span>サイズを選んでください</span>
+                  <span class="size-selector-btn__count" id="count-mix">2</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ドリンク M サイズ（サイズ選択型） -->
+            <div class="food-item has-size-options" id="item-drink-m"
+                 data-popup-target="popup-drink">
+              <div class="food-item__img">
+                <div class="food-item__img-placeholder">
+                  <span class="ph-icon">🥤</span>
+                  <span class="ph-label">サンプル</span>
+                </div>
+              </div>
+              <div class="food-item__body">
+                <span class="food-item__name">ドリンクMサイズ</span>
+                <button class="size-selector-btn" type="button" aria-expanded="false">
+                  <span>サイズを選んでください</span>
+                  <span class="size-selector-btn__count is-zero" id="count-drink-m">0</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ドリンク L サイズ（サイズ選択型） -->
+            <div class="food-item has-size-options" id="item-drink-l"
+                 data-popup-target="popup-drink">
+              <div class="food-item__img">
+                <div class="food-item__img-placeholder">
+                  <span class="ph-icon">🥤</span>
+                  <span class="ph-label">サンプル</span>
+                </div>
+              </div>
+              <div class="food-item__body">
+                <span class="food-item__name">ドリンクLサイズ</span>
+                <button class="size-selector-btn" type="button" aria-expanded="false">
+                  <span>サイズを選んでください</span>
+                  <span class="size-selector-btn__count is-zero" id="count-drink-l">0</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ホットドッグ（固定価格型） -->
+            <div class="food-item" id="item-hotdog">
+              <div class="food-item__img">
+                <div class="food-item__img-placeholder">
+                  <span class="ph-icon">🌭</span>
+                  <span class="ph-label">サンプル</span>
+                </div>
+              </div>
+              <div class="food-item__body">
+                <span class="food-item__name">ホットドッグ</span>
+                <span class="food-item__price">250円（税抜）</span>
+                <div class="food-stepper">
+                  <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
+                  <span class="food-stepper__count">1</span>
+                  <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /.food-items-grid -->
+        </div><!-- /.food-panel -->
+
+        <!-- ========================================
+             サイズ選択ポップアップ（各アイテム共通）
+             JS で .is-open を付与して表示する
+             デザイン確認用：class="size-popup is-demo-open" に変更すると常時表示
+             ======================================== -->
+
+        <!-- ポップコーン キャラメル味 サイズポップアップ -->
+        <div class="size-popup" id="popup-popcorn-caramel" role="dialog"
+             aria-modal="true" aria-label="サイズを選択">
+          <div class="size-popup__overlay" data-close-popup></div>
+          <div class="size-popup__card">
+            <div class="size-popup__header">
+              <div class="size-popup__logo">HAL <span>CINEMA</span></div>
+              <button class="size-popup__close" type="button"
+                      data-close-popup aria-label="閉じる">×</button>
+            </div>
+            <div class="size-options">
+              <div class="size-option">
+                <div class="size-option__img">
+                  <div class="size-option__img-placeholder">🍿</div>
+                </div>
+                <div class="size-option__info">
+                  <span class="size-option__name">ポップコーンキャラメル味<br>Sサイズ（300g）</span>
+                  <span class="size-option__price">500円（税抜）</span>
+                </div>
+                <div class="size-option__stepper">
+                  <button class="size-option__btn" type="button">&#9664;</button>
+                  <span class="size-option__count">1</span>
+                  <button class="size-option__btn" type="button">&#9654;</button>
+                </div>
+              </div>
+              <div class="size-option">
+                <div class="size-option__img">
+                  <div class="size-option__img-placeholder">🍿</div>
+                </div>
+                <div class="size-option__info">
+                  <span class="size-option__name">ポップコーンキャラメル味<br>Mサイズ（450g）</span>
+                  <span class="size-option__price">600円（税抜）</span>
+                </div>
+                <div class="size-option__stepper">
+                  <button class="size-option__btn" type="button">&#9664;</button>
+                  <span class="size-option__count">1</span>
+                  <button class="size-option__btn" type="button">&#9654;</button>
+                </div>
+              </div>
+              <div class="size-option">
+                <div class="size-option__img">
+                  <div class="size-option__img-placeholder">🍿</div>
+                </div>
+                <div class="size-option__info">
+                  <span class="size-option__name">ポップコーンキャラメル味<br>Lサイズ（600g）</span>
+                  <span class="size-option__price">650円（税抜）</span>
+                </div>
+                <div class="size-option__stepper">
+                  <button class="size-option__btn" type="button">&#9664;</button>
+                  <span class="size-option__count">1</span>
+                  <button class="size-option__btn" type="button">&#9654;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /#popup-popcorn-caramel -->
+
+        <!-- ポップコーン 塩味 / ミックス / ドリンク は同じ構造でポップアップを追加 -->
+        <!-- （コード量のため省略。同じ .size-popup を複製して id を変えてください） -->
+
+        <!-- ========================================
+             右カラム：サイドバー
+             ======================================== -->
+        <aside class="food-sidebar">
+          <div class="sidebar-card">
+            <div class="sidebar-section">
+              <p class="sidebar-label">上映作品</p>
+              <div class="movie-info">
+                <div class="movie-poster">
+                  <div class="movie-poster__placeholder"></div>
+                </div>
+                <div class="movie-meta">
+                  <h3 class="movie-title">プラダを着た悪魔2</h3>
+                  <p class="movie-time">12:30〜</p>
+                  <span class="movie-rating">PC12</span>
+                  <p class="movie-duration">120分</p>
+                </div>
+              </div>
+            </div>
+            <div class="sidebar-section">
+              <p class="sidebar-label">スクリーン</p>
+              <p class="venue-name">HAL CINEMA</p>
+              <p class="venue-screen">スクリーン7 IMAXスクリーン、</p>
+            </div>
+            <div class="sidebar-section">
+              <ul class="selected-list" id="js-sidebar-tickets">
+                <li>・小学生以下：1枚</li>
+                <li>・一般　　　：1枚</li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+
+      </div><!-- /.food-grid-layout -->
+
+      <!-- ボトムエリア：注文サマリー + 合計金額 -->
+      <div class="bottom-area">
+        <div class="order-summary">
+          <ul class="order-summary__list" id="js-order-summary">
+            <li>ポップコーンミックス：Sサイズ　1点</li>
+            <li>　　　　　　　　　　　mサイズ　1点</li>
+          </ul>
+          <span class="order-summary__more">・・・</span>
+        </div>
+        <div class="total-box">
+          <p class="total-label">合計</p>
+          <div class="total-price">
+            <span class="total-amount" id="js-total-price">4500</span>
+            <span class="total-unit">円（税込）</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 戻る / 次へ ボタン -->
+      <div class="page-actions">
+        <a href="ticket-select.html" class="btn btn--back">戻る</a>
+        <a href="order-confirm.html" class="btn btn--next">次へ</a>
+      </div>
+
+    </div><!-- /.page-wrapper -->
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">HAL<br>CINEMA</div>
+      <nav class="footer-nav">
+        <a href="#">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&A</a>
+        <a href="#">個人情報</a>
+      </nav>
+      <p class="footer-copy">© All right reserved 2026</p>
+    </div>
+  </footer>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script src="../js/voice-guide.js" defer></script>
+
+
+  <!--
+    ▼ 2次開発（JS）で実装する部分 ▼
+    ・ .has-size-options アイテムのクリック → 対応するポップアップを .is-open にする
+    ・ [data-close-popup] のクリック → ポップアップを閉じる（.is-open を外す）
+    ・ サイズ選択のステッパーで数量変更 → .size-selector-btn__count を更新
+    ・ 固定価格アイテムのステッパーで数量変更
+    ・ #js-order-summary を現在の選択内容で更新
+    ・ #js-total-price を現在の合計金額で更新
+  -->
+</body>
+</html>

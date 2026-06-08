@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4. 注文確認 | HAL CINEMA</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/voice-guide.css">
+  <link rel="stylesheet" href="../css/order-confirm.css">
+</head>
+<body>
+
+  <!-- ヘッダー（common.js で自動挿入している場合は削除可） -->
+<!-- ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <nav class="site-nav" id="site-nav">
+        <a href="../html/schedule.html">上映スケジュール</a>
+        <a href="../html/movies.html">作品一覧</a>
+        <a href="../html/goods.html">グッズ・物販</a>
+        <a href="../html/event.html">イベント情報</a>
+        <a href="../html/theater.html">劇場情報</a>
+      </nav>
+      <div class="header-actions">
+        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="page-wrapper">
+
+      <!-- ページ見出し + 音声案内 -->
+      <div class="page-top">
+        <h1 class="page-title"><span class="page-num">4.</span> 注文確認</h1>
+
+        <div class="voice-guide"
+             data-audio="audio/04_order-confirm.mp3"
+             data-autoplay="false">
+          <button class="voice-guide__body" type="button">
+            ご注文内容をご確認ください。<br>
+            よろしければ次へを押して決済へお進みください。
+          </button>
+          <button class="voice-guide__speaker" type="button"></button>
+        </div>
+      </div>
+
+      <!-- ====================================================
+           上映情報ヘッダーカード（映画・スクリーン・座席を一目で確認）
+           ==================================================== -->
+      <div class="movie-header-card">
+
+        <!-- ポスター -->
+        <div class="movie-header-card__poster">🎬</div>
+        <!-- ▼ 実際の画像があれば上の div を下記に差し替え
+          <img class="movie-header-card__poster" src="img/prada2.jpg" alt="プラダを着た悪魔2">
+        -->
+
+        <!-- 作品情報 -->
+        <div class="movie-header-card__info">
+          <p class="movie-header-card__title">プラダを着た悪魔2</p>
+          <div class="movie-header-card__meta">
+            <span class="movie-header-card__time">12:30〜</span>
+            <span class="movie-header-card__rating">PC12</span>
+            <span class="movie-header-card__duration">120分</span>
+          </div>
+        </div>
+
+        <div class="movie-header-card__divider"></div>
+
+        <!-- スクリーン -->
+        <div class="movie-header-card__venue">
+          <span class="movie-header-card__venue-name">HAL CINEMA</span>
+          <span class="movie-header-card__venue-screen">スクリーン7 IMAXスクリーン</span>
+        </div>
+
+        <div class="movie-header-card__divider"></div>
+
+        <!-- 選択座席 -->
+        <div class="movie-header-card__seats">
+          <span class="movie-header-card__seats-label">選択座席（3席）</span>
+          <div class="movie-header-card__seats-list">
+            <span class="seat-badge">D-3</span>
+            <span class="seat-badge">D-4</span>
+            <span class="seat-badge">D-5</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ====================================================
+           2カラム：左＝注文詳細 / 右＝価格サマリー
+           ==================================================== -->
+      <div class="confirm-layout">
+
+        <!-- ========================================
+             左：注文詳細
+             ======================================== -->
+        <div class="confirm-details">
+
+          <!-- チケット内訳 -->
+          <section class="confirm-section">
+            <div class="confirm-section__header">
+              <span class="confirm-section__icon">🎫</span>
+              <h2 class="confirm-section__title">チケット</h2>
+              <span class="confirm-section__count">2枚</span>
+            </div>
+
+            <div class="confirm-row">
+              <div>
+                <p class="confirm-row__label">小学生以下</p>
+              </div>
+              <span class="confirm-row__qty">× 1</span>
+              <span class="confirm-row__price">¥1,000</span>
+            </div>
+
+            <div class="confirm-row">
+              <div>
+                <p class="confirm-row__label">一般</p>
+              </div>
+              <span class="confirm-row__qty">× 1</span>
+              <span class="confirm-row__price">¥1,800</span>
+            </div>
+
+          </section>
+
+          <!-- フード・グッズ内訳 -->
+          <section class="confirm-section">
+            <div class="confirm-section__header">
+              <span class="confirm-section__icon">🍿</span>
+              <h2 class="confirm-section__title">フード・グッズ</h2>
+              <span class="confirm-section__count">4点</span>
+            </div>
+
+            <div class="confirm-row">
+              <div>
+                <p class="confirm-row__label">ポップコーンミックス</p>
+                <p class="confirm-row__sublabel">Sサイズ（300g）</p>
+              </div>
+              <span class="confirm-row__qty">× 1</span>
+              <span class="confirm-row__price">¥500</span>
+            </div>
+
+            <div class="confirm-row">
+              <div>
+                <p class="confirm-row__label">ポップコーンキャラメル味</p>
+                <p class="confirm-row__sublabel">Mサイズ（450g）</p>
+              </div>
+              <span class="confirm-row__qty">× 1</span>
+              <span class="confirm-row__price">¥600</span>
+            </div>
+
+            <div class="confirm-row">
+              <div>
+                <p class="confirm-row__label">ホットドッグ</p>
+              </div>
+              <span class="confirm-row__qty">× 1</span>
+              <span class="confirm-row__price">¥250</span>
+            </div>
+
+            <div class="confirm-row">
+              <div>
+                <p class="confirm-row__label">ドリンクLサイズ</p>
+                <p class="confirm-row__sublabel">コーラ</p>
+              </div>
+              <span class="confirm-row__qty">× 1</span>
+              <span class="confirm-row__price">¥350</span>
+            </div>
+
+            <!-- フードなしの場合はこちらを表示（JSで切り替え）
+            <p class="confirm-section__empty">フード・グッズの購入はありません</p>
+            -->
+          </section>
+
+        </div><!-- /.confirm-details -->
+
+        <!-- ========================================
+             右：価格サマリー（スクロールに追従）
+             ======================================== -->
+        <aside class="price-summary">
+
+          <div class="price-summary__header">
+            <h2 class="price-summary__title">お支払い金額</h2>
+          </div>
+
+          <div class="price-summary__body">
+
+            <!-- チケット小計 -->
+            <div class="price-row">
+              <span class="price-row__label">チケット</span>
+              <span class="price-row__value">¥2,800</span>
+            </div>
+
+            <!-- フード小計 -->
+            <div class="price-row">
+              <span class="price-row__label">フード・グッズ</span>
+              <span class="price-row__value">¥1,700</span>
+            </div>
+
+          </div>
+
+          <!-- 合計 -->
+          <div class="price-total-row">
+            <span class="price-total-row__label">合計</span>
+            <div class="price-total-row__value">
+              <span class="price-total-row__amount">4,500</span>
+              <span class="price-total-row__unit">円（税込）</span>
+            </div>
+          </div>
+
+          <!-- 戻る・決済へ進むボタン -->
+          <div class="price-summary__actions">
+            <a href="payment.html" class="btn btn--next">
+              この内容で決済へ進む
+            </a>
+            <a href="food-select.html" class="btn btn--back">
+              戻る
+            </a>
+            <p class="confirm-note">
+              決済後のキャンセル・変更はできません。<br>
+              内容をよくご確認の上、お進みください。
+            </p>
+          </div>
+
+        </aside>
+
+      </div><!-- /.confirm-layout -->
+
+    </div><!-- /.page-wrapper -->
+  </main>
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">HAL<br>CINEMA</div>
+      <nav class="footer-nav">
+        <a href="#">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&A</a>
+        <a href="#">個人情報</a>
+      </nav>
+      <p class="footer-copy">© All right reserved 2026</p>
+    </div>
+  </footer>
+
+  <script src="../js/common.js" defer></script>
+  <script src="../js/chatbot.js" defer></script>
+  <script src="../js/voice-guide.js" defer></script>
+
+
+  <!--
+    ▼ 2次開発（JS）で実装する部分 ▼
+    ・前のページの選択内容（sessionStorage等）を読み込み、各 confirm-row を動的に生成
+    ・フードが0点の場合は confirm-section__empty を表示
+    ・座席バッジ、チケット枚数、合計金額を動的に更新
+    ・「この内容で決済へ進む」で決済ページに選択データを渡す
+  -->
+</body>
+</html>
