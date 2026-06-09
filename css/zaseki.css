@@ -174,10 +174,12 @@ body:has(.zaseki-layout) {
   overflow: auto;
   background: var(--c-bg);
   padding: 24px;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .zaseki-2d-wrap.active {
-  display: block;
+  display: flex;
 }
 
 .zaseki-2d-grid {
@@ -190,16 +192,30 @@ body:has(.zaseki-layout) {
 .zaseki-2d-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  position: relative;
+  padding-left: 28px;
 }
 
 .zaseki-2d-row-label {
+  position: absolute;
+  left: 0;
   width: 24px;
   font-size: 11px;
   color: var(--c-text-muted);
-  text-align: center;
+  text-align: right;
   flex-shrink: 0;
 }
+
+.zaseki-2d-col-num {
+  width: 22px;
+  text-align: center;
+  font-size: 10px;
+  color: var(--c-text-muted);
+  flex-shrink: 0;
+}
+
 
 .zaseki-2d-seat {
   width: 22px;

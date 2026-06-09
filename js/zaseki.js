@@ -188,7 +188,17 @@ createExit(-14, -5)
 createExit( 14, -5)
 
 // ─── スクリーン ────────────────────────────────────────────────────
-const screenMat = new THREE.MeshStandardMaterial({ color: 0x2255cc, emissive: 0x1133aa, emissiveIntensity: 0.8 })
+const video = document.createElement('video')
+video.src = '../video/nomore.mp4'
+video.muted = true
+video.autoplay = true
+video.loop = true
+video.play().catch(() => { })
+
+const videoTexture = new THREE.VideoTexture(video)
+videoTexture.colorSpace = THREE.SRGBColorSpace
+
+const screenMat = new THREE.MeshBasicMaterial({ map: videoTexture })
 
 const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(24, 10), screenMat)
 screenMesh.position.set(0, 9, -9)
@@ -357,7 +367,6 @@ function updateUI() {
   const count    = selected.length
 
   countEl.textContent = count
-  // 料金は券種選択ページで決まるため、ここでは非表示
   confirmBtn.disabled = count === 0
 
   if (count === 0) {
@@ -476,7 +485,7 @@ function buildTwoDMap() {
     const rowCols = isBack ? COLS_BACK : COLS
 
     const rowEl = document.createElement('div')
-    rowEl.className = 'zaseki-2d-row'
+    rowEl.className = isBack ? 'zaseki-2d-row zaseki-2d-row--back' : 'zaseki-2d-row'
 
     const labelEl = document.createElement('span')
     labelEl.className = 'zaseki-2d-row-label'
