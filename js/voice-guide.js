@@ -1,116 +1,152 @@
-/* =========================================================
-   音声案内コンポーネント  voice-guide
-   ---------------------------------------------------------
-   使い方:
-     1) 各ページの <head> で css/voice-guide.css を読み込む
-        <link rel="stylesheet" href="../css/voice-guide.css">
-     2) 画面上部に下記 HTML を 1 個置く（data-audio に音声パスを指定）
-        <div class="voice-guide" data-audio="../voice/01_seat-select.mp3">
-          <button class="voice-guide__body" type="button">
-            予約する席を選択してください。<br>
-            選択後、次へを押して進んでください
-          </button>
-          <button class="voice-guide__speaker" type="button"></button>
-        </div>
-     3) </body> の前で js/voice-guide.js を読み込む
-        <script src="../js/voice-guide.js" defer></script>
-   ---------------------------------------------------------
-   動作:
-     ・吹き出しをタップ → 再生中なら停止 / 停止中なら最初から再生
-     ・スピーカーをタップ → ミュート ON / OFF
-     ・音声が終わると自動的に「停止」状態に戻る
-   オプション（div の属性で指定）:
-     ・data-audio    … 音声ファイルのパス（必須）
-     ・data-autoplay … "false" にするとページ表示時の自動再生をしない
-   ========================================================= */
+/* ============================================================
+   HAL CINEMA — voice-guide.js
+   音声案内コンポーネント
+
+   【動作仕様】
+   ・.voice-guide（赤枠全体）をクリック → 再生 / 再生中なら停止
+   ・.voice-guide-btn（スピーカー丸）をクリック → ミュートON/OFF
+   ・ミュート中は赤枠クリック無効（opacity低下はCSSで制御）
+   ・再生終了 → 自動リセット
+   ・複数コンポーネントがあっても同時再生しない
+
+   【クラスの付き先（CSSと対応）】
+   ・再生中  → .voice-guide に .playing を付与
+   ・ミュート → .voice-guide に .muted  を付与
+
+   【HTML構造（変更不要）】
+   <div class="voice-guide" data-audio="../voice/...wav">
+     <p class="voice-guide-text">テキスト</p>
+     <button class="voice-guide-btn">
+       <img src="../images/volum_on.png" alt="音声">
+     </button>
+   </div>
+   ============================================================ */
+
 (function () {
-  "use strict";
+  'use strict';
 
-  // ★ スピーカーアイコンは CSS の background-image（PNG画像）で表示するため
-  //    JS 側でのアイコン注入は不要。ミュート状態は .is-muted クラスで切り替わる。
+  var IMG_ON  = '../images/volum_on.png';
+  var IMG_OFF = '../images/volume_off.png';
 
-  function initOne(root) {
-    if (root._vgInit) return;        // 二重初期化を防止
-    root._vgInit = true;
+  /* 現在再生中の情報（同時再生防止） */
+  var active = {
+    audio:   null,
+    wrapper: null,
+  };
 
-    var body    = root.querySelector(".voice-guide__body");
-    var speaker = root.querySelector(".voice-guide__speaker");
-    var src     = root.getAttribute("data-audio");
+  /* ----------------------------------------------------------
+     停止してリセット
+  ---------------------------------------------------------- */
+  function stopCurrent() {
+    if (active.audio) {
+      active.audio.pause();
+      active.audio.currentTime = 0;
+    }
+    if (active.wrapper) {
+      active.wrapper.classList.remove('playing');
+    }
+    active.audio   = null;
+    active.wrapper = null;
+  }
 
-    if (!body || !speaker || !src) {
-      console.warn("[voice-guide] 必要な要素または data-audio がありません", root);
+  /* ----------------------------------------------------------
+     .voice-guide（赤枠全体）クリック → 再生 / 停止
+  ---------------------------------------------------------- */
+  function handleWrapperClick(wrapper) {
+    /* ミュート中は何もしない */
+    if (wrapper.classList.contains('muted')) return;
+
+    /* 同じ枠を再クリック → 停止 */
+    if (active.wrapper === wrapper) {
+      stopCurrent();
       return;
     }
 
-    // aria 属性のみ付与（アイコンは CSS background-image で表示）
-    speaker.setAttribute("type", "button");
-    speaker.setAttribute("aria-pressed", "false");
-    speaker.setAttribute("aria-label", "音声をミュート");
-    body.setAttribute("type", "button");
-    body.setAttribute("aria-label", "音声案内を再生 / 停止");
+    /* 別が再生中なら止める */
+    stopCurrent();
 
-    // 音声を用意
+    var src = wrapper.dataset.audio;
+    if (!src) {
+      console.warn('[voice-guide] data-audio が設定されていません:', wrapper);
+      return;
+    }
+
     var audio = new Audio(src);
-    audio.preload = "auto";
-    root._audio = audio;
 
-    function play() {
-      audio.currentTime = 0;
-      var p = audio.play();
-      // ブラウザの自動再生制限などで失敗してもエラーにしない
-      if (p && typeof p.catch === "function") {
-        p.catch(function () {});
-      }
-    }
-    function stop() {
-      audio.pause();
-      audio.currentTime = 0;
-    }
-
-    // 吹き出し: 再生 / 停止 のトグル
-    body.addEventListener("click", function () {
-      if (audio.paused) {
-        play();
-      } else {
-        stop();
-      }
+    audio.addEventListener('ended', function () {
+      wrapper.classList.remove('playing');
+      active.audio   = null;
+      active.wrapper = null;
     });
 
-    // スピーカー: ミュート切り替え
-    speaker.addEventListener("click", function () {
-      audio.muted = !audio.muted;
-      root.classList.toggle("is-muted", audio.muted);
-      speaker.setAttribute("aria-pressed", String(audio.muted));
-      speaker.setAttribute(
-        "aria-label",
-        audio.muted ? "音声のミュートを解除" : "音声をミュート"
-      );
+    audio.addEventListener('error', function () {
+      console.warn('[voice-guide] 音声ファイルを読み込めませんでした:', src);
+      wrapper.classList.remove('playing');
+      active.audio   = null;
+      active.wrapper = null;
     });
 
-    // 再生状態に応じて見た目を更新
-    audio.addEventListener("play",  function () { root.classList.add("is-playing"); });
-    audio.addEventListener("pause", function () { root.classList.remove("is-playing"); });
-    audio.addEventListener("ended", function () { root.classList.remove("is-playing"); });
+    active.audio   = audio;
+    active.wrapper = wrapper;
+    wrapper.classList.add('playing');
+    audio.play();
+  }
 
-    // ページ表示時に自動再生を試みる（data-autoplay="false" で無効）
-    if (root.getAttribute("data-autoplay") !== "false") {
-      play();
+  /* ----------------------------------------------------------
+     .voice-guide-btn（スピーカー丸）クリック → ミュートON/OFF
+     ※ 赤枠全体へのクリック伝播を stopPropagation で止める
+  ---------------------------------------------------------- */
+  function handleSpeakerClick(e, wrapper) {
+    e.stopPropagation(); /* 再生/停止が誤作動しないように */
+
+    var muted = wrapper.classList.toggle('muted');
+    var img   = wrapper.querySelector('.voice-guide-btn img');
+    if (img) {
+      img.src = muted ? IMG_OFF : IMG_ON;
+      img.alt = muted ? 'ミュート中' : '音声';
+    }
+
+    var btn = wrapper.querySelector('.voice-guide-btn');
+    if (btn) {
+      btn.setAttribute('aria-label', muted ? '音声をオンにする' : '音声をオフにする');
+    }
+
+    /* ミュートにした瞬間、このコンポーネントが再生中なら止める */
+    if (muted && active.wrapper === wrapper) {
+      stopCurrent();
     }
   }
 
-  function initAll() {
-    var list = document.querySelectorAll(".voice-guide");
-    for (var i = 0; i < list.length; i++) {
-      initOne(list[i]);
-    }
+  /* ----------------------------------------------------------
+     初期化：全 .voice-guide にイベントを設定
+  ---------------------------------------------------------- */
+  function init() {
+    var guides = document.querySelectorAll('.voice-guide');
+
+    guides.forEach(function (wrapper) {
+      var speaker = wrapper.querySelector('.voice-guide-btn');
+
+      if (!speaker) {
+        console.warn('[voice-guide] .voice-guide-btn が見つかりません:', wrapper);
+        return;
+      }
+
+      /* 赤枠全体クリック → 再生/停止 */
+      wrapper.addEventListener('click', function () {
+        handleWrapperClick(wrapper);
+      });
+
+      /* スピーカーボタン → ミュート切り替え（伝播は内部でstop） */
+      speaker.addEventListener('click', function (e) {
+        handleSpeakerClick(e, wrapper);
+      });
+    });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initAll);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    initAll();
+    init();
   }
 
-  // 動的に追加した場合に手動で呼べるよう公開
-  window.VoiceGuide = { init: initAll, initOne: initOne };
 })();

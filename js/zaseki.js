@@ -356,15 +356,9 @@ function updateUI() {
   const selected = seatObjects.filter(s => s.state === STATE_SELECTED)
   const count    = selected.length
 
-<<<<<<< Updated upstream
-  countEl.textContent      = count
-  totalPriceEl.textContent = (count * PRICE_PER_SEAT).toLocaleString()
-  confirmBtn.disabled      = count === 0
-=======
   countEl.textContent = count
   // 料金は券種選択ページで決まるため、ここでは非表示
   confirmBtn.disabled = count === 0
->>>>>>> Stashed changes
 
   if (count === 0) {
     selectedList.innerHTML = '<p class="zaseki-empty-msg">座席をクリックして選択してください</p>'
@@ -392,27 +386,45 @@ function updateUI() {
   }
 }
 
+
+// ─── sessionStorageから座席選択状態を復元（戻る時用） ──────────────
+;(function () {
+  const saved = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null')
+  if (!saved || !saved.seats || saved.seats.length === 0) return
+  saved.seats.forEach(function(label) {
+    const obj = seatObjects.find(s => s.label === label)
+    if (obj && obj.state !== STATE_TAKEN) {
+      setSeatState(obj, STATE_SELECTED)
+    }
+  })
+  updateUI()
+})()
+
 // 次へボタン
 confirmBtn.addEventListener('click', () => {
-  // 選択座席をsessionStorageに保存して次ページへ（2次開発で活用）
   const selected = seatObjects.filter(s => s.state === STATE_SELECTED)
-<<<<<<< Updated upstream
-  const reservationData = {
-    reservationId : 'HAL-' + Date.now() + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0'),
-    movieTitle    : document.querySelector('.zaseki-movie-name').textContent,
-    screenInfo    : document.querySelector('.zaseki-movie-title').textContent,
-    screeningInfo : document.querySelector('.zaseki-movie-sub').textContent,
-    seats         : selected.map(s => s.label),
-    ticketCount   : selected.length,
-    totalAmount   : selected.length * PRICE_PER_SEAT,
-    issuedAt      : new Date().toISOString()
-  }
-  sessionStorage.setItem('reservationData', JSON.stringify(reservationData))
-  location.href = 'goods.html'
-=======
   const labels   = selected.map(s => s.label)
-  sessionStorage.setItem('selectedSeats', JSON.stringify(labels))
-  sessionStorage.setItem('seatCount', labels.length)
+
+  // URLパラメータから上映情報を取得
+  const p      = new URLSearchParams(location.search)
+  const movie  = p.get('movie')  || ''
+  const format = p.get('format') || ''
+  const screen = p.get('screen') || ''
+  const date   = p.get('date')   || ''
+  const time   = p.get('time')   || ''
+
+  // halcinema_seats に統一して保存（既存データはリセット）
+  const seatData = {
+    seats:   labels,
+    count:   labels.length,
+    movie:   movie + (format ? '（' + format + '版）' : ''),
+    screen:  screen,
+    date:    date,
+    time:    time,
+    tickets: [],       // ticket-select.html で上書き
+    totalPrice: 0,
+  }
+  sessionStorage.setItem('halcinema_seats', JSON.stringify(seatData))
 
   // 券種選択ページへ遷移
   window.location.href = 'ticket-select.html'

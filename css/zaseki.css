@@ -4,18 +4,21 @@
 
 :root {
   --step-bar-h: 72px;
-  --flow-progress-h: 84px; /* フロー進捗バー分 */
+  --flow-progress-h: 84px;
 }
 
+/* フッターを表示するため overflow: hidden を外す
+   スクロールはキャンバスラップ側で制御する */
 body:has(.zaseki-layout) {
-  overflow: hidden;
+  overflow: auto;
 }
 
 /* ── ステップヘッダー ─────────────────────────────────────── */
 .zaseki-step-header {
   background: var(--c-bg);
   border-bottom: 1px solid var(--c-border);
-  height: var(--step-bar-h);
+  min-height: var(--step-bar-h);
+  height: auto;
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -25,7 +28,7 @@ body:has(.zaseki-layout) {
   width: 100%;
   max-width: 1320px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 12px 32px;
   display: flex;
   align-items: center;
   gap: 24px;
@@ -62,7 +65,10 @@ body:has(.zaseki-layout) {
   white-space: nowrap;
 }
 
-/* 音声案内（voice-guide.cssの.voice-guideを上書き） */
+/* ── 音声案内 ────────────────────────────────────────────────
+   voice-guide.css の .voice-guide-text は背景なし・pointer-events:none
+   → ここで .voice-guide ラッパーに背景・ホバー・再生中を一元設定
+   ─────────────────────────────────────────────────────────── */
 .zaseki-step-header .voice-guide {
   flex: 1;
   display: flex;
@@ -71,9 +77,34 @@ body:has(.zaseki-layout) {
   background: var(--c-red);
   border-radius: 999px;
   padding: 10px 10px 10px 20px;
-  max-width: 900px;
+  min-width: 0;
+  max-width: 860px;
+  cursor: pointer;
+  transition: background 0.18s, opacity 0.18s;
 }
 
+/* ホバー：吹き出し上でもボタン上でも赤枠全体が同時に暗くなる */
+.zaseki-step-header .voice-guide:hover {
+  background: var(--c-red-dark);
+}
+
+/* 再生中 */
+.zaseki-step-header .voice-guide.playing {
+  background: var(--c-red-dark);
+}
+
+/* ミュート中：薄く・クリック無効 */
+.zaseki-step-header .voice-guide.muted {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ミュート中のスピーカーボタン → グレーでオフを表現 */
+.zaseki-step-header .voice-guide.muted .voice-guide-btn {
+  background: #9aa0b4;
+}
+
+/* テキスト（voice-guide.cssで pointer-events:none 済み） */
 .zaseki-step-header .voice-guide-text {
   flex: 1;
   font-size: 13px;
@@ -81,6 +112,7 @@ body:has(.zaseki-layout) {
   line-height: 1.5;
 }
 
+/* スピーカーボタン */
 .zaseki-step-header .voice-guide-btn {
   width: 40px;
   height: 40px;
@@ -94,6 +126,13 @@ body:has(.zaseki-layout) {
   justify-content: center;
   padding: 0;
   flex-shrink: 0;
+  /* pointer-events: auto のまま（stopPropagationはJS側で処理） */
+  transition: background 0.18s;
+}
+
+/* ボタンホバー時は白→薄グレーのみ（赤枠の色変化は親の:hoverで担う） */
+.zaseki-step-header .voice-guide-btn:hover {
+  background: #f0f0f0;
 }
 
 .zaseki-step-header .voice-guide-btn img {
@@ -105,6 +144,7 @@ body:has(.zaseki-layout) {
 /* ── レイアウト ────────────────────────────────────────────── */
 .zaseki-layout {
   display: flex;
+  /* ③ フッター分を考慮して高さを少し縮める。スクロールはbodyに委ねる */
   height: calc(100vh - var(--nav-h) - var(--step-bar-h) - var(--flow-progress-h, 84px));
   overflow: hidden;
 }
@@ -113,7 +153,8 @@ body:has(.zaseki-layout) {
 .zaseki-canvas-wrap {
   flex: 1;
   position: relative;
-  overflow: hidden;
+  /* ③ 縦スクロール可能に */
+  overflow: auto;
   background: #0D0F14;
 }
 
@@ -121,6 +162,8 @@ body:has(.zaseki-layout) {
   display: block;
   width: 100%;
   height: 100%;
+  /* キャンバスは最小高さを確保してスクロール時に見切れない */
+  min-height: 480px;
 }
 
 /* 2D座席マップ */
@@ -424,8 +467,6 @@ body:has(.zaseki-layout) {
     height: auto;
     overflow: auto;
   }
-
-  body:has(.zaseki-layout) { overflow: auto; }
 
   .zaseki-canvas-wrap { height: 55vh; min-height: 300px; }
 

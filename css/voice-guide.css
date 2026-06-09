@@ -1,126 +1,122 @@
-/* =========================================================
-   音声案内コンポーネント  voice-guide
-   座席選択 〜 決済 の各ページ上部に 1 個設置する
-   ---------------------------------------------------------
-   ▼ カラーは common.css のテーマに合わせています。
-     common.css 側に色の変数がある場合は下の :root の値を
-     そちらの変数名に置き換えてください。
-   ========================================================= */
-:root {
-  --vg-accent:      #E8212B;
-  --vg-accent-dark: #B81820;
-  --vg-text:        #F0F0F0;
-  --vg-bg-dark:     #0D0F14;
-}
+/* ============================================================
+   HAL CINEMA — voice-guide.css
+   音声案内コンポーネント
+   HTML構造:
+     <div class="voice-guide" data-audio="...wav">
+       <p class="voice-guide-text">テキスト</p>
+       <button class="voice-guide-btn">
+         <img id="voice-guide-icon" src="../images/volum_on.png">
+       </button>
+     </div>
+   ============================================================ */
 
-/* ---- 全体 ------------------------------------------------ */
+/* ── ラッパー ────────────────────────────────────────────── */
 .voice-guide {
-  position: relative;
-  display: flex;          /* inline-flex → flex（flex:1が効くよう変更） */
-  align-items: stretch;
-  flex: 1;                /* ★ 残り幅いっぱいに広がる */
-  border-radius: 14px;
-  background: var(--vg-accent);
-  box-shadow: 0 6px 18px rgba(232, 33, 43, 0.35);
-  font-family: inherit;
-  margin-right: 18px;     /* 右のスピーカーがはみ出す分 */
-}
-
-/* ---- テキスト吹き出し（タップで 再生 / 停止）------------ */
-.voice-guide__body {
-  flex: 1;
   display: flex;
   align-items: center;
-  padding: 14px 52px 14px 22px; /* right: 40pxボタン分を確保 */
-  border: none;
-  background: transparent;
-  color: var(--vg-text);
-  text-align: left;
-  font-size: 0.95rem;
-  font-weight: 500;
-  line-height: 1.55;
-  letter-spacing: 0.02em;
-  border-radius: 14px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s ease;
-}
-.voice-guide__body:hover  { background: rgba(0, 0, 0, 0.10); }
-.voice-guide__body:active { background: rgba(0, 0, 0, 0.18); }
-.voice-guide__body:focus-visible {
-  outline: 2px solid var(--vg-text);
-  outline-offset: 3px;
+  gap: 12px;
+  flex: 1;           /* step-title-wrap の隣で横幅を使い切る */
 }
 
-/* ---- スピーカーボタン（右端・ミュート切替）-------------- */
-/*
-   ★ PNG画像を CSS background-image で表示する
-      images/volum_on.png  … 音声ON（ミュートなし）
-      images/volume_off.png … 音声OFF（ミュート中）
-   パスは css/ フォルダ起点 → ../images/
-   PNG背景は透過 → background-color: #fff で白背景に表示
-*/
-.voice-guide__speaker {
-  position: absolute;
-  right: -18px;              /* ボタン幅40px ÷ 2 ≒ 18px */
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;               /* ★ 56px → 40px に縮小 */
+/* ── 吹き出しテキスト ────────────────────────────────────── */
+/* 背景・ホバー・再生中の色は各ページのCSSで .voice-guide ラッパーに設定。
+   ここではテキスト表示に必要なプロパティのみ持つ。              */
+.voice-guide-text {
+  flex: 1;
+  position: relative;
+  margin: 0;
+
+  color: #fff;
+  font-size: 12px;
+  font-family: var(--font-body);
+  line-height: 1.65;
+  padding: 10px 16px;
+
+  /* クリックイベントは親の .voice-guide で受け取る */
+  pointer-events: none;
+  user-select: none;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* ミュート中は操作不可・薄く */
+.voice-guide.muted .voice-guide-text {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* ── 再生中の波形アニメーション ─────────────────────────── */
+/* JSが .playing クラスを付けたときに表示する疑似要素の代わりに
+   テキストの後ろに ::before で波形を重ねる方式は難しいため
+   JS側で <span class="vg-wave"> を動的に挿入して制御する     */
+.vg-wave {
+  display: none;
+  gap: 3px;
+  align-items: center;
+  height: 13px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.voice-guide-text.playing .vg-wave {
+  display: inline-flex;
+}
+
+.vg-wave span {
+  display: block;
+  width: 3px;
+  border-radius: 2px;
+  background: #fff;
+  animation: vg-wave-anim 0.6s ease-in-out infinite alternate;
+}
+
+.vg-wave span:nth-child(1) { height: 4px;  animation-delay: 0s;   }
+.vg-wave span:nth-child(2) { height: 12px; animation-delay: 0.1s; }
+.vg-wave span:nth-child(3) { height: 7px;  animation-delay: 0.2s; }
+.vg-wave span:nth-child(4) { height: 12px; animation-delay: 0.1s; }
+.vg-wave span:nth-child(5) { height: 4px;  animation-delay: 0s;   }
+
+@keyframes vg-wave-anim {
+  from { transform: scaleY(0.4); }
+  to   { transform: scaleY(1);   }
+}
+
+/* ── スピーカーボタン（ミュートON/OFF） ─────────────────── */
+.voice-guide-btn {
+  flex-shrink: 0;
+  width: 40px;
   height: 40px;
-  padding: 0;
-  border: 2px solid var(--vg-bg-dark);
   border-radius: 50%;
-  overflow: hidden;
-  background-color: #ffffff;
-  background-image: url('../images/volum_on.png');
-  background-size: 65%;        /* ★ cover → 65%：アイコンを小さく表示 */
-  background-repeat: no-repeat;
-  background-position: center;
+  border: none;
+  background: #fff;
   cursor: pointer;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.voice-guide__speaker:hover  { transform: translateY(-50%) scale(1.08); }
-.voice-guide__speaker:active { transform: translateY(-50%) scale(0.94); }
-.voice-guide__speaker:focus-visible {
-  outline: 2px solid var(--vg-accent);
-  outline-offset: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.18s, transform 0.15s;
 }
 
-/* ---- ミュート状態：OFF画像に切り替え -------------------- */
-.voice-guide.is-muted .voice-guide__speaker {
-  background-image: url('../images/volume_off.png');
+.voice-guide-btn:hover {
+  background: #f0f0f0;
+  transform: scale(1.08);
 }
 
-/* ---- 再生中：吹き出しをうっすら脈動 --------------------- */
-.voice-guide.is-playing {
-  animation: vg-glow 1.6s ease-in-out infinite;
-}
-@keyframes vg-glow {
-  0%, 100% { box-shadow: 0 6px 18px rgba(232, 33, 43, 0.35); }
-  50%      { box-shadow: 0 6px 28px rgba(232, 33, 43, 0.70); }
+.voice-guide-btn:active {
+  transform: scale(0.95);
 }
 
-/* 再生中 + ミュートなし：スピーカーを赤リングでハイライト */
-.voice-guide.is-playing:not(.is-muted) .voice-guide__speaker {
-  box-shadow: 0 0 0 3px rgba(232, 33, 43, 0.55),
-              0 4px 10px rgba(0, 0, 0, 0.45);
-  animation: vg-ring-pulse 1.2s ease-in-out infinite;
-}
-@keyframes vg-ring-pulse {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(232, 33, 43, 0.40), 0 4px 10px rgba(0,0,0,0.45); }
-  50%      { box-shadow: 0 0 0 5px rgba(232, 33, 43, 0.70), 0 4px 14px rgba(0,0,0,0.45); }
+/* アイコン画像（透過PNGを小さく表示） */
+.voice-guide-btn img {
+  width: 65%;
+  height: 65%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
 }
 
-/* ---- レスポンシブ ---------------------------------------- */
-@media (max-width: 480px) {
-  .voice-guide       { flex: none; width: 100%; }
-  .voice-guide__body { font-size: 0.85rem; padding: 12px 44px 12px 16px; }
-  .voice-guide__speaker { width: 34px; height: 34px; right: -14px; }
-}
-
-/* アニメーション抑制 */
-@media (prefers-reduced-motion: reduce) {
-  .voice-guide,
-  .voice-guide__speaker { animation: none !important; }
+/* ミュート中はボタンをグレーに */
+.voice-guide.muted .voice-guide-btn {
+  background: #c0c0c0;
 }

@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="../css/voice-guide.css">
   <link rel="stylesheet" href="../css/step-progress.css">
   <link rel="stylesheet" href="../css/food-select.css">
+  <link rel="stylesheet" href="../css/voice-guide.css">
+  
+
 </head>
 <body>
 
@@ -40,8 +43,8 @@
         <span class="step-num">3</span>
         <span class="step-title">フード・グッズ</span>
       </div>
-      <div class="voice-guide" id="voice-guide" data-audio="../voice/voice/音声案内_フード購入.wav">
-        <p class="voice-guide-text">ご一緒にポップコーンやお飲み物はいかがですか？HALシネマ限定の味もご用意しています。必要のない方はそのまま次へお進みください。</p>
+      <div class="voice-guide" id="voice-guide" data-audio="../voice/voice/03_food.wav">
+        <p class="voice-guide-text">ご一緒にポップコーンやお飲み物はいかがですか？私はポップコーンのキャラメル味がおすすめです！<br>必要のない方はそのまま「次へ」進んでください。</p>
         <button class="voice-guide-btn" id="voice-guide-btn" aria-label="音声案内">
           <img src="../images/volum_on.png" id="voice-guide-icon" alt="音声">
         </button>
@@ -645,10 +648,32 @@
     </div>
   </div>
 
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script src="../js/voice-guide.js" defer></script>
   <script src="../js/step-progress.js" defer></script>
+
   <script>
   document.addEventListener('DOMContentLoaded', function () {
 

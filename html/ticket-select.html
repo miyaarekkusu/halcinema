@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="../css/voice-guide.css">
   <link rel="stylesheet" href="../css/step-progress.css">
   <link rel="stylesheet" href="../css/ticket-select.css">
+  <link rel="stylesheet" href="../css/voice-guide.css">
+
 </head>
 <body>
 
@@ -42,7 +44,7 @@
       </div>
       <div class="voice-guide"
            id="voice-guide"
-           data-audio="../voice/voice/音声案内_券種選択.wav">
+           data-audio="../voice/voice/02_ticket-type.wav">
         <p class="voice-guide-text">当てはまる券種を、座席の数だけ選択してください。指定のペアチケットに当てはまる場合、そちらの方がお安くなっております。選択が完了後「次へ」を押してください。</p>
         <button class="voice-guide-btn" id="voice-guide-btn" aria-label="音声案内">
           <img src="../images/volum_on.png" id="voice-guide-icon" alt="音声">
@@ -247,10 +249,32 @@
     </div>
   </main>
 
+
+  <!-- フッター -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-logo">HAL <span>CINEMA</span></p>
+        <p class="footer-desc">
+          HALシネマは全8スクリーン・1,500席を誇る<br>
+          名古屋最大級のシネマコンプレックスです。
+        </p>
+      </div>
+      <nav class="footer-links">
+        <a href="../index.html">トップ</a>
+        <a href="#">お問い合わせ</a>
+        <a href="#">Q&amp;A</a>
+        <a href="#">個人情報保護方針</a>
+      </nav>
+      <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
+    </div>
+  </footer>
+
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script src="../js/voice-guide.js" defer></script>
   <script src="../js/step-progress.js" defer></script>
+
   <script>
   document.addEventListener('DOMContentLoaded', function () {
 

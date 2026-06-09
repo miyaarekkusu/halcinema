@@ -80,7 +80,10 @@ button { font-family: inherit; cursor: pointer; }
   letter-spacing: 0.04em;
 }
 
-/* 音声案内 */
+/* 音声案内
+   ・赤枠全体クリックで再生/停止
+   ・voice-guide-text は pointer-events:none（voice-guide.cssで設定済み）
+   ・hover/playing/muted はラッパーで一元管理                          */
 .fs-step-header .voice-guide {
   flex: 1;
   display: flex;
@@ -89,9 +92,34 @@ button { font-family: inherit; cursor: pointer; }
   background: var(--fs-accent);
   border-radius: 999px;
   padding: 10px 10px 10px 20px;
+  min-width: 0;
   max-width: 740px;
+  cursor: pointer;
+  transition: background 0.18s, opacity 0.18s;
 }
 
+/* ホバー：赤枠全体が同時に暗くなる */
+.fs-step-header .voice-guide:hover {
+  background: var(--fs-accent-dark);
+}
+
+/* 再生中 */
+.fs-step-header .voice-guide.playing {
+  background: var(--fs-accent-dark);
+}
+
+/* ミュート中：薄く・クリック無効 */
+.fs-step-header .voice-guide.muted {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ミュート中のスピーカーボタン → グレーでオフを表現 */
+.fs-step-header .voice-guide.muted .voice-guide-btn {
+  background: #9aa0b4;
+}
+
+/* テキスト（pointer-events:none は voice-guide.css で設定済み） */
 .fs-step-header .voice-guide-text {
   flex: 1;
   font-size: 13px;
@@ -99,6 +127,7 @@ button { font-family: inherit; cursor: pointer; }
   line-height: 1.5;
 }
 
+/* スピーカーボタン */
 .fs-step-header .voice-guide-btn {
   width: 40px;
   height: 40px;
@@ -112,6 +141,11 @@ button { font-family: inherit; cursor: pointer; }
   justify-content: center;
   padding: 0;
   flex-shrink: 0;
+  transition: background 0.18s;
+}
+
+.fs-step-header .voice-guide-btn:hover {
+  background: #f0f0f0;
 }
 
 .fs-step-header .voice-guide-btn img {
