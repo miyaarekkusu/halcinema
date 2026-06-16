@@ -9,9 +9,6 @@
   <link rel="stylesheet" href="../css/voice-guide.css">
   <link rel="stylesheet" href="../css/step-progress.css">
   <link rel="stylesheet" href="../css/food-select.css">
-  <link rel="stylesheet" href="../css/voice-guide.css">
-  
-
 </head>
 <body>
 
@@ -43,7 +40,7 @@
         <span class="step-num">3</span>
         <span class="step-title">フード・グッズ</span>
       </div>
-      <div class="voice-guide" id="voice-guide" data-audio="../voice/voice/03_food.wav">
+      <div class="voice-guide" id="voice-guide" data-audio="../voice/03_food.wav">
         <p class="voice-guide-text">ご一緒にポップコーンやお飲み物はいかがですか？私はポップコーンのキャラメル味がおすすめです！<br>必要のない方はそのまま「次へ」進んでください。</p>
         <button class="voice-guide-btn" id="voice-guide-btn" aria-label="音声案内">
           <img src="../images/volum_on.png" id="voice-guide-icon" alt="音声">
@@ -58,338 +55,219 @@
       <!-- カテゴリタブ -->
       <div class="category-tabs">
         <button class="category-tab active" data-tab="food">🍿 フード</button>
+        <button class="category-tab" data-tab="set">🎬 セット</button>
         <button class="category-tab" data-tab="goods">🎁 グッズ</button>
-        <button class="category-tab" data-tab="service">✋ サービス</button>
       </div>
 
       <div class="food-grid-layout">
 
-        <!-- 左：アイテムグリッド -->
+        <!-- 左：商品グリッド -->
         <div class="food-panel">
 
           <!-- ── フードタブ ── -->
           <div class="tab-panel active" id="tab-food">
+
+            <p class="panel-section-label">🍿 ポップコーン</p>
             <div class="food-items-grid">
-
-              <!-- ポップコーン S -->
-              <div class="food-item has-popup" data-popup="popup-popcorn-s">
-                <div class="food-item__img"><img src="../images/popcorn_salt_S.jpeg" alt="ポップコーン S"></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ポップコーン S</span>
-                  <span class="food-item__sub">300g・500〜580円</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">味を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-popcorn-s">0</span>
-                  </button>
+              <div class="food-card" data-wz="popcorn" data-size="s">
+                <div class="food-card__img"><img src="../images/popcorn_salt_S.jpeg" alt="ポップコーン S"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ポップコーン S</span>
+                  <span class="food-card__sub">300g · 500〜580円</span>
+                  <button class="wz-open-btn">味を選ぶ ▸</button>
                 </div>
               </div>
-
-              <!-- ポップコーン M -->
-              <div class="food-item has-popup" data-popup="popup-popcorn-m">
-                <div class="food-item__img"><img src="../images/popcorn_salt_M.jpeg" alt="ポップコーン M"></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ポップコーン M</span>
-                  <span class="food-item__sub">450g・600〜680円</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">味を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-popcorn-m">0</span>
-                  </button>
+              <div class="food-card" data-wz="popcorn" data-size="m">
+                <div class="food-card__img"><img src="../images/popcorn_salt_M.jpeg" alt="ポップコーン M"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ポップコーン M</span>
+                  <span class="food-card__sub">450g · 600〜680円</span>
+                  <button class="wz-open-btn">味を選ぶ ▸</button>
                 </div>
               </div>
-
-              <!-- ポップコーン L -->
-              <div class="food-item has-popup" data-popup="popup-popcorn-l">
-                <div class="food-item__img"><img src="../images/popcorn_salt_L.jpeg" alt="ポップコーン L"></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ポップコーン L</span>
-                  <span class="food-item__sub">600g・650〜730円</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">味を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-popcorn-l">0</span>
-                  </button>
+              <div class="food-card" data-wz="popcorn" data-size="l">
+                <div class="food-card__img"><img src="../images/popcorn_salt_L.jpeg" alt="ポップコーン L"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ポップコーン L</span>
+                  <span class="food-card__sub">600g · 650〜730円</span>
+                  <button class="wz-open-btn">味を選ぶ ▸</button>
                 </div>
               </div>
+            </div>
 
-              <!-- ドリンク S -->
-              <div class="food-item has-popup" data-popup="popup-drink-s">
-                <div class="food-item__img"><span class="ph-icon">🥤</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ドリンク S</span>
-                  <span class="food-item__sub">280〜380円</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">種類を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-drink-s">0</span>
-                  </button>
+            <p class="panel-section-label" style="margin-top:20px">🥤 ドリンク</p>
+            <div class="food-items-grid">
+              <div class="food-card" data-wz="drink" data-size="s">
+                <div class="food-card__img"><span class="ph-icon">🥤</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ドリンク S</span>
+                  <span class="food-card__sub">280〜380円</span>
+                  <button class="wz-open-btn">種類を選ぶ ▸</button>
                 </div>
               </div>
-
-              <!-- ドリンク M -->
-              <div class="food-item has-popup" data-popup="popup-drink-m">
-                <div class="food-item__img"><span class="ph-icon">🥤</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ドリンク M</span>
-                  <span class="food-item__sub">350〜460円</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">種類を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-drink-m">0</span>
-                  </button>
+              <div class="food-card" data-wz="drink" data-size="m">
+                <div class="food-card__img"><span class="ph-icon">🥤</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ドリンク M</span>
+                  <span class="food-card__sub">350〜460円</span>
+                  <button class="wz-open-btn">種類を選ぶ ▸</button>
                 </div>
               </div>
-
-              <!-- ドリンク L -->
-              <div class="food-item has-popup" data-popup="popup-drink-l">
-                <div class="food-item__img"><span class="ph-icon">🥤</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ドリンク L</span>
-                  <span class="food-item__sub">420〜470円</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">種類を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-drink-l">0</span>
-                  </button>
+              <div class="food-card" data-wz="drink" data-size="l">
+                <div class="food-card__img"><span class="ph-icon">🥤</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ドリンク L</span>
+                  <span class="food-card__sub">420〜470円</span>
+                  <button class="wz-open-btn">種類を選ぶ ▸</button>
                 </div>
               </div>
+            </div>
 
-              <!-- ホットドッグ -->
-              <div class="food-item has-popup" data-popup="popup-hotdog">
-                <div class="food-item__img"><span class="ph-icon">🌭</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ホットドッグ</span>
-                  <span class="food-item__sub">各種トッピング</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">種類を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-hotdog">0</span>
-                  </button>
+            <p class="panel-section-label" style="margin-top:20px">🍔 その他フード</p>
+            <div class="food-items-grid">
+              <div class="food-card" data-wz="simple" data-item="hotdog">
+                <div class="food-card__img"><span class="ph-icon">🌭</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ホットドッグ</span>
+                  <span class="food-card__sub">350〜480円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
               </div>
-
-              <!-- ナチョス -->
-              <div class="food-item has-popup" data-popup="popup-nachos">
-                <div class="food-item__img"><span class="ph-icon">🧀</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ナチョス</span>
-                  <span class="food-item__sub">S/L・ソース選択</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">サイズ・ソースを選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-nachos">0</span>
-                  </button>
+              <div class="food-card" data-wz="simple" data-item="nachos">
+                <div class="food-card__img"><span class="ph-icon">🧀</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ナチョス</span>
+                  <span class="food-card__sub">400〜600円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
               </div>
-
-              <!-- フライドポテト -->
-              <div class="food-item has-popup" data-popup="popup-fries">
-                <div class="food-item__img"><span class="ph-icon">🍟</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">フライドポテト</span>
-                  <span class="food-item__sub">S/M・塩/チーズ</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">種類を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-fries">0</span>
-                  </button>
+              <div class="food-card" data-wz="simple" data-item="fries">
+                <div class="food-card__img"><span class="ph-icon">🍟</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">フライドポテト</span>
+                  <span class="food-card__sub">280〜450円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
               </div>
-
-              <!-- アイスクリーム -->
-              <div class="food-item has-popup" data-popup="popup-ice">
-                <div class="food-item__img"><span class="ph-icon">🍦</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">アイスクリーム</span>
-                  <span class="food-item__sub">各種フレーバー</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">種類を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-ice">0</span>
-                  </button>
+              <div class="food-card" data-wz="simple" data-item="ice">
+                <div class="food-card__img"><span class="ph-icon">🍦</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">アイスクリーム</span>
+                  <span class="food-card__sub">350〜420円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
+              </div>
+            </div>
+
+          </div><!-- /#tab-food -->
+
+          <!-- ── セットタブ ── -->
+          <div class="tab-panel" id="tab-set">
+            <div class="set-cards">
+
+              <div class="set-card" data-wz="set" data-set="standard">
+                <div class="set-card__icon">🎬</div>
+                <div class="set-card__body">
+                  <span class="set-card__name">スタンダードセット</span>
+                  <span class="set-card__desc">ポップコーン M + ドリンク M</span>
+                  <span class="set-card__discount">100円OFF</span>
+                </div>
+                <button class="wz-open-btn">選ぶ ▸</button>
+              </div>
+
+              <div class="set-card" data-wz="set" data-set="premium">
+                <div class="set-card__icon">⭐</div>
+                <div class="set-card__body">
+                  <span class="set-card__name">プレミアムセット</span>
+                  <span class="set-card__desc">ポップコーン L + ドリンク L</span>
+                  <span class="set-card__discount">150円OFF</span>
+                </div>
+                <button class="wz-open-btn">選ぶ ▸</button>
+              </div>
+
+              <div class="set-card" data-wz="set" data-set="pair">
+                <div class="set-card__icon">💑</div>
+                <div class="set-card__body">
+                  <span class="set-card__name">ペアセット</span>
+                  <span class="set-card__desc">ポップコーン L + ドリンク M × 2</span>
+                  <span class="set-card__discount">200円OFF</span>
+                </div>
+                <button class="wz-open-btn">選ぶ ▸</button>
               </div>
 
             </div>
-          </div>
+          </div><!-- /#tab-set -->
 
           <!-- ── グッズタブ ── -->
           <div class="tab-panel" id="tab-goods">
             <div class="food-items-grid">
-
-              <div class="food-item has-popup" data-popup="popup-goods-tshirt">
-                <div class="food-item__img"><span class="ph-icon">👕</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">HAL限定Tシャツ</span>
-                  <span class="food-item__sub">S/M/L/XL</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">サイズを選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-tshirt">0</span>
-                  </button>
+              <div class="food-card" data-wz="simple" data-item="tshirt">
+                <div class="food-card__img"><span class="ph-icon">👕</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">HAL限定Tシャツ</span>
+                  <span class="food-card__sub">S/M/L/XL · 2,800円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
               </div>
-
-              <div class="food-item has-popup" data-popup="popup-goods-tumbler">
-                <div class="food-item__img"><span class="ph-icon">🥛</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">HALオリジナルタンブラー</span>
-                  <span class="food-item__sub">2色展開</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">カラーを選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-tumbler">0</span>
-                  </button>
+              <div class="food-card" data-wz="simple" data-item="tumbler">
+                <div class="food-card__img"><span class="ph-icon">🥛</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">HALタンブラー</span>
+                  <span class="food-card__sub">2色展開 · 1,800円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
               </div>
-
-              <div class="food-item has-popup" data-popup="popup-goods-badge">
-                <div class="food-item__img"><span class="ph-icon">🎖️</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">缶バッジセット</span>
-                  <span class="food-item__sub">3種セット</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">デザインを選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-badge">0</span>
-                  </button>
+              <div class="food-card" data-wz="simple" data-item="badge">
+                <div class="food-card__img"><span class="ph-icon">🎖️</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">缶バッジセット</span>
+                  <span class="food-card__sub">3デザイン · 800〜900円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
               </div>
-
-              <div class="food-item has-popup" data-popup="popup-goods-poster">
-                <div class="food-item__img"><span class="ph-icon">🖼️</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">映画ポスター</span>
-                  <span class="food-item__sub">A3サイズ</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">デザインを選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-poster">0</span>
-                  </button>
+              <div class="food-card" data-wz="simple" data-item="poster">
+                <div class="food-card__img"><span class="ph-icon">🖼️</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">映画ポスター A3</span>
+                  <span class="food-card__sub">縦型/横型 · 1,200円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
               </div>
-
-              <div class="food-item has-popup" data-popup="popup-goods-keychain">
-                <div class="food-item__img"><span class="ph-icon">🔑</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">キーチェーン</span>
-                  <span class="food-item__sub">各種キャラクター</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">種類を選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-keychain">0</span>
-                  </button>
+              <div class="food-card" data-wz="simple" data-item="keychain">
+                <div class="food-card__img"><span class="ph-icon">🔑</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">キーチェーン</span>
+                  <span class="food-card__sub">3種 · 600円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
               </div>
-
-              <div class="food-item has-popup" data-popup="popup-goods-blanket">
-                <div class="food-item__img"><span class="ph-icon">🧣</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">映画ブランケット</span>
-                  <span class="food-item__sub">HALロゴ入り</span>
-                  <button class="size-selector-btn" type="button">
-                    <span class="size-selector-btn__label">カラーを選ぶ</span>
-                    <span class="size-selector-btn__count is-zero" id="cnt-blanket">0</span>
-                  </button>
+              <div class="food-card" data-wz="simple" data-item="blanket">
+                <div class="food-card__img"><span class="ph-icon">🧣</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">映画ブランケット</span>
+                  <span class="food-card__sub">3色 · 2,200円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
                 </div>
               </div>
-
             </div>
-          </div>
-
-          <!-- ── サービスタブ ── -->
-          <div class="tab-panel" id="tab-service">
-            <div class="food-items-grid">
-
-              <div class="food-item simple-item" data-item-id="wipe" data-price="50">
-                <div class="food-item__img"><span class="ph-icon">🧻</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">お手拭き</span>
-                  <span class="food-item__price">50円（税込）</span>
-                  <div class="food-stepper">
-                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
-                    <span class="food-stepper__count">0</span>
-                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="food-item simple-item" data-item-id="bucket" data-price="100">
-                <div class="food-item__img"><span class="ph-icon">🪣</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">取り分け用バケット</span>
-                  <span class="food-item__price">100円（税込）</span>
-                  <div class="food-stepper">
-                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
-                    <span class="food-stepper__count">0</span>
-                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="food-item simple-item" data-item-id="bag" data-price="30">
-                <div class="food-item__img"><span class="ph-icon">🛍️</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">持ち帰り用袋</span>
-                  <span class="food-item__price">30円（税込）</span>
-                  <div class="food-stepper">
-                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
-                    <span class="food-stepper__count">0</span>
-                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="food-item simple-item" data-item-id="straw" data-price="0">
-                <div class="food-item__img"><span class="ph-icon">🥤</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ストロー（紙）</span>
-                  <span class="food-item__price">無料</span>
-                  <div class="food-stepper">
-                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
-                    <span class="food-stepper__count">0</span>
-                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="food-item simple-item" data-item-id="fork" data-price="0">
-                <div class="food-item__img"><span class="ph-icon">🍴</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">プラスチックフォーク</span>
-                  <span class="food-item__price">無料</span>
-                  <div class="food-stepper">
-                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
-                    <span class="food-stepper__count">0</span>
-                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="food-item simple-item" data-item-id="napkin" data-price="0">
-                <div class="food-item__img"><span class="ph-icon">📄</span></div>
-                <div class="food-item__body">
-                  <span class="food-item__name">ナプキン（5枚）</span>
-                  <span class="food-item__price">無料</span>
-                  <div class="food-stepper">
-                    <button class="food-stepper__btn" type="button" aria-label="減らす">&#9664;</button>
-                    <span class="food-stepper__count">0</span>
-                    <button class="food-stepper__btn" type="button" aria-label="増やす">&#9654;</button>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
+          </div><!-- /#tab-goods -->
 
         </div><!-- /.food-panel -->
 
-        <!-- 右：サイドバー -->
+        <!-- 右：POSカート -->
         <aside class="food-sidebar">
           <div class="sidebar-card">
 
             <div class="sidebar-section">
-              <p class="sidebar-label">上映作品</p>
+              <p class="sidebar-label">上映情報</p>
               <div class="movie-info">
                 <div class="movie-poster"><div class="movie-poster__placeholder"></div></div>
                 <div class="movie-meta">
                   <h3 class="movie-title" id="sb-movie-title">—</h3>
-                  <p class="movie-time" id="sb-movie-time">—</p>
-                  <p class="movie-duration" id="sb-movie-duration">—</p>
+                  <p class="movie-time"  id="sb-movie-time">—</p>
+                  <p class="movie-duration" id="sb-screen-detail">—</p>
                 </div>
               </div>
-            </div>
-
-            <div class="sidebar-section">
-              <p class="sidebar-label">スクリーン</p>
-              <p class="venue-name">HAL CINEMA</p>
-              <p class="venue-screen" id="sb-screen-detail">—</p>
             </div>
 
             <div class="sidebar-section">
@@ -397,9 +275,11 @@
               <ul class="selected-list" id="js-sidebar-tickets"></ul>
             </div>
 
-            <div class="sidebar-section">
-              <p class="sidebar-label">フード・グッズ</p>
-              <ul class="selected-list" id="js-sidebar-foods"></ul>
+            <div class="sidebar-section cart-section">
+              <p class="sidebar-label">フード・グッズ <span class="cart-count" id="js-cart-count">0点</span></p>
+              <ul class="cart-list" id="js-cart-list">
+                <li class="cart-empty">未選択</li>
+              </ul>
             </div>
 
             <div class="price-total">
@@ -416,254 +296,38 @@
         </aside>
 
       </div><!-- /.food-grid-layout -->
-
     </div>
   </main>
 
-  <!-- ══════════════════════════════════════════
-       ポップアップ群
-  ══════════════════════════════════════════ -->
-
-  <!-- ポップコーン S -->
-  <div class="fs-popup" id="popup-popcorn-s" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🍿 ポップコーン Sサイズ</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
+  <!-- ウィザードポップアップ（共通・単一） -->
+  <div class="wizard-popup" id="wizard-popup" role="dialog" aria-modal="true" hidden>
+    <div class="wizard-overlay" id="wizard-overlay"></div>
+    <div class="wizard-card">
+      <div class="wizard-header">
+        <div class="wizard-logo">HAL <span>CINEMA</span></div>
+        <h2 class="wizard-title" id="wz-title">—</h2>
+        <button class="wizard-close" id="wizard-close" aria-label="閉じる">×</button>
       </div>
-      <p class="fs-popup__hint">お好みの味を選んでください（300g）</p>
-      <div class="fs-popup__options" id="options-popcorn-s"></div>
+      <div class="wz-steps" id="wz-steps"></div>
+      <div class="wz-body" id="wz-body"></div>
+      <div class="wizard-footer">
+        <button class="wz-btn wz-btn--back" id="wz-back">戻る</button>
+        <button class="wz-btn wz-btn--next" id="wz-next">次へ</button>
+      </div>
     </div>
   </div>
 
-  <!-- ポップコーン M -->
-  <div class="fs-popup" id="popup-popcorn-m" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🍿 ポップコーン Mサイズ</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">お好みの味を選んでください（450g）</p>
-      <div class="fs-popup__options" id="options-popcorn-m"></div>
-    </div>
-  </div>
-
-  <!-- ポップコーン L -->
-  <div class="fs-popup" id="popup-popcorn-l" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🍿 ポップコーン Lサイズ</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">お好みの味を選んでください（600g）</p>
-      <div class="fs-popup__options" id="options-popcorn-l"></div>
-    </div>
-  </div>
-
-  <!-- ドリンク S -->
-  <div class="fs-popup" id="popup-drink-s" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🥤 ドリンク Sサイズ</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">種類を選んでください</p>
-      <div class="fs-popup__options" id="options-drink-s"></div>
-    </div>
-  </div>
-
-  <!-- ドリンク M -->
-  <div class="fs-popup" id="popup-drink-m" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🥤 ドリンク Mサイズ</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">種類を選んでください</p>
-      <div class="fs-popup__options" id="options-drink-m"></div>
-    </div>
-  </div>
-
-  <!-- ドリンク L -->
-  <div class="fs-popup" id="popup-drink-l" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🥤 ドリンク Lサイズ</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">種類を選んでください</p>
-      <div class="fs-popup__options" id="options-drink-l"></div>
-    </div>
-  </div>
-
-  <!-- ホットドッグ -->
-  <div class="fs-popup" id="popup-hotdog" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🌭 ホットドッグ</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">種類を選んでください</p>
-      <div class="fs-popup__options" id="options-hotdog"></div>
-    </div>
-  </div>
-
-  <!-- ナチョス -->
-  <div class="fs-popup" id="popup-nachos" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🧀 ナチョス</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">サイズとソースを選んでください</p>
-      <div class="fs-popup__options" id="options-nachos"></div>
-    </div>
-  </div>
-
-  <!-- フライドポテト -->
-  <div class="fs-popup" id="popup-fries" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🍟 フライドポテト</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">種類を選んでください</p>
-      <div class="fs-popup__options" id="options-fries"></div>
-    </div>
-  </div>
-
-  <!-- アイスクリーム -->
-  <div class="fs-popup" id="popup-ice" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🍦 アイスクリーム</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">フレーバーを選んでください</p>
-      <div class="fs-popup__options" id="options-ice"></div>
-    </div>
-  </div>
-
-  <!-- グッズ：Tシャツ -->
-  <div class="fs-popup" id="popup-goods-tshirt" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">👕 HAL限定Tシャツ</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">サイズを選んでください</p>
-      <div class="fs-popup__options" id="options-tshirt"></div>
-    </div>
-  </div>
-
-  <!-- グッズ：タンブラー -->
-  <div class="fs-popup" id="popup-goods-tumbler" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🥛 HALオリジナルタンブラー</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">カラーを選んでください</p>
-      <div class="fs-popup__options" id="options-tumbler"></div>
-    </div>
-  </div>
-
-  <!-- グッズ：缶バッジ -->
-  <div class="fs-popup" id="popup-goods-badge" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🎖️ 缶バッジセット</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">デザインを選んでください</p>
-      <div class="fs-popup__options" id="options-badge"></div>
-    </div>
-  </div>
-
-  <!-- グッズ：ポスター -->
-  <div class="fs-popup" id="popup-goods-poster" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🖼️ 映画ポスター</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">デザインを選んでください</p>
-      <div class="fs-popup__options" id="options-poster"></div>
-    </div>
-  </div>
-
-  <!-- グッズ：キーチェーン -->
-  <div class="fs-popup" id="popup-goods-keychain" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🔑 キーチェーン</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">種類を選んでください</p>
-      <div class="fs-popup__options" id="options-keychain"></div>
-    </div>
-  </div>
-
-  <!-- グッズ：ブランケット -->
-  <div class="fs-popup" id="popup-goods-blanket" role="dialog" aria-modal="true">
-    <div class="fs-popup__overlay"></div>
-    <div class="fs-popup__card">
-      <div class="fs-popup__header">
-        <div class="fs-popup__logo">HAL <span>CINEMA</span></div>
-        <h2 class="fs-popup__title">🧣 映画ブランケット</h2>
-        <button class="fs-popup__close" aria-label="閉じる">×</button>
-      </div>
-      <p class="fs-popup__hint">カラーを選んでください</p>
-      <div class="fs-popup__options" id="options-blanket"></div>
-    </div>
-  </div>
-
-
-  <!-- フッター -->
   <footer class="site-footer">
     <div class="footer-inner">
       <div>
         <p class="footer-logo">HAL <span>CINEMA</span></p>
-        <p class="footer-desc">
-          HALシネマは全8スクリーン・1,500席を誇る<br>
-          名古屋最大級のシネマコンプレックスです。
-        </p>
+        <p class="footer-desc">HALシネマは全8スクリーン・1,050席を誇る<br>名古屋最大級のシネマコンプレックスです。</p>
       </div>
       <nav class="footer-links">
         <a href="../index.html">トップ</a>
         <a href="#">お問い合わせ</a>
-        <a href="#">Q&amp;A</a>
-        <a href="#">個人情報保護方針</a>
+        <a href="#">Q&A</a>
+        <a href="../html/privacy.html">個人情報保護方針</a>
       </nav>
       <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
     </div>
@@ -675,443 +339,353 @@
   <script src="../js/step-progress.js" defer></script>
 
   <script>
-  document.addEventListener('DOMContentLoaded', function () {
+  (function () {
 
-    // ══════════════════════════════════════════
-    // メニューデータ定義
-    // ══════════════════════════════════════════
-    const MENU = {
-      'popcorn-s': {
-        countId: 'cnt-popcorn-s',
-        optionsId: 'options-popcorn-s',
-        items: [
-          { id:'pc-s-caramel', icon:'🍿', name:'キャラメル味',        sub:'ポップコーン S・300g', price:500 },
-          { id:'pc-s-salt',    icon:'🍿', name:'塩味',                sub:'ポップコーン S・300g', price:500 },
-          { id:'pc-s-mix',     icon:'🍿', name:'ミックス',            sub:'ポップコーン S・300g', price:520 },
-          { id:'pc-s-hal',     icon:'🍿', name:'HAL限定 矢場とん味',  sub:'ポップコーン S・300g', price:580, badge:'HAL限定' },
-          { id:'pc-s-sauce',   icon:'🍿', name:'HAL限定 名古屋ソース味', sub:'ポップコーン S・300g', price:580, badge:'HAL限定' },
-        ]
-      },
-      'popcorn-m': {
-        countId: 'cnt-popcorn-m',
-        optionsId: 'options-popcorn-m',
-        items: [
-          { id:'pc-m-caramel', icon:'🍿', name:'キャラメル味',        sub:'ポップコーン M・450g', price:600 },
-          { id:'pc-m-salt',    icon:'🍿', name:'塩味',                sub:'ポップコーン M・450g', price:600 },
-          { id:'pc-m-mix',     icon:'🍿', name:'ミックス',            sub:'ポップコーン M・450g', price:620 },
-          { id:'pc-m-hal',     icon:'🍿', name:'HAL限定 矢場とん味',  sub:'ポップコーン M・450g', price:680, badge:'HAL限定' },
-          { id:'pc-m-sauce',   icon:'🍿', name:'HAL限定 名古屋ソース味', sub:'ポップコーン M・450g', price:680, badge:'HAL限定' },
-        ]
-      },
-      'popcorn-l': {
-        countId: 'cnt-popcorn-l',
-        optionsId: 'options-popcorn-l',
-        items: [
-          { id:'pc-l-caramel', icon:'🍿', name:'キャラメル味',        sub:'ポップコーン L・600g', price:650 },
-          { id:'pc-l-salt',    icon:'🍿', name:'塩味',                sub:'ポップコーン L・600g', price:650 },
-          { id:'pc-l-mix',     icon:'🍿', name:'ミックス',            sub:'ポップコーン L・600g', price:670 },
-          { id:'pc-l-hal',     icon:'🍿', name:'HAL限定 矢場とん味',  sub:'ポップコーン L・600g', price:730, badge:'HAL限定' },
-          { id:'pc-l-sauce',   icon:'🍿', name:'HAL限定 名古屋ソース味', sub:'ポップコーン L・600g', price:730, badge:'HAL限定' },
-        ]
-      },
-      'drink-s': {
-        countId: 'cnt-drink-s',
-        optionsId: 'options-drink-s',
-        items: [
-          { id:'dr-s-cola',   icon:'🥤', name:'コーラ',              sub:'ドリンク S', price:300 },
-          { id:'dr-s-ginger', icon:'🥤', name:'ジンジャーエール',    sub:'ドリンク S', price:300 },
-          { id:'dr-s-oolong', icon:'🍵', name:'烏龍茶',              sub:'ドリンク S', price:280 },
-          { id:'dr-s-lemon',  icon:'🍋', name:'レモネード',          sub:'ドリンク S', price:320 },
-          { id:'dr-s-hal',    icon:'🥤', name:'HAL限定 みそソーダ',  sub:'ドリンク S', price:380, badge:'HAL限定' },
-        ]
-      },
-      'drink-m': {
-        countId: 'cnt-drink-m',
-        optionsId: 'options-drink-m',
-        items: [
-          { id:'dr-m-cola',   icon:'🥤', name:'コーラ',              sub:'ドリンク M', price:380 },
-          { id:'dr-m-ginger', icon:'🥤', name:'ジンジャーエール',    sub:'ドリンク M', price:380 },
-          { id:'dr-m-oolong', icon:'🍵', name:'烏龍茶',              sub:'ドリンク M', price:350 },
-          { id:'dr-m-lemon',  icon:'🍋', name:'レモネード',          sub:'ドリンク M', price:400 },
-          { id:'dr-m-hal',    icon:'🥤', name:'HAL限定 みそソーダ',  sub:'ドリンク M', price:460, badge:'HAL限定' },
-        ]
-      },
-      'drink-l': {
-        countId: 'cnt-drink-l',
-        optionsId: 'options-drink-l',
-        items: [
-          { id:'dr-l-cola',   icon:'🥤', name:'コーラ',              sub:'ドリンク L', price:450 },
-          { id:'dr-l-ginger', icon:'🥤', name:'ジンジャーエール',    sub:'ドリンク L', price:450 },
-          { id:'dr-l-oolong', icon:'🍵', name:'烏龍茶',              sub:'ドリンク L', price:420 },
-          { id:'dr-l-lemon',  icon:'🍋', name:'レモネード',          sub:'ドリンク L', price:470 },
-        ]
-      },
-      hotdog: {
-        countId: 'cnt-hotdog',
-        optionsId: 'options-hotdog',
-        items: [
-          { id:'hd-plain',   icon:'🌭', name:'プレーン',         sub:'マスタード＆ケチャップ',  price:350 },
-          { id:'hd-cheese',  icon:'🌭', name:'チーズホットドッグ', sub:'チェダーチーズソース',    price:420 },
-          { id:'hd-hal',     icon:'🌭', name:'HAL限定 どて煮ドッグ', sub:'名古屋名物どて煮ソース', price:480, badge:'HAL限定' },
-          { id:'hd-spicy',   icon:'🌭', name:'スパイシー',        sub:'ハラペーニョ＆チリソース', price:420 },
-        ]
-      },
-      nachos: {
-        countId: 'cnt-nachos',
-        optionsId: 'options-nachos',
-        items: [
-          { id:'na-s-cheese', icon:'🧀', name:'ナチョス',    sub:'Sサイズ チーズソース',       price:400 },
-          { id:'na-l-cheese', icon:'🧀', name:'ナチョス',    sub:'Lサイズ チーズソース',       price:550 },
-          { id:'na-s-salsa',  icon:'🧀', name:'ナチョス',    sub:'Sサイズ サルサソース',       price:400 },
-          { id:'na-l-salsa',  icon:'🧀', name:'ナチョス',    sub:'Lサイズ サルサソース',       price:550 },
-          { id:'na-s-hal',    icon:'🧀', name:'ナチョス',    sub:'Sサイズ HAL限定 赤味噌ソース', price:450, badge:'HAL限定' },
-          { id:'na-l-hal',    icon:'🧀', name:'ナチョス',    sub:'Lサイズ HAL限定 赤味噌ソース', price:600, badge:'HAL限定' },
-        ]
-      },
-      fries: {
-        countId: 'cnt-fries',
-        optionsId: 'options-fries',
-        items: [
-          { id:'fr-s-salt',   icon:'🍟', name:'フライドポテト', sub:'Sサイズ 塩',       price:280 },
-          { id:'fr-m-salt',   icon:'🍟', name:'フライドポテト', sub:'Mサイズ 塩',       price:380 },
-          { id:'fr-s-cheese', icon:'🍟', name:'フライドポテト', sub:'Sサイズ チーズ',   price:320 },
-          { id:'fr-m-cheese', icon:'🍟', name:'フライドポテト', sub:'Mサイズ チーズ',   price:420 },
-          { id:'fr-s-hal',    icon:'🍟', name:'フライドポテト', sub:'Sサイズ HAL限定 台湾風', price:350, badge:'HAL限定' },
-          { id:'fr-m-hal',    icon:'🍟', name:'フライドポテト', sub:'Mサイズ HAL限定 台湾風', price:450, badge:'HAL限定' },
-        ]
-      },
-      ice: {
-        countId: 'cnt-ice',
-        optionsId: 'options-ice',
-        items: [
-          { id:'ic-vanilla',  icon:'🍦', name:'バニラ',           sub:'カップ',            price:350 },
-          { id:'ic-choco',    icon:'🍫', name:'チョコレート',     sub:'カップ',            price:350 },
-          { id:'ic-matcha',   icon:'🍵', name:'抹茶',             sub:'カップ',            price:380 },
-          { id:'ic-hal',      icon:'🍦', name:'HAL限定 小倉バニラ', sub:'カップ・小倉あん入り', price:420, badge:'HAL限定' },
-          { id:'ic-hal2',     icon:'🍦', name:'HAL限定 えびせんフレーバー', sub:'カップ・名古屋限定', price:400, badge:'HAL限定' },
-        ]
-      },
-      tshirt: {
-        countId: 'cnt-tshirt',
-        optionsId: 'options-tshirt',
-        items: [
-          { id:'ts-s', icon:'👕', name:'HAL限定Tシャツ', sub:'Sサイズ', price:2800 },
-          { id:'ts-m', icon:'👕', name:'HAL限定Tシャツ', sub:'Mサイズ', price:2800 },
-          { id:'ts-l', icon:'👕', name:'HAL限定Tシャツ', sub:'Lサイズ', price:2800 },
-          { id:'ts-xl',icon:'👕', name:'HAL限定Tシャツ', sub:'XLサイズ',price:2800 },
-        ]
-      },
-      tumbler: {
-        countId: 'cnt-tumbler',
-        optionsId: 'options-tumbler',
-        items: [
-          { id:'tum-black', icon:'🥛', name:'HALタンブラー', sub:'ブラック', price:1800 },
-          { id:'tum-red',   icon:'🥛', name:'HALタンブラー', sub:'レッド',   price:1800 },
-        ]
-      },
-      badge: {
-        countId: 'cnt-badge',
-        optionsId: 'options-badge',
-        items: [
-          { id:'bdg-a', icon:'🎖️', name:'缶バッジセット', sub:'Aセット（シネマデザイン）', price:800 },
-          { id:'bdg-b', icon:'🎖️', name:'缶バッジセット', sub:'Bセット（HALロゴデザイン）', price:800 },
-          { id:'bdg-c', icon:'🎖️', name:'缶バッジセット', sub:'Cセット（上映作品デザイン）', price:900 },
-        ]
-      },
-      poster: {
-        countId: 'cnt-poster',
-        optionsId: 'options-poster',
-        items: [
-          { id:'pos-a', icon:'🖼️', name:'映画ポスター A3', sub:'縦型・スタンダード', price:1200 },
-          { id:'pos-b', icon:'🖼️', name:'映画ポスター A3', sub:'横型・パノラマ版',   price:1200 },
-        ]
-      },
-      keychain: {
-        countId: 'cnt-keychain',
-        optionsId: 'options-keychain',
-        items: [
-          { id:'key-a', icon:'🔑', name:'キーチェーン', sub:'映写機デザイン', price:600 },
-          { id:'key-b', icon:'🔑', name:'キーチェーン', sub:'HALロゴデザイン', price:600 },
-          { id:'key-c', icon:'🔑', name:'キーチェーン', sub:'ポップコーンデザイン', price:600 },
-        ]
-      },
-      blanket: {
-        countId: 'cnt-blanket',
-        optionsId: 'options-blanket',
-        items: [
-          { id:'blk-navy',  icon:'🧣', name:'映画ブランケット', sub:'ネイビー', price:2200 },
-          { id:'blk-gray',  icon:'🧣', name:'映画ブランケット', sub:'グレー',   price:2200 },
-          { id:'blk-black', icon:'🧣', name:'映画ブランケット', sub:'ブラック', price:2200 },
-        ]
-      },
+    var PC_FLAVORS = [
+      { id:'caramel', label:'キャラメル',            icon:'🍯', priceAdd:{ s:0,  m:0,  l:0  } },
+      { id:'salt',    label:'塩',                    icon:'🧂', priceAdd:{ s:0,  m:0,  l:0  } },
+      { id:'mix',     label:'ミックス（2フレーバー）', icon:'🎨', priceAdd:{ s:20, m:20, l:20 } },
+      { id:'yabaton', label:'HAL限定 矢場とん味',     icon:'🍖', priceAdd:{ s:80, m:80, l:80 }, badge:'HAL限定' },
+      { id:'sauce',   label:'HAL限定 名古屋ソース味', icon:'🫙', priceAdd:{ s:80, m:80, l:80 }, badge:'HAL限定' },
+    ];
+
+    var PC_BASE = { s:500, m:600, l:650 };
+
+    var DRINKS = [
+      { id:'cola',      label:'コーラ',               icon:'🥤', price:{ s:300, m:380, l:450 }, hasTemp:false },
+      { id:'ginger',    label:'ジンジャーエール',      icon:'🥤', price:{ s:300, m:380, l:450 }, hasTemp:false },
+      { id:'oolong',    label:'烏龍茶',                icon:'🍵', price:{ s:280, m:350, l:420 }, hasTemp:false },
+      { id:'lemon',     label:'レモネード',            icon:'🍋', price:{ s:320, m:400, l:470 }, hasTemp:false },
+      { id:'orange',    label:'オレンジジュース',      icon:'🍊', price:{ s:300, m:380, l:450 }, hasTemp:false },
+      { id:'apple',     label:'アップルジュース',      icon:'🍎', price:{ s:300, m:380, l:450 }, hasTemp:false },
+      { id:'water',     label:'ミネラルウォーター',    icon:'💧', price:{ s:250, m:300, l:350 }, hasTemp:false },
+      { id:'sports',    label:'スポーツドリンク',      icon:'⚡', price:{ s:300, m:380, l:450 }, hasTemp:false },
+      { id:'coffee',    label:'コーヒー',              icon:'☕', price:{ s:320, m:400, l:460 }, hasTemp:true  },
+      { id:'latte',     label:'カフェラテ',            icon:'☕', price:{ s:340, m:420, l:470 }, hasTemp:true  },
+      { id:'chocolate', label:'ホットチョコレート',    icon:'🍫', price:{ s:350, m:430, l:470 }, hasTemp:true  },
+      { id:'miso',      label:'HAL限定 みそソーダ',    icon:'🥤', price:{ s:380, m:460, l:470 }, hasTemp:false, badge:'HAL限定' },
+      { id:'nagoya',    label:'HAL限定 名古屋ブレンドティー', icon:'🫖', price:{ s:350, m:430, l:470 }, hasTemp:false, badge:'HAL限定' },
+    ];
+
+    var SETS = [
+      { id:'standard', name:'スタンダードセット', desc:'ポップコーン M + ドリンク M', icon:'🎬', discount:100, pcSize:'m', drinkSlots:[{ size:'m' }] },
+      { id:'premium',  name:'プレミアムセット',   desc:'ポップコーン L + ドリンク L', icon:'⭐', discount:150, pcSize:'l', drinkSlots:[{ size:'l' }] },
+      { id:'pair',     name:'ペアセット',         desc:'ポップコーン L + ドリンク M × 2', icon:'💑', discount:200, pcSize:'l', drinkSlots:[{ size:'m' }, { size:'m' }] },
+    ];
+
+    var SIMPLE_OPTIONS = {
+      hotdog:  { title:'🌭 ホットドッグ',     items:[ { id:'hd-plain',  label:'プレーン',           sub:'マスタード＆ケチャップ',  price:350 }, { id:'hd-cheese', label:'チーズホットドッグ', sub:'チェダーチーズソース',    price:420 }, { id:'hd-spicy',  label:'スパイシー',          sub:'ハラペーニョ＆チリ',      price:420 }, { id:'hd-hal',    label:'どて煮ドッグ',        sub:'名古屋名物どて煮ソース',  price:480, badge:'HAL限定' } ] },
+      nachos:  { title:'🧀 ナチョス',         items:[ { id:'na-s-cheese', label:'S チーズソース', sub:'', price:400 }, { id:'na-l-cheese', label:'L チーズソース', sub:'', price:550 }, { id:'na-s-salsa', label:'S サルサソース', sub:'', price:400 }, { id:'na-l-salsa', label:'L サルサソース', sub:'', price:550 }, { id:'na-s-miso', label:'S 赤味噌ソース', sub:'HAL限定', price:450, badge:'HAL限定' }, { id:'na-l-miso', label:'L 赤味噌ソース', sub:'HAL限定', price:600, badge:'HAL限定' } ] },
+      fries:   { title:'🍟 フライドポテト',   items:[ { id:'fr-s-salt', label:'S 塩', sub:'', price:280 }, { id:'fr-m-salt', label:'M 塩', sub:'', price:380 }, { id:'fr-s-cheese', label:'S チーズ', sub:'', price:320 }, { id:'fr-m-cheese', label:'M チーズ', sub:'', price:420 }, { id:'fr-s-hal', label:'S 台湾風', sub:'HAL限定', price:350, badge:'HAL限定' }, { id:'fr-m-hal', label:'M 台湾風', sub:'HAL限定', price:450, badge:'HAL限定' } ] },
+      ice:     { title:'🍦 アイスクリーム',   items:[ { id:'ic-vanilla', label:'バニラ', sub:'カップ', price:350 }, { id:'ic-choco', label:'チョコレート', sub:'カップ', price:350 }, { id:'ic-matcha', label:'抹茶', sub:'カップ', price:380 }, { id:'ic-ogura', label:'小倉バニラ', sub:'カップ・小倉あん入り', price:420, badge:'HAL限定' }, { id:'ic-ebi', label:'えびせんフレーバー', sub:'名古屋限定', price:400, badge:'HAL限定' } ] },
+      tshirt:  { title:'👕 HAL限定Tシャツ',   items:[ { id:'ts-s', label:'S サイズ', sub:'', price:2800 }, { id:'ts-m', label:'M サイズ', sub:'', price:2800 }, { id:'ts-l', label:'L サイズ', sub:'', price:2800 }, { id:'ts-xl', label:'XL サイズ', sub:'', price:2800 } ] },
+      tumbler: { title:'🥛 HALオリジナルタンブラー', items:[ { id:'tum-black', label:'ブラック', sub:'', price:1800 }, { id:'tum-red', label:'レッド', sub:'', price:1800 } ] },
+      badge:   { title:'🎖️ 缶バッジセット',   items:[ { id:'bdg-a', label:'Aセット（シネマデザイン）', sub:'', price:800 }, { id:'bdg-b', label:'Bセット（HALロゴデザイン）', sub:'', price:800 }, { id:'bdg-c', label:'Cセット（上映作品デザイン）', sub:'', price:900 } ] },
+      poster:  { title:'🖼️ 映画ポスター A3',  items:[ { id:'pos-a', label:'縦型・スタンダード', sub:'', price:1200 }, { id:'pos-b', label:'横型・パノラマ版', sub:'', price:1200 } ] },
+      keychain:{ title:'🔑 キーチェーン',      items:[ { id:'key-a', label:'映写機デザイン', sub:'', price:600 }, { id:'key-b', label:'HALロゴデザイン', sub:'', price:600 }, { id:'key-c', label:'ポップコーンデザイン', sub:'', price:600 } ] },
+      blanket: { title:'🧣 映画ブランケット',  items:[ { id:'blk-navy', label:'ネイビー', sub:'', price:2200 }, { id:'blk-gray', label:'グレー', sub:'', price:2200 }, { id:'blk-black', label:'ブラック', sub:'', price:2200 } ] },
     };
 
-    // ══════════════════════════════════════════
-    // 選択状態（key: item.id, value: count）
-    // ══════════════════════════════════════════
-    const selection = {};
+    var WZ   = { mode:null, config:null, steps:[], current:0, data:{} };
+    var cart = [];
 
-    // ══════════════════════════════════════════
-    // ポップアップオプション生成
-    // ══════════════════════════════════════════
-    function buildOptions(menuKey) {
-      const menu = MENU[menuKey];
-      if (!menu) return;
-      const container = document.getElementById(menu.optionsId);
-      if (!container || container.children.length > 0) return;
-
-      menu.items.forEach(function(item) {
-        const div = document.createElement('div');
-        div.className = 'fs-option';
-        div.innerHTML =
-          '<div class="fs-option__icon">' + item.icon + (item.badge ? '<span class="fs-option__badge">' + item.badge + '</span>' : '') + '</div>' +
-          '<div class="fs-option__info">' +
-            '<span class="fs-option__name">' + item.name + '</span>' +
-            '<span class="fs-option__sub">' + item.sub + '</span>' +
-            '<span class="fs-option__price">' + item.price.toLocaleString() + '円（税込）</span>' +
-          '</div>' +
-          '<div class="fs-option__stepper">' +
-            '<button class="fs-option__btn minus" type="button">&#9664;</button>' +
-            '<span class="fs-option__count">0</span>' +
-            '<button class="fs-option__btn plus" type="button">&#9654;</button>' +
-          '</div>';
-
-        const minusBtn = div.querySelector('.minus');
-        const plusBtn  = div.querySelector('.plus');
-        const countEl  = div.querySelector('.fs-option__count');
-
-        // 既存選択を反映
-        if (selection[item.id]) {
-          countEl.textContent = selection[item.id];
-        }
-        minusBtn.disabled = (parseInt(countEl.textContent) || 0) <= 0;
-
-        minusBtn.addEventListener('click', function() {
-          let val = parseInt(countEl.textContent) || 0;
-          if (val <= 0) return;
-          val--;
-          countEl.textContent = val;
-          if (val <= 0) { delete selection[item.id]; } else { selection[item.id] = val; }
-          minusBtn.disabled = val <= 0;
-          updateCountBadge(menu.countId, menuKey);
-          updateSidebar();
-        });
-
-        plusBtn.addEventListener('click', function() {
-          let val = parseInt(countEl.textContent) || 0;
-          val++;
-          countEl.textContent = val;
-          selection[item.id] = val;
-          minusBtn.disabled = false;
-          updateCountBadge(menu.countId, menuKey);
-          updateSidebar();
-        });
-
-        container.appendChild(div);
-      });
-    }
-
-    function updateCountBadge(countId, menuKey) {
-      const menu = MENU[menuKey];
-      const total = menu.items.reduce(function(sum, item) {
-        return sum + (selection[item.id] || 0);
-      }, 0);
-      const el = document.getElementById(countId);
-      if (!el) return;
-      el.textContent = total;
-      el.classList.toggle('is-zero', total === 0);
-    }
-
-    // ══════════════════════════════════════════
-    // ポップアップ開閉
-    // ══════════════════════════════════════════
-    document.querySelectorAll('.has-popup').forEach(function(item) {
-      item.addEventListener('click', function() {
-        const popupId = item.dataset.popup;
-        const popup   = document.getElementById(popupId);
-        if (!popup) return;
-        // メニューキーを特定してオプション生成
-        const menuKey = popupId.replace('popup-', '').replace('goods-', '').replace('-', '_');
-        const keyMap = {
-          'popcorn': 'popcorn', 'drink': 'drink', 'hotdog': 'hotdog',
-          'nachos': 'nachos', 'fries': 'fries', 'ice': 'ice',
-          'goods_tshirt': 'tshirt', 'goods_tumbler': 'tumbler',
-          'goods_badge': 'badge', 'goods_poster': 'poster',
-          'goods_keychain': 'keychain', 'goods_blanket': 'blanket'
-        };
-        // popupIdからキーを直接マッピング
-        const directMap = {
-          'popup-popcorn-s':     'popcorn-s',
-          'popup-popcorn-m':     'popcorn-m',
-          'popup-popcorn-l':     'popcorn-l',
-          'popup-drink-s':       'drink-s',
-          'popup-drink-m':       'drink-m',
-          'popup-drink-l':       'drink-l',
-          'popup-hotdog':        'hotdog',
-          'popup-nachos':        'nachos',
-          'popup-fries':         'fries',
-          'popup-ice':           'ice',
-          'popup-goods-tshirt':  'tshirt',
-          'popup-goods-tumbler': 'tumbler',
-          'popup-goods-badge':   'badge',
-          'popup-goods-poster':  'poster',
-          'popup-goods-keychain':'keychain',
-          'popup-goods-blanket': 'blanket',
-        };
-        buildOptions(directMap[popupId]);
-        popup.classList.add('is-open');
-        document.body.style.overflow = 'hidden';
-      });
-    });
-
-    document.querySelectorAll('.fs-popup').forEach(function(popup) {
-      popup.querySelector('.fs-popup__overlay').addEventListener('click', closePopup);
-      popup.querySelector('.fs-popup__close').addEventListener('click', closePopup);
-      function closePopup() {
-        popup.classList.remove('is-open');
-        document.body.style.overflow = '';
+    function buildSteps(mode, config) {
+      if (mode === 'popcorn') return ['pc-flavor'];
+      if (mode === 'drink')   return ['drink-type', 'drink-custom'];
+      if (mode === 'set') {
+        var steps = ['pc-flavor'];
+        config.set.drinkSlots.forEach(function (slot, i) { steps.push('drink-type-' + i, 'drink-custom-' + i); });
+        steps.push('set-confirm');
+        return steps;
       }
+      if (mode === 'simple') return ['simple-option'];
+      return [];
+    }
+
+    function openWizard(mode, config) {
+      WZ.mode = mode; WZ.config = config; WZ.data = {};
+      WZ.steps = buildSteps(mode, config); WZ.current = 0;
+      document.getElementById('wizard-popup').removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+      setTitle(mode, config);
+      renderStep();
+    }
+
+    function closeWizard() {
+      document.getElementById('wizard-popup').setAttribute('hidden', '');
+      document.body.style.overflow = '';
+    }
+
+    function setTitle(mode, config) {
+      var t = document.getElementById('wz-title');
+      if (mode === 'popcorn') { var sz = { s:'S（300g）', m:'M（450g）', l:'L（600g）' }; t.textContent = '🍿 ポップコーン ' + (sz[config.size] || ''); }
+      else if (mode === 'drink')  { var sz2 = { s:'S', m:'M', l:'L' }; t.textContent = '🥤 ドリンク ' + (sz2[config.size] || ''); }
+      else if (mode === 'set')    { t.textContent = config.set.icon + ' ' + config.set.name; }
+      else if (mode === 'simple') { t.textContent = SIMPLE_OPTIONS[config.item].title; }
+    }
+
+    function renderStep() {
+      renderStepIndicator();
+      var stepId = WZ.steps[WZ.current];
+      var body   = document.getElementById('wz-body');
+      body.innerHTML = '';
+      if (stepId === 'pc-flavor') renderPcFlavor(body);
+      else if (stepId === 'pc-mix') renderPcMix(body);
+      else if (stepId && stepId.startsWith('drink-type'))   { var si  = stepId.replace('drink-type-','');   renderDrinkType(body,   isNaN(parseInt(si))  ? null : parseInt(si));  }
+      else if (stepId && stepId.startsWith('drink-custom')) { var si2 = stepId.replace('drink-custom-',''); renderDrinkCustom(body, isNaN(parseInt(si2)) ? null : parseInt(si2)); }
+      else if (stepId === 'set-confirm')   renderSetConfirm(body);
+      else if (stepId === 'simple-option') renderSimpleOption(body);
+      var backBtn = document.getElementById('wz-back');
+      var nextBtn = document.getElementById('wz-next');
+      backBtn.style.visibility = WZ.current === 0 ? 'hidden' : 'visible';
+      var isLast = WZ.current === WZ.steps.length - 1;
+      nextBtn.textContent = isLast ? 'カートに追加 ✓' : '次へ ▸';
+      nextBtn.className = 'wz-btn ' + (isLast ? 'wz-btn--add' : 'wz-btn--next');
+    }
+
+    function renderStepIndicator() {
+      var el = document.getElementById('wz-steps');
+      if (WZ.steps.length <= 1) { el.innerHTML = ''; return; }
+      var html = '';
+      WZ.steps.forEach(function (s, i) {
+        if (i > 0) html += '<div class="wz-step-line"></div>';
+        var cls = i < WZ.current ? 'wz-step done' : (i === WZ.current ? 'wz-step active' : 'wz-step');
+        html += '<div class="' + cls + '"><span class="wz-step__dot">' + (i + 1) + '</span></div>';
+      });
+      el.innerHTML = html;
+    }
+
+    function renderPcFlavor(body) {
+      var size = WZ.mode === 'set' ? WZ.config.set.pcSize : WZ.config.size;
+      var html = '<p class="wz-hint">お好みの味を選んでください</p><div class="wz-option-grid">';
+      PC_FLAVORS.forEach(function (f) {
+        var sel   = WZ.data.pcFlavor === f.id ? ' selected' : '';
+        var badge = f.badge ? '<span class="wz-badge">' + f.badge + '</span>' : '';
+        html += '<button class="wz-option-btn' + sel + '" data-flavor="' + f.id + '"><span class="wz-option-icon">' + f.icon + '</span><span class="wz-option-label">' + f.label + badge + '</span><span class="wz-option-price">¥' + (PC_BASE[size] + (f.priceAdd[size] || 0)).toLocaleString() + '</span></button>';
+      });
+      body.innerHTML = html + '</div>';
+      body.querySelectorAll('.wz-option-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.wz-option-btn').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          WZ.data.pcFlavor = btn.dataset.flavor;
+          var mixIdx = WZ.steps.indexOf('pc-mix');
+          if (btn.dataset.flavor === 'mix') { if (mixIdx === -1) WZ.steps.splice(WZ.current + 1, 0, 'pc-mix'); }
+          else { if (mixIdx !== -1) WZ.steps.splice(mixIdx, 1); }
+        });
+      });
+    }
+
+    function renderPcMix(body) {
+      var opts = [ { id:'50-50', label:'50 : 50', sub:'キャラメル半分 / 塩半分' }, { id:'60-40', label:'60 : 40（キャラメル多め）', sub:'キャラメル 6 / 塩 4' }, { id:'40-60', label:'40 : 60（塩多め）', sub:'キャラメル 4 / 塩 6' } ];
+      var html = '<p class="wz-hint">キャラメルと塩の比率を選んでください</p><div class="wz-radio-list">';
+      opts.forEach(function (o) {
+        var sel = WZ.data.pcMix === o.id ? ' selected' : '';
+        html += '<button class="wz-radio-btn' + sel + '" data-mix="' + o.id + '"><span class="wz-radio-label">' + o.label + '</span><span class="wz-radio-sub">' + o.sub + '</span></button>';
+      });
+      body.innerHTML = html + '</div>';
+      body.querySelectorAll('.wz-radio-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.wz-radio-btn').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected'); WZ.data.pcMix = btn.dataset.mix;
+        });
+      });
+    }
+
+    function renderDrinkType(body, slotIdx) {
+      var size    = slotIdx !== null ? WZ.config.set.drinkSlots[slotIdx].size : WZ.config.size;
+      var dataKey = slotIdx !== null ? 'drinkType' + slotIdx : 'drinkType';
+      var slotLbl = slotIdx !== null ? '（ドリンク ' + (slotIdx + 1) + '）' : '';
+      var html    = '<p class="wz-hint">ドリンクの種類を選んでください' + slotLbl + '</p><div class="wz-drink-grid">';
+      DRINKS.forEach(function (d) {
+        var sel   = WZ.data[dataKey] === d.id ? ' selected' : '';
+        var badge = d.badge ? '<span class="wz-badge">' + d.badge + '</span>' : '';
+        html += '<button class="wz-drink-btn' + sel + '" data-drink="' + d.id + '"><span class="wz-drink-icon">' + d.icon + '</span><span class="wz-drink-label">' + d.label + badge + '</span><span class="wz-drink-price">¥' + d.price[size].toLocaleString() + '</span></button>';
+      });
+      body.innerHTML = html + '</div>';
+      body.querySelectorAll('.wz-drink-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.wz-drink-btn').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected'); WZ.data[dataKey] = btn.dataset.drink;
+        });
+      });
+    }
+
+    function renderDrinkCustom(body, slotIdx) {
+      var dataKey = slotIdx !== null ? 'drinkType' + slotIdx : 'drinkType';
+      var tempKey = slotIdx !== null ? 'drinkTemp' + slotIdx : 'drinkTemp';
+      var drink   = DRINKS.find(function (d) { return d.id === WZ.data[dataKey]; });
+      if (!drink || !drink.hasTemp) { WZ.current++; renderStep(); return; }
+      var html = '<p class="wz-hint">' + drink.label + ' の温度を選んでください</p><div class="wz-radio-list">';
+      [{ id:'hot', label:'ホット ☕', sub:'温かい' }, { id:'iced', label:'アイス 🧊', sub:'冷たい' }].forEach(function (o) {
+        var sel = WZ.data[tempKey] === o.id ? ' selected' : '';
+        html += '<button class="wz-radio-btn' + sel + '" data-temp="' + o.id + '"><span class="wz-radio-label">' + o.label + '</span><span class="wz-radio-sub">' + o.sub + '</span></button>';
+      });
+      body.innerHTML = html + '</div>';
+      body.querySelectorAll('.wz-radio-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.wz-radio-btn').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected'); WZ.data[tempKey] = btn.dataset.temp;
+        });
+      });
+    }
+
+    function renderSetConfirm(body) {
+      var set = WZ.config.set;
+      var flavor = PC_FLAVORS.find(function (f) { return f.id === WZ.data.pcFlavor; });
+      var pcPrice = PC_BASE[set.pcSize] + (flavor ? (flavor.priceAdd[set.pcSize] || 0) : 0);
+      var drinkTotal = 0, drinkRows = '';
+      set.drinkSlots.forEach(function (slot, i) {
+        var d = DRINKS.find(function (d) { return d.id === WZ.data['drinkType' + i]; });
+        var temp = WZ.data['drinkTemp' + i] || '';
+        var price = d ? d.price[slot.size] : 0;
+        drinkTotal += price;
+        var tl = temp === 'hot' ? ' ホット' : (temp === 'iced' ? ' アイス' : '');
+        drinkRows += '<div class="wz-confirm-row"><span>🥤 ドリンク ' + (i+1) + '</span><span>' + (d ? d.label : '—') + tl + ' (' + slot.size.toUpperCase() + ')</span><span>¥' + price.toLocaleString() + '</span></div>';
+      });
+      var total = pcPrice + drinkTotal - set.discount;
+      var mixLbl = WZ.data.pcMix ? '（' + WZ.data.pcMix + '）' : '';
+      body.innerHTML = '<p class="wz-hint">内容をご確認ください</p><div class="wz-confirm-list"><div class="wz-confirm-row"><span>🍿 ポップコーン (' + set.pcSize.toUpperCase() + ')</span><span>' + (flavor ? flavor.label : '—') + mixLbl + '</span><span>¥' + pcPrice.toLocaleString() + '</span></div>' + drinkRows + '<div class="wz-confirm-row wz-confirm-row--discount"><span>割引</span><span></span><span>-¥' + set.discount + '</span></div><div class="wz-confirm-row wz-confirm-row--total"><span>合計</span><span></span><span>¥' + total.toLocaleString() + '</span></div></div>';
+    }
+
+    function renderSimpleOption(body) {
+      var opt  = SIMPLE_OPTIONS[WZ.config.item];
+      var html = '<p class="wz-hint">種類を選んでください</p><div class="wz-radio-list">';
+      opt.items.forEach(function (it) {
+        var sel   = WZ.data.simpleItem === it.id ? ' selected' : '';
+        var badge = it.badge ? '<span class="wz-badge">' + it.badge + '</span>' : '';
+        html += '<button class="wz-radio-btn' + sel + '" data-item-id="' + it.id + '"><span class="wz-radio-label">' + it.label + badge + '</span><span class="wz-radio-sub">' + (it.sub||'') + '</span><span class="wz-radio-price">¥' + it.price.toLocaleString() + '</span></button>';
+      });
+      body.innerHTML = html + '</div>';
+      body.querySelectorAll('.wz-radio-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.wz-radio-btn').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          WZ.data.simpleItem     = btn.dataset.itemId;
+          WZ.data.simpleItemData = opt.items.find(function (it) { return it.id === btn.dataset.itemId; });
+        });
+      });
+    }
+
+    function goNext() {
+      var stepId = WZ.steps[WZ.current];
+      if (stepId === 'pc-flavor' && !WZ.data.pcFlavor) { alert('味を選んでください'); return; }
+      if (stepId === 'pc-mix'    && !WZ.data.pcMix)    { alert('比率を選んでください'); return; }
+      if (stepId && stepId.startsWith('drink-type')) {
+        var si = stepId.replace('drink-type-',''); var dk = isNaN(parseInt(si)) ? null : parseInt(si);
+        if (!WZ.data[dk !== null ? 'drinkType'+dk : 'drinkType']) { alert('ドリンクを選んでください'); return; }
+      }
+      if (stepId && stepId.startsWith('drink-custom')) {
+        var si2 = stepId.replace('drink-custom-',''); var dk2 = isNaN(parseInt(si2)) ? null : parseInt(si2);
+        var drink2 = DRINKS.find(function (d) { return d.id === WZ.data[dk2 !== null ? 'drinkType'+dk2 : 'drinkType']; });
+        if (drink2 && drink2.hasTemp && !WZ.data[dk2 !== null ? 'drinkTemp'+dk2 : 'drinkTemp']) { alert('温度を選んでください'); return; }
+      }
+      if (stepId === 'simple-option' && !WZ.data.simpleItem) { alert('種類を選んでください'); return; }
+      if (WZ.current === WZ.steps.length - 1) { addToCart(); closeWizard(); }
+      else { WZ.current++; renderStep(); }
+    }
+
+    function goBack() { if (WZ.current > 0) { WZ.current--; renderStep(); } }
+
+    function addToCart() {
+      var item, mode = WZ.mode;
+      if (mode === 'popcorn') {
+        var f = PC_FLAVORS.find(function (f) { return f.id === WZ.data.pcFlavor; });
+        var price = PC_BASE[WZ.config.size] + (f ? (f.priceAdd[WZ.config.size] || 0) : 0);
+        var lbl = f ? f.label : '';
+        if (WZ.data.pcFlavor === 'mix' && WZ.data.pcMix) lbl += '（' + WZ.data.pcMix + '）';
+        item = { label:'🍿 ポップコーン ' + WZ.config.size.toUpperCase() + ' ' + lbl, price:price };
+      } else if (mode === 'drink') {
+        var d = DRINKS.find(function (d) { return d.id === WZ.data.drinkType; });
+        var tl = WZ.data.drinkTemp === 'hot' ? ' ホット' : (WZ.data.drinkTemp === 'iced' ? ' アイス' : '');
+        item = { label:'🥤 ドリンク ' + WZ.config.size.toUpperCase() + ' ' + (d ? d.label : '') + tl, price: d ? d.price[WZ.config.size] : 0 };
+      } else if (mode === 'set') {
+        var s = WZ.config.set;
+        var f4 = PC_FLAVORS.find(function (f) { return f.id === WZ.data.pcFlavor; });
+        var pc = PC_BASE[s.pcSize] + (f4 ? (f4.priceAdd[s.pcSize] || 0) : 0);
+        var dt = 0;
+        s.drinkSlots.forEach(function (sl, i) { var d4 = DRINKS.find(function (d) { return d.id === WZ.data['drinkType'+i]; }); if (d4) dt += d4.price[sl.size]; });
+        item = { label: s.icon + ' ' + s.name, price: pc + dt - s.discount };
+      } else if (mode === 'simple') {
+        var si3 = WZ.data.simpleItemData;
+        item = { label: SIMPLE_OPTIONS[WZ.config.item].title + ' ' + (si3 ? si3.label : ''), price: si3 ? si3.price : 0 };
+      }
+      if (item) { cart.push(item); renderCart(); }
+    }
+
+    function renderCart() {
+      var list = document.getElementById('js-cart-list');
+      var seatData = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null');
+      var ticketTotal = seatData ? (seatData.totalPrice || 0) : 0;
+      list.innerHTML = '';
+      var foodTotal = 0;
+      if (cart.length === 0) {
+        var li = document.createElement('li'); li.className = 'cart-empty'; li.textContent = '未選択'; list.appendChild(li);
+      } else {
+        cart.forEach(function (item, idx) {
+          var li = document.createElement('li'); li.className = 'cart-item';
+          li.innerHTML = '<span class="cart-item__label">' + item.label + '</span><span class="cart-item__price">¥' + item.price.toLocaleString() + '</span><button class="cart-item__remove" data-idx="' + idx + '" aria-label="削除">×</button>';
+          list.appendChild(li);
+          foodTotal += item.price;
+        });
+        list.querySelectorAll('.cart-item__remove').forEach(function (btn) {
+          btn.addEventListener('click', function (e) { e.stopPropagation(); cart.splice(parseInt(btn.dataset.idx), 1); renderCart(); });
+        });
+      }
+      document.getElementById('js-cart-count').textContent = cart.length + '点';
+      document.getElementById('js-total-price').textContent = (ticketTotal + foodTotal).toLocaleString();
+    }
+
+    document.querySelectorAll('[data-wz]').forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('.cart-item__remove')) return;
+        var mode = card.dataset.wz, config = {};
+        if (mode === 'popcorn') config.size = card.dataset.size;
+        if (mode === 'drink')   config.size = card.dataset.size;
+        if (mode === 'set')     config.set  = SETS.find(function (s) { return s.id === card.dataset.set; });
+        if (mode === 'simple')  config.item = card.dataset.item;
+        openWizard(mode, config);
+      });
     });
 
-    // ══════════════════════════════════════════
-    // サービスアイテム（シンプルステッパー）
-    // ══════════════════════════════════════════
-    document.querySelectorAll('.simple-item').forEach(function(item) {
-      const id    = item.dataset.itemId;
-      const price = parseInt(item.dataset.price) || 0;
-      const minusBtn = item.querySelectorAll('.food-stepper__btn')[0];
-      const plusBtn  = item.querySelectorAll('.food-stepper__btn')[1];
-      const countEl  = item.querySelector('.food-stepper__count');
+    document.getElementById('wizard-close').addEventListener('click', closeWizard);
+    document.getElementById('wizard-overlay').addEventListener('click', closeWizard);
+    document.getElementById('wz-next').addEventListener('click', goNext);
+    document.getElementById('wz-back').addEventListener('click', goBack);
 
-      minusBtn.disabled = true;
-
-      minusBtn.addEventListener('click', function() {
-        let val = parseInt(countEl.textContent) || 0;
-        if (val <= 0) return;
-        val--;
-        countEl.textContent = val;
-        if (val <= 0) { delete selection['svc-' + id]; } else { selection['svc-' + id] = { count: val, price: price, name: item.querySelector('.food-item__name').textContent }; }
-        minusBtn.disabled = val <= 0;
-        updateSidebar();
-      });
-
-      plusBtn.addEventListener('click', function() {
-        let val = parseInt(countEl.textContent) || 0;
-        val++;
-        countEl.textContent = val;
-        selection['svc-' + id] = { count: val, price: price, name: item.querySelector('.food-item__name').textContent };
-        minusBtn.disabled = false;
-        updateSidebar();
-      });
-    });
-
-    // ══════════════════════════════════════════
-    // カテゴリタブ切替
-    // ══════════════════════════════════════════
-    document.querySelectorAll('.category-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.category-tab').forEach(function(t) { t.classList.remove('active'); });
-        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.category-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.category-tab').forEach(function (t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
         tab.classList.add('active');
         document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
       });
     });
 
-    // ══════════════════════════════════════════
-    // sessionStorageから情報読み込み
-    // ══════════════════════════════════════════
-    const seatData = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null');
+    var seatData = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null');
     if (seatData) {
-      if (seatData.movie)  document.getElementById('sb-movie-title').textContent   = seatData.movie;
-      if (seatData.time)   document.getElementById('sb-movie-time').textContent    = seatData.time;
-      if (seatData.screen) document.getElementById('sb-screen-detail').textContent = seatData.screen;
-
-      const ticketListEl = document.getElementById('js-sidebar-tickets');
-      const nameMap = { small:'小学生以下', general:'一般', junior:'中学生・高校生', college:'大学生', senior:'シニア', oyako:'親子割', couple:'カップル割', 'senior-discount':'シニア割' };
+      if (seatData.movie)  document.getElementById('sb-movie-title').textContent  = seatData.movie;
+      if (seatData.time)   document.getElementById('sb-movie-time').textContent   = seatData.time;
+      if (seatData.screen) document.getElementById('sb-screen-detail').textContent= seatData.screen;
+      var nameMap = { small:'小学生以下', general:'一般', junior:'中学生・高校生', college:'大学生', senior:'シニア', oyako:'親子割', couple:'カップル割' };
+      var el = document.getElementById('js-sidebar-tickets');
       if (seatData.tickets && seatData.tickets.length > 0) {
-        seatData.tickets.forEach(function(t) {
-          const li = document.createElement('li');
-          li.textContent = '・' + (nameMap[t.type] || t.type) + '：' + t.count + '枚';
-          ticketListEl.appendChild(li);
-        });
+        seatData.tickets.forEach(function (t) { var li = document.createElement('li'); li.textContent = '・' + (nameMap[t.type]||t.type) + '：' + t.count + '枚'; el.appendChild(li); });
       } else {
-        const li = document.createElement('li');
-        li.textContent = 'チケット情報なし';
-        ticketListEl.appendChild(li);
+        var li2 = document.createElement('li'); li2.textContent = 'チケット情報なし'; el.appendChild(li2);
       }
     }
 
-    // ══════════════════════════════════════════
-    // サイドバー更新
-    // ══════════════════════════════════════════
-    function updateSidebar() {
-      const foodListEl = document.getElementById('js-sidebar-foods');
-      foodListEl.innerHTML = '';
-      let foodTotal = 0;
-
-      // ポップアップ系
-      Object.keys(MENU).forEach(function(menuKey) {
-        const menu = MENU[menuKey];
-        menu.items.forEach(function(item) {
-          const cnt = selection[item.id] || 0;
-          if (cnt > 0) {
-            const li = document.createElement('li');
-            li.textContent = '・' + item.sub + '：' + cnt + '個';
-            foodListEl.appendChild(li);
-            foodTotal += item.price * cnt;
-          }
-        });
-      });
-
-      // サービス系
-      Object.keys(selection).forEach(function(key) {
-        if (key.startsWith('svc-')) {
-          const svc = selection[key];
-          const li = document.createElement('li');
-          li.textContent = '・' + svc.name + '：' + svc.count + '個';
-          foodListEl.appendChild(li);
-          foodTotal += svc.price * svc.count;
-        }
-      });
-
-      if (!foodListEl.children.length) {
-        const li = document.createElement('li');
-        li.textContent = '未選択';
-        li.style.color = 'var(--fs-text-muted)';
-        foodListEl.appendChild(li);
-      }
-
-      // チケット金額 + フード金額の合計
-      const ticketTotal = seatData ? (seatData.totalPrice || 0) : 0;
-      document.getElementById('js-total-price').textContent = (ticketTotal + foodTotal).toLocaleString();
-    }
-
-    updateSidebar();
-
-    // ══════════════════════════════════════════
-    // 次へボタン
-    // ══════════════════════════════════════════
-    document.getElementById('btn-next').addEventListener('click', function() {
-      const foodItems = [];
-      Object.keys(MENU).forEach(function(menuKey) {
-        MENU[menuKey].items.forEach(function(item) {
-          const cnt = selection[item.id] || 0;
-          if (cnt > 0) foodItems.push({ id: item.id, name: item.sub, price: item.price, count: cnt });
-        });
-      });
-      Object.keys(selection).forEach(function(key) {
-        if (key.startsWith('svc-')) {
-          const svc = selection[key];
-          foodItems.push({ id: key, name: svc.name, price: svc.price, count: svc.count });
-        }
-      });
-      const existing = JSON.parse(sessionStorage.getItem('halcinema_seats') || '{}');
-      existing.foods = foodItems;
+    document.getElementById('btn-next').addEventListener('click', function () {
+      var existing = JSON.parse(sessionStorage.getItem('halcinema_seats') || '{}');
+      existing.foods = cart.map(function (item) { return { name: item.label, price: item.price, count: 1 }; });
       sessionStorage.setItem('halcinema_seats', JSON.stringify(existing));
       window.location.href = 'order-confirm.html';
     });
 
-  });
+    renderCart();
+
+  })();
   </script>
 
 </body>
