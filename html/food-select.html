@@ -73,7 +73,7 @@
 
               <!-- ポップコーン S -->
               <div class="food-item has-popup" data-popup="popup-popcorn-s">
-                <div class="food-item__img"><span class="ph-icon">🍿</span></div>
+                <div class="food-item__img"><img src="../images/popcorn_salt_S.jpeg" alt="ポップコーン S"></div>
                 <div class="food-item__body">
                   <span class="food-item__name">ポップコーン S</span>
                   <span class="food-item__sub">300g・500〜580円</span>
@@ -86,7 +86,7 @@
 
               <!-- ポップコーン M -->
               <div class="food-item has-popup" data-popup="popup-popcorn-m">
-                <div class="food-item__img"><span class="ph-icon">🍿</span></div>
+                <div class="food-item__img"><img src="../images/popcorn_salt_M.jpeg" alt="ポップコーン M"></div>
                 <div class="food-item__body">
                   <span class="food-item__name">ポップコーン M</span>
                   <span class="food-item__sub">450g・600〜680円</span>
@@ -99,7 +99,7 @@
 
               <!-- ポップコーン L -->
               <div class="food-item has-popup" data-popup="popup-popcorn-l">
-                <div class="food-item__img"><span class="ph-icon">🍿</span></div>
+                <div class="food-item__img"><img src="../images/popcorn_salt_L.jpeg" alt="ポップコーン L"></div>
                 <div class="food-item__body">
                   <span class="food-item__name">ポップコーン L</span>
                   <span class="food-item__sub">600g・650〜730円</span>
@@ -926,7 +926,7 @@
     // ポップアップ開閉
     // ══════════════════════════════════════════
     document.querySelectorAll('.has-popup').forEach(function(item) {
-      item.querySelector('.size-selector-btn').addEventListener('click', function() {
+      item.addEventListener('click', function() {
         const popupId = item.dataset.popup;
         const popup   = document.getElementById(popupId);
         if (!popup) return;
