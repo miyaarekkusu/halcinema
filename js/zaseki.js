@@ -1,18 +1,49 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
+// ─── スクリーン設定 ──────────────────────────────────────────────────
+const SCREEN_CONFIGS = {
+  large: {
+    ROWS: 14, COLS: 14, COLS_BACK: 18, ROWS_BACK: 1,
+    AISLES: [4, 10],
+    SCREEN_W: 24, SCREEN_H: 10, SCREEN_Z: -9,   SCREEN_Y: 9,
+    CAM_POS: [0, 18, 38], CAM_TARGET: [0, 5, 8],
+    EXIT_X: 16, EXIT_Z: 10,
+    LIGHT_POS: [0, 8, -6],
+  },
+  medium: {
+    ROWS: 10, COLS: 12, COLS_BACK: 0, ROWS_BACK: 0,
+    AISLES: [6],
+    SCREEN_W: 18, SCREEN_H: 8, SCREEN_Z: -7,   SCREEN_Y: 7,
+    CAM_POS: [0, 14, 30], CAM_TARGET: [0, 4, 6],
+    EXIT_X: 13, EXIT_Z: 6,
+    LIGHT_POS: [0, 6, -5],
+  },
+  small: {
+    ROWS: 7,  COLS: 10, COLS_BACK: 0, ROWS_BACK: 0,
+    AISLES: [5],
+    SCREEN_W: 14, SCREEN_H: 6, SCREEN_Z: -5.5, SCREEN_Y: 5.5,
+    CAM_POS: [0, 10, 22], CAM_TARGET: [0, 3, 4],
+    EXIT_X: 11,  EXIT_Z: 4,
+    LIGHT_POS: [0, 5, -4],
+  },
+}
+
+// ─── 開発モード（true=制限なし / false=本番カメラ制限あり） ──────────
+const DEV_MODE = true
+
+// URL から screenType を取得してコンフィグを選択（表示情報取得 IIFE より先に実行）
+const _initParams = new URLSearchParams(location.search)
+const _screenType = _initParams.get('screenType') || 'large'
+const cfg = SCREEN_CONFIGS[_screenType] ?? SCREEN_CONFIGS.large
+
 // ─── 定数 ──────────────────────────────────────────────────────────
-const ROWS       = 14
-const COLS       = 14
-const COLS_BACK  = 18
-const ROWS_BACK  = 1
-// 13行×14列 + 1行×18列 = 182 + 18 = 200席
-const SPACING_X  = 1.5
-const SPACING_Z  = 2.0
+const SPACING_X   = 1.5
+const SPACING_Z   = 2.0
 const HEIGHT_STEP = 0.5
 const AISLE_WIDTH = 2.5
 const PRICE_PER_SEAT = 1800  // ※ 2次開発で券種選択から受け取る予定。現在は未使用。
-const TAKEN_RATE = 0.28   // 事前に埋まっている席の割合
+const TAKEN_RATE  = 0.28   // 事前に埋まっている席の割合
 
 const ROW_LABELS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N']
 
@@ -80,7 +111,7 @@ dirLight.position.set(0, 12, 5)
 scene.add(dirLight)
 
 const screenLight = new THREE.PointLight(0x4488ff, 6.0, 50)
-screenLight.position.set(0, 8, -6)
+screenLight.position.set(...cfg.LIGHT_POS)
 scene.add(screenLight)
 
 // ─── マテリアル ────────────────────────────────────────────────────
@@ -125,12 +156,12 @@ function createSeatGroup(row, col, state) {
 const seatObjects     = []
 const clickableGroups = []
 
-const normalWidth = (COLS - 1) * SPACING_X + AISLE_WIDTH * 2
-const backWidth   = (COLS_BACK - 1) * SPACING_X
+const normalWidth = (cfg.COLS - 1) * SPACING_X + AISLE_WIDTH * cfg.AISLES.length
+const backWidth   = cfg.COLS_BACK > 0 ? (cfg.COLS_BACK - 1) * SPACING_X : 0
 
-for (let row = 0; row < ROWS; row++) {
-  const isBack  = row >= ROWS - ROWS_BACK
-  const rowCols = isBack ? COLS_BACK : COLS
+for (let row = 0; row < cfg.ROWS; row++) {
+  const isBack  = cfg.ROWS_BACK > 0 && row >= cfg.ROWS - cfg.ROWS_BACK
+  const rowCols = isBack ? cfg.COLS_BACK : cfg.COLS
 
   for (let col = 0; col < rowCols; col++) {
     const state = Math.random() < TAKEN_RATE ? STATE_TAKEN : STATE_AVAILABLE
@@ -138,8 +169,9 @@ for (let row = 0; row < ROWS; row++) {
 
     let offsetX = 0
     if (!isBack) {
-      if (col >= 4 && col < 10) offsetX = AISLE_WIDTH
-      else if (col >= 10)        offsetX = AISLE_WIDTH * 2
+      for (const aisleCol of cfg.AISLES) {
+        if (col >= aisleCol) offsetX += AISLE_WIDTH
+      }
     }
 
     const centerOffset = isBack ? backWidth / 2 : normalWidth / 2
@@ -180,36 +212,52 @@ function createExit(x, z) {
   group.add(light)
 
   group.position.set(x, 0, z)
-  group.rotation.y = Math.PI / 2
+  group.rotation.y = 0
   scene.add(group)
 }
 
-createExit(-14, -5)
-createExit( 14, -5)
+createExit(-cfg.EXIT_X, cfg.EXIT_Z)
+createExit( cfg.EXIT_X, cfg.EXIT_Z)
 
 // ─── スクリーン ────────────────────────────────────────────────────
-const screenMat = new THREE.MeshStandardMaterial({ color: 0x2255cc, emissive: 0x1133aa, emissiveIntensity: 0.8 })
+const video = document.createElement('video')
+video.src = '../video/nomore.mp4'
+video.muted = true
+video.autoplay = true
+video.loop = true
+video.play().catch(() => { })
 
-const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(24, 10), screenMat)
-screenMesh.position.set(0, 9, -9)
+const videoTexture = new THREE.VideoTexture(video)
+videoTexture.colorSpace = THREE.SRGBColorSpace
+
+const screenMat = new THREE.MeshBasicMaterial({ map: videoTexture })
+
+const screenMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(cfg.SCREEN_W, cfg.SCREEN_H),
+  screenMat
+)
+screenMesh.position.set(0, cfg.SCREEN_Y, cfg.SCREEN_Z)
 scene.add(screenMesh)
 
 const frameMat = new THREE.MeshStandardMaterial({ color: 0x1a1d2a })
-const frame = new THREE.Mesh(new THREE.BoxGeometry(25.2, 11.2, 0.15), frameMat)
-frame.position.set(0, 9, -9.1)
+const frame = new THREE.Mesh(
+  new THREE.BoxGeometry(cfg.SCREEN_W + 1.2, cfg.SCREEN_H + 1.2, 0.15),
+  frameMat
+)
+frame.position.set(0, cfg.SCREEN_Y, cfg.SCREEN_Z - 0.1)
 scene.add(frame)
 
-const signGeom = new THREE.BoxGeometry(26, 0.4, 0.1)
+const signGeom = new THREE.BoxGeometry(cfg.SCREEN_W + 2, 0.4, 0.1)
 const signMat  = new THREE.MeshStandardMaterial({ color: 0x252A3A })
 const sign = new THREE.Mesh(signGeom, signMat)
-sign.position.set(0, 14.5, -9)
+sign.position.set(0, cfg.SCREEN_Y + cfg.SCREEN_H / 2 + 0.5, cfg.SCREEN_Z)
 scene.add(sign)
 
 // ─── カメラ ────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(60, sizes.width / sizes.height, 0.1, 200)
 
-const DEFAULT_CAM_POS    = new THREE.Vector3(0, 18, 38)
-const DEFAULT_CAM_TARGET = new THREE.Vector3(0, 5, 8)
+const DEFAULT_CAM_POS    = new THREE.Vector3(...cfg.CAM_POS)
+const DEFAULT_CAM_TARGET = new THREE.Vector3(...cfg.CAM_TARGET)
 
 camera.position.copy(DEFAULT_CAM_POS)
 scene.add(camera)
@@ -219,8 +267,9 @@ const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
 controls.target.copy(DEFAULT_CAM_TARGET)
 controls.minDistance = 3
-controls.maxDistance = 80
-controls.maxPolarAngle = Math.PI * 0.85
+controls.maxDistance = DEV_MODE ? 80 : 60
+controls.maxPolarAngle = DEV_MODE ? Math.PI * 0.85 : Math.PI * 0.55
+controls.enablePan = DEV_MODE
 
 // ─── Renderer ─────────────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
@@ -343,7 +392,7 @@ viewBtn.addEventListener('click', () => {
   const p = lastSelected.group.position
   moveCameraTo(
     new THREE.Vector3(p.x, p.y + 2, p.z + 1),
-    new THREE.Vector3(0, 9, -9)
+    new THREE.Vector3(0, cfg.SCREEN_Y, cfg.SCREEN_Z)
   )
 })
 
@@ -357,7 +406,6 @@ function updateUI() {
   const count    = selected.length
 
   countEl.textContent = count
-  // 料金は券種選択ページで決まるため、ここでは非表示
   confirmBtn.disabled = count === 0
 
   if (count === 0) {
@@ -449,7 +497,7 @@ function updateTwoD() {
 function buildTwoDMap() {
   twoDGrid.innerHTML = ''
 
-  // 列番号ヘッダー（通常列 1〜14）
+  // 列番号ヘッダー
   const headerEl = document.createElement('div')
   headerEl.className = 'zaseki-2d-row'
 
@@ -457,8 +505,8 @@ function buildTwoDMap() {
   headerLabelSpacer.className = 'zaseki-2d-row-label'
   headerEl.appendChild(headerLabelSpacer)
 
-  for (let col = 0; col < COLS; col++) {
-    if (col === 4 || col === 10) {
+  for (let col = 0; col < cfg.COLS; col++) {
+    if (cfg.AISLES.includes(col)) {
       const aisleEl = document.createElement('span')
       aisleEl.className = 'zaseki-2d-aisle'
       headerEl.appendChild(aisleEl)
@@ -471,12 +519,12 @@ function buildTwoDMap() {
 
   twoDGrid.appendChild(headerEl)
 
-  for (let row = 0; row < ROWS; row++) {
-    const isBack  = row >= ROWS - ROWS_BACK
-    const rowCols = isBack ? COLS_BACK : COLS
+  for (let row = 0; row < cfg.ROWS; row++) {
+    const isBack  = cfg.ROWS_BACK > 0 && row >= cfg.ROWS - cfg.ROWS_BACK
+    const rowCols = isBack ? cfg.COLS_BACK : cfg.COLS
 
     const rowEl = document.createElement('div')
-    rowEl.className = 'zaseki-2d-row'
+    rowEl.className = isBack ? 'zaseki-2d-row zaseki-2d-row--back' : 'zaseki-2d-row'
 
     const labelEl = document.createElement('span')
     labelEl.className = 'zaseki-2d-row-label'
@@ -484,7 +532,7 @@ function buildTwoDMap() {
     rowEl.appendChild(labelEl)
 
     for (let col = 0; col < rowCols; col++) {
-      if (!isBack && (col === 4 || col === 10)) {
+      if (!isBack && cfg.AISLES.includes(col)) {
         const aisleEl = document.createElement('span')
         aisleEl.className = 'zaseki-2d-aisle'
         rowEl.appendChild(aisleEl)
@@ -554,6 +602,12 @@ const tick = () => {
   }
 
   controls.update()
+
+  if (!DEV_MODE) {
+    camera.position.y = Math.max(camera.position.y, 1.0)          // 床下潜り込み防止
+    camera.position.z = Math.max(camera.position.z, cfg.SCREEN_Z + 2)  // スクリーン裏回り込み防止
+  }
+
   renderer.render(scene, camera)
   requestAnimationFrame(tick)
 }
