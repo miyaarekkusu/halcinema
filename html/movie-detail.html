@@ -226,10 +226,13 @@
           }
           var activeTab = document.querySelector('.schedule-date-tab.active')
           var date = activeTab ? activeTab.dataset.date : ''
+          var scNum = parseInt(selectedSlot.dataset.screen.replace('SC', ''), 10)
+          var screenType = scNum <= 3 ? 'large' : scNum <= 5 ? 'medium' : 'small'
           var params = new URLSearchParams({
             movie: selectedSlot.dataset.movie, format: selectedSlot.dataset.format,
             screen: selectedSlot.dataset.screen, time: selectedSlot.dataset.time,
-            endtime: selectedSlot.dataset.endtime, date: date
+            endtime: selectedSlot.dataset.endtime, date: date,
+            screenType: screenType
           })
           location.href = 'zaseki.html?' + params.toString()
         })
