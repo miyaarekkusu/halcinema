@@ -56,6 +56,8 @@ halcinema/
 │   └── Dockerfile             → APIコンテナのビルド定義
 ├── images/           → 画像ファイル
 ├── note/             → メモ・設計資料
+│   ├── docker.txt    → Dockerセットアップ手順
+│   └── database.txt  → DB接続・確認・操作手順
 ├── schema.sql        → PostgreSQL DDL（DB初期化用）
 ├── docker-compose.yml → DB + API コンテナ起動設定
 ├── .env.example      → 環境変数テンプレート（チーム共有用）
@@ -163,6 +165,7 @@ halcinema/
 | 2026-06-23 | DATABASE.md 作成（DB設計書・アーキテクチャ・JWT説明）        | Claude Code |
 | 2026-06-23 | バックエンド初期構築（backend/ + Go API + Docker環境）       | Claude Code |
 | 2026-06-23 | schema.sql・docker-compose.yml・.env.example 作成            | Claude Code |
+| 2026-06-23 | note/database.txt 作成（DB接続・操作手順）                   | Claude Code |
 
 ## 作成済みページ一覧
 
