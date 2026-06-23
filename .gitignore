@@ -1,2 +1,9 @@
 # Claude Code
 .claude/
+
+# 環境変数（DBパスワード・JWT秘密鍵を含むため絶対にコミットしない）
+.env
+
+# Go ビルド成果物
+backend/api
+backend/*.exe
