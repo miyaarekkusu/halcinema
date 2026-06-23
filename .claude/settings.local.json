@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem \"C:\\\\HAL名古屋\\\\halcinema\\\\halcinema\" -File)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(go version *)",
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(git remote *)",
+      "Bash(go mod *)",
+      "Bash(go get *)",
+      "Bash(go build *)",
+      "Bash(docker info *)",
+      "Bash(curl *)"
     ]
   }
 }

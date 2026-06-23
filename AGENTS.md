@@ -49,8 +49,17 @@ halcinema/
 │   └── sample.html       → 新規ページ作成用テンプレート
 ├── data/
 │   └── movies.json   → 映画データ（上映中6本・上映予定5本）
+├── backend/          → Go APIサーバー（2次開発〜）
+│   ├── cmd/api/main.go        → エントリーポイント
+│   ├── internal/config/db.go → DB接続設定
+│   ├── go.mod / go.sum        → Go依存関係
+│   └── Dockerfile             → APIコンテナのビルド定義
 ├── images/           → 画像ファイル
 ├── note/             → メモ・設計資料
+├── schema.sql        → PostgreSQL DDL（DB初期化用）
+├── docker-compose.yml → DB + API コンテナ起動設定
+├── .env.example      → 環境変数テンプレート（チーム共有用）
+├── DATABASE.md       → DB設計書・アーキテクチャ・JWT説明
 └── README.md         → このファイル
 
 ## 注意
@@ -64,6 +73,14 @@ halcinema/
 - `html/` 内のファイルから各リソースへのパスは `../css/`、`../js/`、`../data/`、`../images/` を使う
 - ページ間リンクは同じ `html/` フォルダ内なので `xxx.html` の形式でOK（`../html/xxx.html` は不要）
 - エントリーポイントは `html/index.html`（Live Serverなら `http://localhost:xxxx/html/index.html`）
+
+### バックエンド（backend/）の注意
+
+- **`.env` は絶対にコミットしない**（`.gitignore` で除外済み）。パスワード・JWT秘密鍵が入っているため
+- `.env.example` を `.env` にコピーして使う（詳細は `note/docker.txt` 参照）
+- `backend/` 内のGoコードを変更したら `docker compose up -d --build` で再ビルドが必要
+- DBスキーマを変更したら `schema.sql` を編集し、コンテナを作り直す（`docker compose down -v && docker compose up -d --build`）
+- API の動作確認は `http://localhost:8080/api/health` でできる
 
 ---
 
@@ -143,6 +160,9 @@ halcinema/
 | 2026-05-22 | 予約完了ページ作成（html/ticket.html）                       | Claude Code |
 | 2026-05-22 | マイページにチケット詳細モーダル（QRコード）追加             | Claude Code |
 | 2026-05-22 | 全HTMLをhtml/フォルダに統一、CSS/JSも各フォルダへ移動        | Claude Code |
+| 2026-06-23 | DATABASE.md 作成（DB設計書・アーキテクチャ・JWT説明）        | Claude Code |
+| 2026-06-23 | バックエンド初期構築（backend/ + Go API + Docker環境）       | Claude Code |
+| 2026-06-23 | schema.sql・docker-compose.yml・.env.example 作成            | Claude Code |
 
 ## 作成済みページ一覧
 

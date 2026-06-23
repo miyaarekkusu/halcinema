@@ -1,0 +1,134 @@
+================================================================
+  HAL Cinema — Docker セットアップ手順
+================================================================
+
+## 必要なもの（事前インストール）
+
+  - Docker Desktop
+    https://www.docker.com/products/docker-desktop/
+    ※ Windows の場合は「Docker Desktop for Windows」をダウンロード
+    ※ インストール後にPCの再起動が必要な場合あり
+
+================================================================
+  初回セットアップ（クローン直後に1回だけやること）
+================================================================
+
+STEP 1 — .env ファイルを作る
+
+  .env.example をコピーして .env を作る。
+
+  【Windowsの場合】
+    copy .env.example .env
+
+  【Mac/Linuxの場合】
+    cp .env.example .env
+
+  .env の中身（デフォルト値のまま動く。本番環境では必ず変更すること）
+
+    DB_NAME=hal_cinema
+    DB_USER=hal_user
+    DB_PASSWORD=change_me
+    JWT_SECRET=change_me_to_a_long_random_string
+
+  ⚠️ .env は絶対にGitにコミットしない（.gitignore で除外済み）
+
+
+STEP 2 — Docker Desktop を起動する
+
+  タスクバーのクジラアイコンをクリックして起動する。
+  クジラが動かなくなれば起動完了。
+
+
+STEP 3 — コンテナをビルド＆起動する
+
+  プロジェクトのルートフォルダ（halcinema/）で以下を実行：
+
+    docker compose up -d --build
+
+  初回はイメージのダウンロードがあるため数分かかる。
+  2回目以降は30秒程度。
+
+  ✅ 起動成功の確認：
+    docker compose ps
+
+  NAME            STATUS
+  halcinema_api   Up    ← Go API サーバー
+  halcinema_db    Up    ← PostgreSQL
+
+  ブラウザで以下にアクセスして {"status":"ok"} が返れば完璧：
+    http://localhost:8080/api/health
+
+
+================================================================
+  毎日の使い方
+================================================================
+
+  起動する：
+    docker compose up -d --build
+
+  停止する：
+    docker compose down
+
+  ログを見る：
+    docker compose logs api     ← APIのログ
+    docker compose logs db      ← DBのログ
+    docker compose logs -f api  ← リアルタイムで流れるログ
+
+  状態確認：
+    docker compose ps
+
+
+================================================================
+  よくあるケース
+================================================================
+
+  ■ Goのコードを変更した → 再ビルドが必要
+    docker compose up -d --build
+
+  ■ schema.sql（DBの構造）を変更した → DBを作り直す
+    docker compose down -v
+    docker compose up -d --build
+    ※ -v をつけるとDBのデータが全部消えるので注意！
+
+  ■ ポート 8080 や 5432 がすでに使われているエラーが出た
+    他のアプリが同じポートを使っている。
+    docker compose down してから再度試す。
+    それでもダメなら docker compose ps で他のコンテナが残っていないか確認。
+
+  ■ docker compose up で "Cannot connect to Docker daemon" と出た
+    Docker Desktop が起動していない。タスクバーから起動する。
+
+
+================================================================
+  ポート一覧
+================================================================
+
+  8080  → Go API サーバー（http://localhost:8080）
+  5432  → PostgreSQL（DBクライアントで接続する場合）
+
+  DBクライアント（TablePlusやDBeaver等）の接続設定：
+    host:     localhost
+    port:     5432
+    database: hal_cinema
+    user:     hal_user（.envのDB_USERの値）
+    password: change_me（.envのDB_PASSWORDの値）
+
+
+================================================================
+  仕組みの説明
+================================================================
+
+  docker-compose.yml が2つのコンテナを管理している。
+
+  [halcinema_db]
+    PostgreSQL のコンテナ。
+    起動時に schema.sql が自動実行されてテーブルが作られる。
+    データは pgdata ボリュームに保存されるので、
+    docker compose down だけなら消えない。
+
+  [halcinema_api]
+    backend/ フォルダの Go コードをビルドしたコンテナ。
+    http://localhost:8080 で動く。
+    DB_HOST=db（コンテナ名）で halcinema_db に接続する。
+
+================================================================
