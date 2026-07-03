@@ -373,9 +373,10 @@ ul, ol {
 
 /* 映画ポスターカード */
 .movie-card {
-  aspect-ratio: 2/3;
+  aspect-ratio: 283/400;
   position: relative;
   cursor: pointer;
+  border-radius: 0;
 }
 
 .movie-card img {
