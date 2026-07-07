@@ -211,14 +211,51 @@
       err.style.display = (this.value && this.value !== pw) ? 'block' : 'none';
     });
 
-    // フォーム送信時の一致チェック
-    document.querySelector('.auth-form').addEventListener('submit', function (e) {
+    const API_BASE = 'http://localhost:8080';
+
+    // フォーム送信時の一致チェック + API登録
+    document.querySelector('.auth-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
       const pw   = document.getElementById('password').value;
       const conf = document.getElementById('password-confirm').value;
       if (pw !== conf) {
-        e.preventDefault();
         document.getElementById('password-error').style.display = 'block';
         document.getElementById('password-confirm').focus();
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      if (submitBtn) submitBtn.disabled = true;
+
+      const name  = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      try {
+        const res = await fetch(API_BASE + '/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password: pw })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          const msg = data.error === 'email already registered'
+            ? 'このメールアドレスは既に登録されています'
+            : '登録に失敗しました: ' + data.error;
+          alert(msg);
+          if (submitBtn) submitBtn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem('hal_token',  data.token);
+        localStorage.setItem('hal_member', JSON.stringify(data.member));
+        alert('会員登録が完了しました！');
+        location.href = 'mypage.html';
+
+      } catch (err) {
+        alert('サーバーに接続できませんでした。APIが起動しているか確認してください。');
+        if (submitBtn) submitBtn.disabled = false;
       }
     });
   </script>

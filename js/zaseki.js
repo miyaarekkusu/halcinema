@@ -42,8 +42,14 @@ const SPACING_X   = 1.5
 const SPACING_Z   = 2.0
 const HEIGHT_STEP = 0.5
 const AISLE_WIDTH = 2.5
-const PRICE_PER_SEAT = 1800  // ※ 2次開発で券種選択から受け取る予定。現在は未使用。
-const TAKEN_RATE  = 0.28   // 事前に埋まっている席の割合
+const PRICE_PER_SEAT = 1800
+const TAKEN_RATE  = 0.28
+
+// ─── API 連携用グローバル ──────────────────────────────────────────
+const API_BASE = 'http://localhost:8080'
+const seatMapByLabel = {}   // label → { seatId, status }
+let   _halScheduleId = null // API から取得したスケジュールID
+let   seatsReady     = true // false の間は座席クリックを無効化（在庫確認中の競合防止）
 
 const ROW_LABELS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N']
 
@@ -144,10 +150,11 @@ function createSeatGroup(row, col, state) {
   rightArm.position.set(0.55, 0.7, 0)
   group.add(rightArm)
 
-  group.userData.row   = row
-  group.userData.col   = col
-  group.userData.state = state
-  group.userData.label = `${ROW_LABELS[row]}-${col + 1}`
+  group.userData.row    = row
+  group.userData.col    = col
+  group.userData.state  = state
+  group.userData.label  = `${ROW_LABELS[row]}-${col + 1}`
+  group.userData.seatId = null  // API取得後に設定
 
   return group
 }
@@ -295,6 +302,81 @@ function setSeatState(seatObj, newState) {
   })
 }
 
+// ─── API 座席在庫初期化 ─────────────────────────────────────────────
+// 在庫確認が完了するまで seatsReady=false にしてクリックを止め、
+// 「取得中に選択された座席が実は予約済みだった」というレースを防ぐ。
+;(async function fetchSeatAvailability() {
+  const p          = new URLSearchParams(location.search)
+  const scheduleId = p.get('scheduleId')
+  const screen     = p.get('screen')
+  const date       = p.get('date')
+  const time       = p.get('time')
+
+  if (!scheduleId && (!screen || !date || !time)) {
+    restoreSavedSeats()
+    return
+  }
+
+  seatsReady = false
+
+  try {
+    if (scheduleId) {
+      _halScheduleId = Number(scheduleId)
+    } else {
+      // 日付 "2026/7/1" → "2026-07-01"
+      const apiDate = date.replace(/\//g, '-').replace(/-(\d)(?=-|$)/g, '-0$1')
+      // 時刻 "8:30" → "08:30"
+      const apiTime = time.replace(/^(\d):/, '0$1:')
+
+      const schedsRes = await fetch(
+        `${API_BASE}/api/schedules?date=${apiDate}&screenName=${screen}&startTime=${apiTime}`
+      )
+      if (!schedsRes.ok) return
+      const scheds = await schedsRes.json()
+      if (!Array.isArray(scheds) || scheds.length === 0) return
+      _halScheduleId = scheds[0].scheduleId
+    }
+
+    const seatsRes = await fetch(`${API_BASE}/api/schedules/${_halScheduleId}/seats`)
+    if (!seatsRes.ok) return
+    const seatData = await seatsRes.json()
+
+    // ラベルマップを構築
+    ;(seatData.seats || []).forEach(s => {
+      seatMapByLabel[`${s.rowLabel}-${s.seatNumber}`] = s
+    })
+
+    // 既存の座席オブジェクトに実際の在庫状況を反映
+    // （この時点ではまだ何も選択されていないため、無条件に上書きしてよい）
+    seatObjects.forEach(obj => {
+      const info = seatMapByLabel[obj.label]
+      if (!info) return
+
+      obj.group.userData.seatId = info.seatId
+      const newState = info.status === 0 ? STATE_AVAILABLE : STATE_TAKEN
+
+      if (newState !== obj.state) {
+        setSeatState(obj, newState)
+        if (newState === STATE_TAKEN) {
+          const idx = clickableGroups.indexOf(obj.group)
+          if (idx !== -1) clickableGroups.splice(idx, 1)
+        } else if (newState === STATE_AVAILABLE && !clickableGroups.includes(obj.group)) {
+          clickableGroups.push(obj.group)
+        }
+      }
+    })
+
+    // 2Dグリッドも更新
+    buildTwoDMap()
+
+  } catch (e) {
+    console.warn('座席データの取得に失敗しました（オフラインモードで継続）:', e)
+  } finally {
+    seatsReady = true
+    restoreSavedSeats()
+  }
+})()
+
 // ─── Raycaster ────────────────────────────────────────────────────
 const raycaster = new THREE.Raycaster()
 const mouse     = new THREE.Vector2()
@@ -320,6 +402,7 @@ function findSeatGroup(intersects) {
 let lastSelected = null
 
 canvas.addEventListener('click', (e) => {
+  if (!seatsReady) return
   getCanvasMouse(e)
   raycaster.setFromCamera(mouse, camera)
   const hits = raycaster.intersectObjects(clickableGroups, true)
@@ -436,7 +519,9 @@ function updateUI() {
 
 
 // ─── sessionStorageから座席選択状態を復元（戻る時用） ──────────────
-;(function () {
+// 実際の在庫確認（fetchSeatAvailability）が完了した後に呼ぶことで、
+// すでに他人に予約された座席を誤って復元選択しないようにする。
+function restoreSavedSeats() {
   const saved = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null')
   if (!saved || !saved.seats || saved.seats.length === 0) return
   saved.seats.forEach(function(label) {
@@ -446,7 +531,7 @@ function updateUI() {
     }
   })
   updateUI()
-})()
+}
 
 // 次へボタン
 confirmBtn.addEventListener('click', () => {
@@ -461,15 +546,23 @@ confirmBtn.addEventListener('click', () => {
   const date   = p.get('date')   || ''
   const time   = p.get('time')   || ''
 
+  // seatId マッピング（API連携時のみ有効）
+  const seatIds = selected.map(s => ({
+    label:  s.label,
+    seatId: s.group.userData.seatId || null
+  }))
+
   // halcinema_seats に統一して保存（既存データはリセット）
   const seatData = {
-    seats:   labels,
-    count:   labels.length,
-    movie:   movie + (format ? '（' + format + '版）' : ''),
-    screen:  screen,
-    date:    date,
-    time:    time,
-    tickets: [],       // ticket-select.html で上書き
+    scheduleId: _halScheduleId,
+    seats:      labels,
+    seatIds:    seatIds,
+    count:      labels.length,
+    movie:      movie + (format ? '（' + format + '版）' : ''),
+    screen:     screen,
+    date:       date,
+    time:       time,
+    tickets:    [],   // ticket-select.html で上書き
     totalPrice: 0,
   }
   sessionStorage.setItem('halcinema_seats', JSON.stringify(seatData))
@@ -548,6 +641,7 @@ function buildTwoDMap() {
 
       if (seatObj.state !== STATE_TAKEN) {
         btn.addEventListener('click', () => {
+          if (!seatsReady) return
           if (seatObj.state === STATE_AVAILABLE) {
             setSeatState(seatObj, STATE_SELECTED)
             lastSelected = seatObj

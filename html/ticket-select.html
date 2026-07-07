@@ -17,17 +17,17 @@
   <!-- ヘッダー -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <a href="index.html" class="site-logo">HAL <span>CINEMA</span></a>
       <nav class="site-nav" id="site-nav">
-        <a href="../html/schedule.html">上映スケジュール</a>
-        <a href="../html/movies.html">作品一覧</a>
-        <a href="../html/goods.html">グッズ・物販</a>
-        <a href="../html/event.html">イベント情報</a>
-        <a href="../html/theater.html">劇場情報</a>
+        <a href="index.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
       </nav>
       <div class="header-actions">
-        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
-        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
         <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
           <span></span><span></span><span></span>
         </button>
@@ -261,7 +261,7 @@
         </p>
       </div>
       <nav class="footer-links">
-        <a href="../index.html">トップ</a>
+        <a href="index.html">トップ</a>
         <a href="#">お問い合わせ</a>
         <a href="#">Q&amp;A</a>
         <a href="#">個人情報保護方針</a>
@@ -457,8 +457,19 @@
     updateTotal();
     updateSelectedList();
 
-    // 次へボタン
+    // 次へボタン（座席数とチケット合計枚数が一致しているか検証してから遷移）
     document.getElementById('btn-next').addEventListener('click', function() {
+      if (totalSeats > 0) {
+        const selected = getSelectedTotal();
+        if (selected < totalSeats) {
+          alert('選択した座席数（' + totalSeats + '席）に対してチケットが不足しています（現在' + selected + '枚）。座席数分のチケットを選択してください。');
+          return;
+        }
+        if (selected > totalSeats) {
+          alert('選択したチケットの枚数（' + selected + '枚）が座席数（' + totalSeats + '席）を超えています。');
+          return;
+        }
+      }
       saveTicketData();
       window.location.href = 'food-select.html';
     });

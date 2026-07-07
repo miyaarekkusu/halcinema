@@ -187,22 +187,30 @@
     document.getElementById('s-seats').textContent    = reservation.seats ? reservation.seats.join('・') : '—'
     document.getElementById('s-amount').textContent   = (reservation.finalAmount !== undefined
       ? reservation.finalAmount : reservation.totalAmount || 0).toLocaleString() + ' 円（税込）'
-    document.getElementById('s-id').textContent       = '予約ID: ' + (reservation.reservationId || '—')
+
+    var codeLabel = reservation.reservationCode
+      ? '予約番号: ' + reservation.reservationCode
+      : reservation.reservationId
+        ? '予約ID: ' + reservation.reservationId
+        : '—'
+    document.getElementById('s-id').textContent = codeLabel
 
     // マイページ用にlatestTicketを保存
     var titleMatch2 = fullTitle.match(/^(.+?)（(.+?)版）$/)
     sessionStorage.setItem('latestTicket', JSON.stringify({
-      reservationId : reservation.reservationId,
-      movieTitle    : titleMatch2 ? titleMatch2[1] : fullTitle,
-      movieFormat   : titleMatch2 ? titleMatch2[2] + '版' : '',
-      screenInfo    : reservation.screenInfo,
-      screeningInfo : reservation.screeningInfo,
-      seats         : reservation.seats,
-      ticketCount   : reservation.ticketCount,
-      paymentMethod : reservation.paymentMethod,
-      finalAmount   : reservation.finalAmount !== undefined ? reservation.finalAmount : reservation.totalAmount,
-      issuedAt      : reservation.issuedAt,
-      status        : 'reserved'
+      reservationId   : reservation.reservationId,
+      reservationCode : reservation.reservationCode,
+      movieTitle      : titleMatch2 ? titleMatch2[1] : fullTitle,
+      movieFormat     : titleMatch2 ? titleMatch2[2] + '版' : '',
+      screenInfo      : reservation.screenInfo,
+      screeningInfo   : reservation.screeningInfo,
+      seats           : reservation.seats,
+      ticketCount     : reservation.ticketCount,
+      paymentMethod   : reservation.paymentMethod,
+      finalAmount     : reservation.finalAmount !== undefined ? reservation.finalAmount : reservation.totalAmount,
+      issuedAt        : reservation.paidAt,
+      status          : 'reserved',
+      tickets         : reservation.tickets || []
     }))
   </script>
 

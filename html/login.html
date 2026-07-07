@@ -132,6 +132,8 @@
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script>
+    const API_BASE = 'http://localhost:8080';
+
     // パスワード表示トグル
     document.getElementById('toggle-password').addEventListener('click', function () {
       const input = document.getElementById('password');
@@ -147,6 +149,44 @@
         icon.innerHTML = `
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
           <circle cx="12" cy="12" r="3"/>`;
+      }
+    });
+
+    // ログインフォーム送信
+    document.querySelector('.auth-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submit-btn') || document.querySelector('.auth-submit');
+      if (submitBtn) submitBtn.disabled = true;
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch(API_BASE + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error === 'invalid credentials'
+            ? 'メールアドレスまたはパスワードが正しくありません'
+            : 'ログインに失敗しました: ' + data.error);
+          if (submitBtn) submitBtn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem('hal_token',  data.token);
+        localStorage.setItem('hal_member', JSON.stringify(data.member));
+
+        const redirect = new URLSearchParams(location.search).get('redirect') || 'mypage.html';
+        location.href = redirect;
+
+      } catch (err) {
+        alert('サーバーに接続できませんでした。APIが起動しているか確認してください。');
+        if (submitBtn) submitBtn.disabled = false;
       }
     });
   </script>
