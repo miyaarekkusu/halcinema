@@ -14,17 +14,17 @@
   <!-- ヘッダー -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="../index.html" class="site-logo">HAL <span>CINEMA</span></a>
+      <a href="index.html" class="site-logo">HAL <span>CINEMA</span></a>
       <nav class="site-nav" id="site-nav">
-        <a href="../html/schedule.html">上映スケジュール</a>
-        <a href="../html/movies.html">作品一覧</a>
-        <a href="../html/goods.html">グッズ・物販</a>
-        <a href="../html/event.html">イベント情報</a>
-        <a href="../html/theater.html">劇場情報</a>
+        <a href="index.html">上映スケジュール</a>
+        <a href="movies.html">作品一覧</a>
+        <a href="goods.html">グッズ・物販</a>
+        <a href="event.html">イベント情報</a>
+        <a href="theater.html">劇場情報</a>
       </nav>
       <div class="header-actions">
-        <a href="../html/login.html" class="btn btn-ghost btn-sm">ログイン</a>
-        <a href="../html/register.html" class="btn btn-secondary btn-sm">会員登録</a>
+        <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
+        <a href="register.html" class="btn btn-secondary btn-sm">会員登録</a>
         <button class="nav-toggle" id="nav-toggle" aria-label="メニューを開く">
           <span></span><span></span><span></span>
         </button>
@@ -179,7 +179,7 @@
         <p class="footer-desc">HALシネマは全8スクリーン・1,500席を誇る<br>名古屋最大級のシネマコンプレックスです。</p>
       </div>
       <nav class="footer-links">
-        <a href="../index.html">トップ</a>
+        <a href="index.html">トップ</a>
         <a href="#">お問い合わせ</a>
         <a href="#">Q&amp;A</a>
         <a href="#">個人情報保護方針</a>
@@ -388,7 +388,7 @@
   });
 
   // ── 次へボタン ────────────────────────────────────────────
-  document.getElementById('next-btn').addEventListener('click', function() {
+  document.getElementById('next-btn').addEventListener('click', async function() {
     var method = document.querySelector('input[name="method"]:checked').value;
 
     if (method === 'card') {
@@ -402,22 +402,124 @@
       }
     }
 
-    // 決済情報をsessionStorageに保存
+    var nextBtn = document.getElementById('next-btn');
+    nextBtn.disabled = true;
+    nextBtn.textContent = '処理中...';
+
+    var finalAmount    = Math.max(0, baseAmount - pointsUsed);
+    var payMethodCode  = { card: 1, paypay: 2, paypal: 2, cash: 3 }[method] || 1;
+
     if (isTicketFlow) {
-      ticketData.paymentMethod = method;
-      ticketData.pointsUsed    = pointsUsed;
-      ticketData.finalAmount   = Math.max(0, baseAmount - pointsUsed);
-      ticketData.paidAt        = new Date().toISOString();
-      sessionStorage.setItem('halcinema_seats', JSON.stringify(ticketData));
-      location.href = 'complete.html';
+      var API_BASE   = 'http://localhost:8080';
+      var scheduleId = ticketData.scheduleId || null;
+      var seatIdList = (ticketData.seatIds || []).map(function(s){ return s.seatId; }).filter(Boolean);
+
+      if (scheduleId && seatIdList.length > 0) {
+        var catMap = { general: 1, junior: 2, college: 2, small: 2, senior: 3,
+                       oyako: 1, couple: 1, 'senior-discount': 3 };
+        var catList = [];
+        (ticketData.tickets || []).forEach(function(t) {
+          var catId = catMap[t.type] || 1;
+          for (var i = 0; i < t.count; i++) catList.push(catId);
+        });
+
+        var seatsPayload = seatIdList.map(function(sid, i) {
+          return { seatId: sid, priceCategoryId: catList[i] || 1 };
+        });
+
+        try {
+          var reservationBody = JSON.stringify({
+            scheduleId:    scheduleId,
+            seats:         seatsPayload,
+            paymentMethod: payMethodCode
+          });
+
+          var token = localStorage.getItem('hal_token');
+          var headers = { 'Content-Type': 'application/json' };
+          if (token) headers['Authorization'] = 'Bearer ' + token;
+
+          var res = await fetch(API_BASE + '/api/reservations', {
+            method: 'POST', headers: headers, body: reservationBody
+          });
+          var data = await res.json();
+
+          // ログインセッションが無効（DBリセット後の古いトークン等）な場合は
+          // トークンを破棄してゲスト予約として自動的に再送する
+          if (res.status === 401 && token) {
+            localStorage.removeItem('hal_token');
+            localStorage.removeItem('hal_member');
+            res = await fetch(API_BASE + '/api/reservations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: reservationBody
+            });
+            data = await res.json();
+          }
+
+          if (!res.ok) {
+            alert(data.error === 'seat not available'
+              ? '選択した座席はすでに予約されています。座席選択に戻って別の席を選んでください。'
+              : '予約に失敗しました: ' + (data.error || '不明なエラー'));
+            nextBtn.disabled = false;
+            nextBtn.textContent = '次へ';
+            return;
+          }
+
+          var resData = {
+            reservationId:   data.reservationId,
+            reservationCode: data.reservationCode,
+            movieTitle:      ticketData.movie || '—',
+            screenInfo:      ticketData.screen || '',
+            screeningInfo:   (ticketData.date || '') + ' ' + (ticketData.time || ''),
+            seats:           ticketData.seats || [],
+            ticketCount:     (ticketData.seats || []).length || 1,
+            paymentMethod:   method,
+            totalAmount:     data.totalAmount,
+            finalAmount:     finalAmount,
+            pointsUsed:      pointsUsed,
+            paidAt:          new Date().toISOString(),
+            tickets:         data.tickets || []
+          };
+          sessionStorage.setItem('reservationData', JSON.stringify(resData));
+          sessionStorage.removeItem('halcinema_seats');
+          location.href = 'ticket.html';
+          return;
+
+        } catch (e) {
+          console.warn('API 予約失敗（オフラインで続行）:', e);
+        }
+      }
+
+      // フォールバック：API 未使用
+      var fbCode = 'HAL' + new Date().toISOString().replace(/\D/g,'').slice(0,14);
+      var fbData = {
+        reservationId:   null,
+        reservationCode: fbCode,
+        movieTitle:      ticketData.movie || '—',
+        screenInfo:      ticketData.screen || '',
+        screeningInfo:   (ticketData.date || '') + ' ' + (ticketData.time || ''),
+        seats:           ticketData.seats || [],
+        ticketCount:     (ticketData.seats || []).length || 1,
+        paymentMethod:   method,
+        totalAmount:     baseAmount,
+        finalAmount:     finalAmount,
+        pointsUsed:      pointsUsed,
+        paidAt:          new Date().toISOString()
+      };
+      sessionStorage.setItem('reservationData', JSON.stringify(fbData));
+      sessionStorage.removeItem('halcinema_seats');
+      location.href = 'ticket.html';
+
     } else {
       reservation.paymentMethod = method;
       reservation.pointsUsed    = pointsUsed;
-      reservation.finalAmount   = Math.max(0, baseAmount - pointsUsed);
+      reservation.finalAmount   = finalAmount;
       reservation.paidAt        = new Date().toISOString();
       sessionStorage.setItem('reservationData', JSON.stringify(reservation));
       location.href = 'ticket.html';
     }
+    nextBtn.disabled = false;
+    nextBtn.textContent = '次へ';
   });
   </script>
 

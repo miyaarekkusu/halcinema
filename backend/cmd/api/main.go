@@ -1,47 +1,44 @@
 package main
 
 import (
-	"log"
-	"net/http"
+	"log/slog"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/miyaarekkusu/halcinema/backend/internal/config"
 )
 
 func main() {
-	// Docker環境では環境変数が直接渡されるため、エラーは無視してOK
 	_ = godotenv.Load()
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 
 	db, err := config.NewDB()
 	if err != nil {
-		log.Fatalf("DB接続失敗: %v", err)
+		slog.Error("DB接続失敗", "error", err)
+		os.Exit(1)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatalf("DB取得失敗: %v", err)
+		slog.Error("DB取得失敗", "error", err)
+		os.Exit(1)
 	}
 	defer sqlDB.Close()
 
-	r := gin.Default()
-
-	r.GET("/api/health", func(c *gin.Context) {
-		if err := sqlDB.Ping(); err != nil {
-			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "db error", "error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
-	})
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	addr := ":8080"
+	if port := os.Getenv("PORT"); port != "" {
+		addr = ":" + port
 	}
 
-	log.Printf("HAL Cinema API 起動 → http://localhost:%s", port)
-	if err := r.Run(":" + port); err != nil {
-		log.Fatalf("サーバー起動失敗: %v", err)
+	app := application{
+		config: appConfig{addr: addr},
+		db:     db,
+	}
+
+	if err := app.run(app.mount()); err != nil {
+		slog.Error("サーバー起動失敗", "error", err)
+		os.Exit(1)
 	}
 }
