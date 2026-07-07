@@ -217,12 +217,24 @@
   }
 
   /* ──────────────────────────────────────────────────────────
-     4. DOM 準備後に全初期化
+     4. ログイン状態に応じてヘッダーのログイン・会員登録ボタンを切り替え
+     ────────────────────────────────────────────────────────── */
+  function initAuthHeader() {
+    const isLoggedIn = !!localStorage.getItem('hal_token');
+    document.querySelectorAll('.header-actions a[href="login.html"], .header-actions a[href="register.html"]')
+      .forEach(function (el) {
+        el.style.display = isLoggedIn ? 'none' : '';
+      });
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     5. DOM 準備後に全初期化
      ────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
     initNav();
     insertWidget();
     initWidget();
+    initAuthHeader();
   });
 
 })();

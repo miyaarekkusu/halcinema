@@ -178,16 +178,23 @@
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script>
+    var API_BASE = 'http://localhost:8080'
     const POSTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></svg>'
 
+    function comingDateLabel(iso) {
+      var d = new Date(iso)
+      return d.getFullYear() + '年' + (d.getMonth() + 1) + '月公開予定'
+    }
+
     function buildNowCard(m) {
+      var year = new Date(m.releaseDate).getFullYear()
       return '<div class="card movie-card">'
         + '<div class="movie-poster-ph">' + POSTER_SVG + '<span class="movie-poster-ph-label">POSTER</span></div>'
         + '<span class="badge badge-red movie-card-badge">上映中</span>'
         + '<div class="movie-card-overlay">'
         + '<p class="movie-card-title">' + m.title + '</p>'
-        + '<p class="text-sm text-sub">' + m.year + ' / ' + m.duration + '分</p>'
-        + '<a href="movie-detail.html?id=' + m.id + '" class="btn btn-primary btn-sm">詳細・予約</a>'
+        + '<p class="text-sm text-sub">' + year + ' / ' + m.duration + '分</p>'
+        + '<a href="movie-detail.html?id=' + m.movieId + '" class="btn btn-primary btn-sm">詳細・予約</a>'
         + '</div></div>'
     }
 
@@ -197,17 +204,21 @@
         + '<span class="badge badge-dark movie-card-badge">公開予定</span>'
         + '<div class="movie-card-overlay">'
         + '<p class="movie-card-title">' + m.title + '</p>'
-        + '<p class="text-sm text-sub">' + m.releaseDate + '</p>'
+        + '<p class="text-sm text-sub">' + comingDateLabel(m.releaseDate) + '</p>'
         + '</div></div>'
     }
 
-    fetch('../data/movies.json')
+    fetch(API_BASE + '/api/movies')
       .then(function(r) { return r.json() })
       .then(function(movies) {
         document.getElementById('now-playing-list').innerHTML =
-          movies.filter(function(m) { return m.status === 'now' }).map(buildNowCard).join('')
+          movies.filter(function(m) { return m.isShowing === 1 }).map(buildNowCard).join('')
         document.getElementById('coming-soon-list').innerHTML =
-          movies.filter(function(m) { return m.status === 'coming' }).map(buildComingCard).join('')
+          movies.filter(function(m) { return m.isShowing !== 1 }).map(buildComingCard).join('')
+      })
+      .catch(function() {
+        document.getElementById('now-playing-list').innerHTML =
+          '<p style="padding:1rem;color:var(--text-muted)">作品情報の取得に失敗しました。</p>'
       })
   </script>
 
