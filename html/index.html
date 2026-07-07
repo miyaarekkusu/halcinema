@@ -180,6 +180,11 @@
   <script>
     var API_BASE = 'http://localhost:8080'
     const POSTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></svg>'
+    const POSTER_PH = POSTER_SVG + '<span class="movie-poster-ph-label">POSTER</span>'
+
+    function onPosterError(img) {
+      img.closest('.movie-poster-ph').innerHTML = POSTER_PH
+    }
 
     function comingDateLabel(iso) {
       var d = new Date(iso)
@@ -189,7 +194,7 @@
     function buildNowCard(m) {
       var year = new Date(m.releaseDate).getFullYear()
       return '<div class="card movie-card">'
-        + '<div class="movie-poster-ph">' + POSTER_SVG + '<span class="movie-poster-ph-label">POSTER</span></div>'
+        + '<div class="movie-poster-ph"><img src="../images/poster/' + m.id + '.jpg" alt="' + m.title + '" onerror="onPosterError(this)"></div>'
         + '<span class="badge badge-red movie-card-badge">上映中</span>'
         + '<div class="movie-card-overlay">'
         + '<p class="movie-card-title">' + m.title + '</p>'
@@ -200,7 +205,7 @@
 
     function buildComingCard(m) {
       return '<div class="card movie-card">'
-        + '<div class="movie-poster-ph">' + POSTER_SVG + '<span class="movie-poster-ph-label">POSTER</span></div>'
+        + '<div class="movie-poster-ph"><img src="../images/poster/' + m.id + '.jpg" alt="' + m.title + '" onerror="onPosterError(this)"></div>'
         + '<span class="badge badge-dark movie-card-badge">公開予定</span>'
         + '<div class="movie-card-overlay">'
         + '<p class="movie-card-title">' + m.title + '</p>'
