@@ -181,6 +181,9 @@ token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 | 13 | 映画画像 | t_MOVIE_IMAGE | poster/banner/still/thumbnail。movie_id で映画に紐付け |
 | 14 | グッズ・商品 | t_GOODS | フード・ドリンク・グッズ商品マスタ |
 | 15 | グッズ画像 | t_GOODS_IMAGE | main/thumbnail/detail。goods_id で商品に紐付け |
+| 16 | 上映枠 | t_SLOT | スクリーン×日付の固定枠。ここに映画を割り当てる（枠方式の中核） |
+| 17 | 振替履歴 | t_SCHEDULE_CHANGE_LOG | 枠・時刻・スクリーン変更／中止の履歴 |
+| 18 | 通知 | t_NOTIFICATION | 振替・時刻/スクリーン変更を予約者へ通知 |
 
 ### ER図（簡略）
 
@@ -262,11 +265,14 @@ UNIQUE制約: `(f_screen_id, f_row_label, f_seat_number)`
 | f_schedule_id | SERIAL | PK | スケジュールID |
 | f_movie_id | INTEGER | NOT NULL, FK→t_MOVIE | 上映映画 |
 | f_screen_id | INTEGER | NOT NULL, FK→t_SCREEN | 使用スクリーン |
+| f_slot_id | INTEGER | NULL可, FK→t_SLOT | 割り当て先の上映枠。枠方式で運用（NULLは旧・時刻直指定の互換用） |
 | f_show_date | DATE | NOT NULL | 上映日 |
-| f_start_time | TIME | NOT NULL | 開始時刻 |
+| f_start_time | TIME | NOT NULL | 開始時刻（枠運用時は t_SLOT.f_start_time から導出してコピー） |
 | f_status | SMALLINT | NOT NULL, DEFAULT 0, CHECK(0,1,2) | 0:販売中 / 1:満席 / 2:中止 |
 
 UNIQUE制約: `(f_screen_id, f_show_date, f_start_time)`（同スクリーンで同時刻の重複防止）
+
+> **枠方式（推奨運用）**: 開始時刻を手入力せず、あらかじめ用意した `t_SLOT`（例：3時間枠×3・4時間枠×1）に映画を割り当てる。1枠=1上映回。掃除時間込みで枠に収まる映画のみ割り当て可能。詳細は「6. 重要な設計ルール」の枠方式を参照。
 
 ---
 
@@ -350,6 +356,68 @@ UNIQUE制約: `(f_schedule_id, f_seat_id)`（← これがDB層での二重予�
 
 ---
 
+### t_SLOT（上映枠）※枠方式の中核
+
+スクリーン×日付ごとに固定の「入れ物（枠）」を先に用意し、そこへ映画を割り当てる。
+1枠 = 1上映回。掃除時間込みで枠に収まる映画のみ割り当て可能。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|----|------|------|
+| f_slot_id | SERIAL | PK | 枠ID |
+| f_screen_id | INTEGER | NOT NULL, FK→t_SCREEN | 対象スクリーン |
+| f_show_date | DATE | NOT NULL | 対象日 |
+| f_slot_order | SMALLINT | NOT NULL | 同一スクリーン・同一日での枠の並び順（1,2,3…） |
+| f_start_time | TIME | NOT NULL | 枠の開始時刻 |
+| f_duration_min | SMALLINT | NOT NULL | 枠の長さ（分）例：180=3時間 / 240=4時間 |
+| f_slot_type | SMALLINT | NOT NULL, DEFAULT 0, CHECK(0,1) | 0:通常枠 / 1:予備枠（振替専用・通常予約を入れない） |
+
+UNIQUE制約: `(f_screen_id, f_show_date, f_slot_order)`
+
+**割り当て可否の判定式**
+```
+映画の上映時間(f_duration) + 掃除時間  ≤  枠の長さ(f_duration_min)   → 割り当て可
+上記を超える（オーバー）                                            → その枠には入れられない
+```
+- 枠の長さ − (上映時間+掃除時間) = **飽き枠（空き時間）**。従業員の分担・休憩に活用できる。
+- 掃除時間の持ち方は運用で選択（下記「掃除時間の扱い」参照）。
+
+---
+
+### t_SCHEDULE_CHANGE_LOG（振替履歴）
+
+機材故障・人的ミス・劇場都合などで上映回の枠／時刻／スクリーンを変えた履歴を残す。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|----|------|------|
+| f_change_id | SERIAL | PK | 履歴ID |
+| f_schedule_id | INTEGER | NOT NULL, FK→t_SCHEDULE | 対象上映回 |
+| f_change_type | SMALLINT | NOT NULL, CHECK(1,2,3,4) | 1:枠振替 / 2:時刻変更 / 3:スクリーン変更 / 4:中止 |
+| f_from_slot_id | INTEGER | NULL可, FK→t_SLOT | 変更前の枠 |
+| f_to_slot_id | INTEGER | NULL可, FK→t_SLOT | 変更後の枠（中止時はNULL） |
+| f_from_start_time | TIME | NULL可 | 変更前の開始時刻 |
+| f_to_start_time | TIME | NULL可 | 変更後の開始時刻 |
+| f_reason | VARCHAR(255) | NULL可 | 変更理由（機材故障 等） |
+| f_changed_by | INTEGER | NULL可 | 操作した管理者（管理者テーブル導入後にFK化） |
+| f_changed_at | TIMESTAMP | NOT NULL, DEFAULT NOW | 変更日時 |
+
+---
+
+### t_NOTIFICATION（通知）
+
+振替・時刻/スクリーン変更・中止が発生したとき、その上映回の予約者へ通知する。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|----|------|------|
+| f_notification_id | SERIAL | PK | 通知ID |
+| f_member_id | INTEGER | NULL可, FK→t_MEMBER | 宛先会員（ゲストはNULL、連絡先は予約側で保持する想定） |
+| f_reservation_id | INTEGER | NOT NULL, FK→t_RESERVATION | 対象予約 |
+| f_type | SMALLINT | NOT NULL, CHECK(1,2,3,4) | 1:枠振替 / 2:時刻変更 / 3:スクリーン変更 / 4:中止 |
+| f_message | VARCHAR(500) | NOT NULL | 通知本文 |
+| f_is_read | SMALLINT | NOT NULL, DEFAULT 0, CHECK(0,1) | 0:未読 / 1:既読 |
+| f_created_at | TIMESTAMP | NOT NULL, DEFAULT NOW | 生成日時 |
+
+---
+
 ## 6. 重要な設計ルール
 
 ### 二重予約防止（最重要）
@@ -408,6 +476,46 @@ WHERE f_screen_id = (
 `t_RESERVATION.f_member_id` は NULL 許可。会員・ゲストを同一テーブルで管理する。
 ゲストはJWTなしで予約可能（API側で `member_id = NULL` で INSERT する）。
 
+### 枠方式（スケジュール管理の基本方針）
+
+従来の「開始時刻を1本ずつ手入力して並べる」方式をやめ、**固定枠に映画を割り当てる**方式に変更する。
+
+**狙い**
+- 掃除時間を枠の中に必ず収める → **掃除時間のブッキングが起きない**
+- 入力は「どの枠にどの映画か」だけ → **DB入力・手入力ミスの削減**
+- 枠 −(上映+掃除) の余りが**飽き枠（空き時間）**となり、従業員の分担に活用できる
+
+**運用**
+1. 管理者が `t_SLOT` にスクリーン×日付の枠を用意（例：3時間枠×3・4時間枠×1）。
+2. 各枠へ映画を割り当てて `t_SCHEDULE` を作成（`f_slot_id` を設定、`f_start_time` は枠からコピー）。
+3. 割り当て時に判定式 `f_duration + 掃除時間 ≤ f_duration_min` を必ずチェックし、超える映画は弾く。
+
+#### 掃除時間の扱い（運用で選択）
+- **A案（一律定数）**: 全映画で掃除◯分固定とし、判定は `f_duration + 定数 ≤ f_duration_min`。実装が最も簡単。
+- **B案（枠に内包）**: 枠の長さ自体を「映画+掃除が収まる前提」で設定し、掃除時間は明示的に持たない。
+- 展示・初期実装では **A案（例：20分固定）** を推奨。
+
+#### 予備枠（振替・障害対策）
+`t_SLOT.f_slot_type = 1` を**予備枠**として確保しておくと、機材故障・人的ミス等で上映不能になった際に
+**空き枠へ映画をスライドさせて上映継続（振替）**できる。予約者ごと別枠へ移せるのが利点。
+
+- スクリーン数が少ないため「全時間帯で常時1枠空け」は機会損失が大きい。現実解は次のいずれか：
+  - 振替可能性の高い（飽き枠の多い）映画だけ予備枠に入れる
+  - 特定時間帯のみ予備枠にする
+- 予備枠には**通常の予約を入れない**（API側で `f_slot_type = 1` を予約対象から除外）。
+
+#### 振替と通知の流れ
+```
+1. 管理者が振替操作（枠・時刻・スクリーンの変更、または中止）
+   └ t_SCHEDULE.f_slot_id / f_start_time / f_screen_id を更新
+2. t_SCHEDULE_CHANGE_LOG に変更前後を記録（監査・トラブル対応用）
+3. 対象 t_SCHEDULE に紐づく t_RESERVATION を抽出
+4. 各予約者へ t_NOTIFICATION を生成（枠振替/時刻変更/スクリーン変更/中止）
+5. 通知手段：メール／PWAプッシュ／スマホ予約画面の通知表示
+```
+- 展示デモ想定：**管理者が振替 → 予約者スマホに「上映時刻/スクリーンが変わりました」が届く**様子を見せる。
+- 座席は枠単位で移せるため、振替時は移動先枠の `t_SEAT_STOCK` を初期化して座席を割り当て直す。
+
 ---
 
 ## 7. ステータスコード一覧
@@ -421,6 +529,10 @@ WHERE f_screen_id = (
 | t_RESERVATION | f_reservation_status | `0`:予約中 / `1`:発券済 / `2`:キャンセル |
 | t_TICKET | f_ticket_status | `0`:未発券 / `1`:発券済 / `2`:入場済 / `3`:無効 |
 | t_SEAT_STOCK | f_stock_status | `0`:空席 / `1`:予約済 / `2`:使用不可 |
+| t_SLOT | f_slot_type | `0`:通常枠 / `1`:予備枠（振替専用） |
+| t_SCHEDULE_CHANGE_LOG | f_change_type | `1`:枠振替 / `2`:時刻変更 / `3`:スクリーン変更 / `4`:中止 |
+| t_NOTIFICATION | f_type | `1`:枠振替 / `2`:時刻変更 / `3`:スクリーン変更 / `4`:中止 |
+| t_NOTIFICATION | f_is_read | `0`:未読 / `1`:既読 |
 
 ---
 
@@ -485,3 +597,4 @@ psql -d hal_cinema -c "\dt"
 | 日付 | 内容 | 担当 |
 |------|------|------|
 | 2026-06-23 | DATABASE.md 初版作成（テーブル定義・JWT説明・アーキテクチャ） | Claude Code |
+| 2026-07-10 | 枠方式へ移行する設計を追加（t_SLOT / t_SCHEDULE_CHANGE_LOG / t_NOTIFICATION、予備枠・振替・通知の運用ルール、t_SCHEDULE に f_slot_id 追加） | Claude Code |
