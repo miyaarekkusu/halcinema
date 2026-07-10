@@ -167,7 +167,7 @@ token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 | # | 論理名 | 物理名 | 概要 |
 |---|--------|--------|------|
 | 1 | 会員 | t_MEMBER | 登録会員。ゲスト予約時は参照されない |
-| 2 | 映画 | t_MOVIE | 上映作品マスタ |
+| 2 | 映画 | t_MOVIE | 上映作品マスタ。f_image_id でメイン画像を参照 |
 | 3 | スクリーン | t_SCREEN | シアター・上映室マスタ |
 | 4 | 座席 | t_SEAT | スクリーンごとの座席マスタ |
 | 5 | 上映スケジュール | t_SCHEDULE | 映画×スクリーン×日時の組み合わせ |
@@ -177,6 +177,10 @@ token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 | 9 | 予約明細 | t_RESERVATION_DETAIL | 座席1つ分の明細 |
 | 10 | チケット | t_TICKET | 発券されたQRチケット |
 | 11 | 座席在庫 | t_SEAT_STOCK | 上映回ごとの座席空き状態（二重予約防止の要） |
+| 12 | 上映ステータスマスタ | t_SCHEDULE_STATUS | 0=上映予定 / 1=上映中 / 2=上映終了 |
+| 13 | 映画画像 | t_MOVIE_IMAGE | poster/banner/still/thumbnail。movie_id で映画に紐付け |
+| 14 | グッズ・商品 | t_GOODS | フード・ドリンク・グッズ商品マスタ |
+| 15 | グッズ画像 | t_GOODS_IMAGE | main/thumbnail/detail。goods_id で商品に紐付け |
 
 ### ER図（簡略）
 

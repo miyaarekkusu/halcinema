@@ -68,40 +68,11 @@
         <section class="mypage-panel" id="panel-payment">
           <h2 class="mypage-panel-title">支払方法</h2>
 
-          <div class="payment-list">
-
-            <div class="payment-card-item">
-              <div class="payment-card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                  <line x1="1" y1="10" x2="23" y2="10"/>
-                </svg>
-              </div>
-              <div class="payment-card-info">
-                <p class="payment-card-num">•••• •••• •••• 1234</p>
-                <p class="payment-card-expire">有効期限 08 / 28</p>
-              </div>
-              <span class="payment-card-default">デフォルト</span>
-              <button class="btn btn-ghost btn-sm">削除</button>
-            </div>
-
-            <div class="payment-card-item">
-              <div class="payment-card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                  <line x1="1" y1="10" x2="23" y2="10"/>
-                </svg>
-              </div>
-              <div class="payment-card-info">
-                <p class="payment-card-num">•••• •••• •••• 5678</p>
-                <p class="payment-card-expire">有効期限 03 / 27</p>
-              </div>
-              <button class="btn btn-ghost btn-sm">削除</button>
-            </div>
-
+          <div class="payment-list" id="payment-card-list">
+            <p id="payment-card-empty-msg" style="padding:24px 0;text-align:center;color:var(--c-text-muted);font-size:14px;">登録済みのカードはありません</p>
           </div>
 
-          <button class="payment-add-btn">
+          <button class="payment-add-btn" id="card-add-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="8" x2="12" y2="16"/>
@@ -199,12 +170,11 @@
         <button id="modal-close" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
       </div>
 
-      <!-- QRコードエリア -->
-      <div style="padding:28px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;border-bottom:1px dashed var(--c-border-em);">
+      <!-- QRコードエリア（座席数分のQRコードを表示） -->
+      <div style="padding:24px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;border-bottom:1px dashed var(--c-border-em);">
         <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:var(--c-text-muted);text-transform:uppercase;">受付用 QR コード</p>
-        <div id="modal-qrcode" style="background:#fff;padding:10px;border-radius:8px;"></div>
+        <div id="modal-qr-list" style="display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;max-height:360px;overflow-y:auto;"></div>
         <p id="modal-reservation-id" style="font-size:11px;color:var(--c-text-muted);letter-spacing:0.04em;"></p>
-        <p id="modal-status-badge" style="font-size:12px;"></p>
       </div>
 
       <!-- チケット詳細 -->
@@ -242,6 +212,48 @@
     </div>
   </div>
 
+  <!-- カード追加モーダル -->
+  <div id="card-modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;overflow-y:auto;padding:40px 16px;">
+    <div style="background:var(--c-bg-2);border:1px solid var(--c-border-em);border-radius:16px;max-width:400px;margin:0 auto;overflow:hidden;">
+      <div style="background:var(--c-red);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:16px;font-weight:800;color:#fff;">カードを追加</span>
+        <button type="button" id="card-modal-close" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
+      </div>
+      <form id="card-add-form" style="padding:22px 24px;display:flex;flex-direction:column;gap:14px;">
+        <label style="font-size:13px;color:var(--c-text-muted);">
+          カード名義
+          <input type="text" id="card-holder-input" required autocomplete="cc-name"
+                 style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--c-border-em);background:var(--c-bg-1);color:var(--c-text);">
+        </label>
+        <label style="font-size:13px;color:var(--c-text-muted);">
+          カード番号
+          <input type="text" id="card-number-input" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" required autocomplete="cc-number"
+                 style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--c-border-em);background:var(--c-bg-1);color:var(--c-text);">
+        </label>
+        <div style="display:flex;gap:10px;">
+          <label style="font-size:13px;color:var(--c-text-muted);flex:1;">
+            有効期限（月）
+            <input type="number" id="card-month-input" min="1" max="12" required autocomplete="cc-exp-month"
+                   style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--c-border-em);background:var(--c-bg-1);color:var(--c-text);">
+          </label>
+          <label style="font-size:13px;color:var(--c-text-muted);flex:1;">
+            有効期限（年）
+            <input type="number" id="card-year-input" min="2026" max="2099" required autocomplete="cc-exp-year"
+                   style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--c-border-em);background:var(--c-bg-1);color:var(--c-text);">
+          </label>
+        </div>
+        <label style="font-size:13px;color:var(--c-text-muted);display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="card-default-input">
+          デフォルトのカードにする
+        </label>
+        <p style="font-size:11px;color:var(--c-text-muted);line-height:1.6;">
+          ※ セキュリティのため、カード番号は下4桁のみ保存されます。CVVの入力は不要です。
+        </p>
+        <button type="submit" class="btn btn-primary" style="margin-top:4px;">保存する</button>
+      </form>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
@@ -259,31 +271,45 @@
       });
     });
 
+    var API_BASE   = 'http://localhost:8080';
+    var POSTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>';
+
+    // ── ログイン状態の反映 ──────────────────────────────────
+    var member = JSON.parse(localStorage.getItem('hal_member') || 'null');
+    if (member) {
+      var nameEl = document.querySelector('.settings-row-value');
+      if (nameEl) nameEl.textContent = (member.lastName || '') + ' ' + (member.firstName || '');
+      var emailEl = document.querySelectorAll('.settings-row-value')[1];
+      if (emailEl) emailEl.textContent = member.email || '';
+    }
+
     // ログアウト
     document.getElementById('logout-btn').addEventListener('click', function () {
       if (confirm('ログアウトしますか？')) {
+        localStorage.removeItem('hal_token');
+        localStorage.removeItem('hal_member');
+        sessionStorage.removeItem('latestTicket');
         location.href = 'index.html';
       }
     });
 
-    // ── 最新チケットをリスト先頭に追加 ──────────────────────
-    var POSTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>'
-
-    var latest = JSON.parse(sessionStorage.getItem('latestTicket') || 'null')
-    if (latest && latest.reservationId) {
-      var meta = [latest.screeningInfo, latest.seats ? latest.seats.join('・') : ''].filter(Boolean).join(' / ')
-      var titleFull = latest.movieTitle + (latest.movieFormat ? '（' + latest.movieFormat + '）' : '')
+    // ── チケット一覧に追加 ─────────────────────────────────
+    function addTicketItem(data, prepend) {
+      var meta = [data.datetime, data.seats].filter(Boolean).join(' / ')
+      var titleFull = data.title + (data.format ? '（' + data.format + '）' : '')
       var item = document.createElement('div')
       item.className = 'ticket-item'
-      item.setAttribute('data-id',       latest.reservationId)
-      item.setAttribute('data-title',    latest.movieTitle)
-      item.setAttribute('data-format',   latest.movieFormat || '')
-      item.setAttribute('data-screen',   latest.screenInfo  || '')
-      item.setAttribute('data-datetime', latest.screeningInfo || '')
-      item.setAttribute('data-seats',    latest.seats ? latest.seats.join('・') : '')
-      item.setAttribute('data-count',    (latest.ticketCount || '') + '枚')
-      item.setAttribute('data-amount',   String(latest.finalAmount || 0))
-      item.setAttribute('data-status',   'reserved')
+      item.setAttribute('data-id',       data.id || '')
+      item.setAttribute('data-code',     data.code || '')
+      item.setAttribute('data-title',    data.title || '')
+      item.setAttribute('data-format',   data.format || '')
+      item.setAttribute('data-screen',   data.screen || '')
+      item.setAttribute('data-datetime', data.datetime || '')
+      item.setAttribute('data-seats',    data.seats || '')
+      item.setAttribute('data-count',    data.count || '')
+      item.setAttribute('data-amount',   String(data.amount || 0))
+      item.setAttribute('data-status',   data.status || 'reserved')
+      item.setAttribute('data-tickets',  data.tickets && data.tickets.length ? JSON.stringify(data.tickets) : '')
       item.innerHTML =
         '<div class="ticket-poster">' + POSTER_SVG + '</div>'
         + '<div class="ticket-info">'
@@ -294,35 +320,113 @@
         + '<span class="badge badge-green">予約済み</span>'
         + '<button class="btn btn-ghost btn-sm ticket-detail-btn">詳細</button>'
         + '</div>'
+      var list = document.getElementById('ticket-list')
       document.getElementById('ticket-empty-msg').style.display = 'none'
-      document.getElementById('ticket-list').insertBefore(item, document.getElementById('ticket-list').firstChild)
+      if (prepend) list.insertBefore(item, list.firstChild)
+      else list.appendChild(item)
+    }
+
+    // ── API から予約一覧を取得 ────────────────────────────
+    var token = localStorage.getItem('hal_token');
+    if (token) {
+      fetch(API_BASE + '/api/me/reservations', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(r) { return r.ok ? r.json() : []; })
+      .then(function(reservations) {
+        if (!Array.isArray(reservations) || reservations.length === 0) return;
+        reservations.forEach(function(r) {
+          addTicketItem({
+            id:       r.reservationId,
+            code:     r.reservationCode,
+            title:    r.movieTitle,
+            screen:   r.screenName,
+            datetime: (r.showDate || '') + ' ' + (r.startTime || '').slice(0,5),
+            amount:   r.totalAmount,
+            count:    '—',
+            status:   'reserved'
+            // tickets（座席ごとのQRコード）はモーダルを開くタイミングで遅延取得する
+          }, false);
+        });
+      })
+      .catch(function() {});
+    }
+
+    // ── 最新チケット（sessionStorage）をリスト先頭に追加 ──
+    var latest = JSON.parse(sessionStorage.getItem('latestTicket') || 'null')
+    if (latest && (latest.reservationId || latest.reservationCode)) {
+      addTicketItem({
+        id:       latest.reservationId,
+        code:     latest.reservationCode,
+        title:    latest.movieTitle,
+        format:   latest.movieFormat || '',
+        screen:   latest.screenInfo || '',
+        datetime: latest.screeningInfo || '',
+        seats:    latest.seats ? latest.seats.join('・') : '',
+        count:    (latest.ticketCount || '') + '枚',
+        amount:   latest.finalAmount || 0,
+        status:   'reserved',
+        tickets:  latest.tickets || []
+      }, true);
     }
 
     // ── チケット詳細モーダル ──────────────────────────────────
     var backdrop  = document.getElementById('ticket-modal-backdrop')
-    var qrEl      = document.getElementById('modal-qrcode')
-    var currentQR = null
+    var qrListEl  = document.getElementById('modal-qr-list')
 
-    function openTicketModal(data) {
-      // QR再生成（前回のをクリア）
-      qrEl.innerHTML = ''
-      if (currentQR) { try { currentQR.clear() } catch(e){} currentQR = null }
+    // 座席1つ＝チケット1枚分のQRコードブロックを描画する
+    function renderTicketQR(ticket, fallbackSeats, fallbackId) {
+      var seatLabel = ticket.rowLabel
+        ? (ticket.rowLabel + '列 ' + ticket.seatNumber + '番')
+        : (fallbackSeats || '—')
+      var qrValue = ticket.qrCode || fallbackId || 'HAL-CINEMA'
+      var isUsed  = ticket.status === 2 || ticket.status === 3
 
-      currentQR = new QRCode(qrEl, {
-        text        : data.id || 'HAL-CINEMA',
-        width       : 180,
-        height      : 180,
+      var block = document.createElement('div')
+      block.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;'
+
+      var qrHolder = document.createElement('div')
+      qrHolder.style.cssText = 'background:#fff;padding:10px;border-radius:8px;'
+      block.appendChild(qrHolder)
+
+      var seatP = document.createElement('p')
+      seatP.style.cssText = 'font-size:13px;font-weight:700;color:var(--c-text);'
+      seatP.textContent = seatLabel
+      block.appendChild(seatP)
+
+      var statusP = document.createElement('p')
+      statusP.style.fontSize = '12px'
+      statusP.innerHTML = isUsed
+        ? '<span style="color:var(--c-text-muted);">● 使用済み</span>'
+        : '<span style="color:#4caf87;font-weight:700;">● 予約済み</span>'
+      block.appendChild(statusP)
+
+      qrListEl.appendChild(block)
+
+      new QRCode(qrHolder, {
+        text        : qrValue,
+        width       : 150,
+        height      : 150,
         colorDark   : '#000000',
         colorLight  : '#ffffff',
         correctLevel: QRCode.CorrectLevel.M
       })
+    }
 
-      var statusLabel = data.status === 'reserved'
-        ? '<span style="color:#4caf87;font-weight:700;">● 予約済み</span>'
-        : '<span style="color:var(--c-text-muted);">● 使用済み</span>'
+    function openTicketModal(data) {
+      qrListEl.innerHTML = ''
 
-      document.getElementById('modal-reservation-id').textContent = '予約ID: ' + data.id
-      document.getElementById('modal-status-badge').innerHTML     = statusLabel
+      var tickets = Array.isArray(data.tickets) && data.tickets.length > 0
+        ? data.tickets
+        : [{}]  // チケット明細が無い場合は予約ID自体をQRにしたブロックを1枚だけ表示
+
+      tickets.forEach(function (t) {
+        renderTicketQR(t, data.seats, data.id)
+      })
+
+      document.getElementById('modal-reservation-id').textContent = data.code
+        ? '予約番号: ' + data.code
+        : (data.id ? '予約ID: ' + data.id : '')
       document.getElementById('modal-title').textContent    = data.title + (data.format ? '（' + data.format + '）' : '')
       document.getElementById('modal-screen').textContent   = data.screen   || '—'
       document.getElementById('modal-datetime').textContent = data.datetime || '—'
@@ -345,11 +449,30 @@
     })
 
     // 詳細ボタンに委譲（動的追加分も含む）
-    document.getElementById('ticket-list').addEventListener('click', function(e) {
+    // API経由の予約一覧にはチケット明細が含まれないため、開く直前に遅延取得する
+    document.getElementById('ticket-list').addEventListener('click', async function(e) {
       if (!e.target.classList.contains('ticket-detail-btn')) return
       var item = e.target.closest('.ticket-item')
+
+      var tickets = []
+      try { tickets = JSON.parse(item.dataset.tickets || '[]') } catch (parseErr) { tickets = [] }
+
+      if (tickets.length === 0 && item.dataset.id && token) {
+        try {
+          var res = await fetch(API_BASE + '/api/me/reservations/' + item.dataset.id, {
+            headers: { 'Authorization': 'Bearer ' + token }
+          })
+          if (res.ok) {
+            var detail = await res.json()
+            tickets = detail.tickets || []
+            item.setAttribute('data-tickets', JSON.stringify(tickets))
+          }
+        } catch (fetchErr) {}
+      }
+
       openTicketModal({
         id      : item.dataset.id,
+        code    : item.dataset.code,
         title   : item.dataset.title,
         format  : item.dataset.format,
         screen  : item.dataset.screen,
@@ -357,8 +480,106 @@
         seats   : item.dataset.seats,
         count   : item.dataset.count,
         amount  : item.dataset.amount,
-        status  : item.dataset.status
+        status  : item.dataset.status,
+        tickets : tickets
       })
+    })
+
+    // ── 支払方法（クレジットカード）管理 ──────────────────────
+    var cardToken       = localStorage.getItem('hal_token')
+    var cardListEl      = document.getElementById('payment-card-list')
+    var cardEmptyMsg    = document.getElementById('payment-card-empty-msg')
+    var cardModalEl     = document.getElementById('card-modal-backdrop')
+    var cardForm        = document.getElementById('card-add-form')
+    var CARD_ICON_SVG   =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
+
+    function pad2(n) { return n < 10 ? '0' + n : '' + n }
+
+    function renderCardItem(c) {
+      var div = document.createElement('div')
+      div.className = 'payment-card-item'
+      div.innerHTML =
+        '<div class="payment-card-icon">' + CARD_ICON_SVG + '</div>' +
+        '<div class="payment-card-info">' +
+          '<p class="payment-card-num">' + c.cardBrand + ' •••• •••• •••• ' + c.last4 + '</p>' +
+          '<p class="payment-card-expire">有効期限 ' + pad2(c.expireMonth) + ' / ' + String(c.expireYear).slice(-2) + '</p>' +
+        '</div>' +
+        (c.isDefault ? '<span class="payment-card-default">デフォルト</span>' : '') +
+        '<button class="btn btn-ghost btn-sm card-delete-btn" data-card-id="' + c.cardId + '">削除</button>'
+      cardListEl.appendChild(div)
+    }
+
+    function loadCards() {
+      if (!cardToken) return
+      fetch(API_BASE + '/api/me/cards', { headers: { 'Authorization': 'Bearer ' + cardToken } })
+        .then(function(r) { return r.ok ? r.json() : [] })
+        .then(function(list) {
+          cardListEl.innerHTML = ''
+          if (!Array.isArray(list) || list.length === 0) {
+            cardListEl.appendChild(cardEmptyMsg)
+            return
+          }
+          list.forEach(renderCardItem)
+        })
+        .catch(function() {})
+    }
+    loadCards()
+
+    document.getElementById('card-add-btn').addEventListener('click', function() {
+      if (!cardToken) { alert('カードを登録するにはログインが必要です。'); return }
+      cardModalEl.style.display = 'block'
+      document.body.style.overflow = 'hidden'
+    })
+
+    function closeCardModal() {
+      cardModalEl.style.display = 'none'
+      document.body.style.overflow = ''
+      cardForm.reset()
+    }
+    document.getElementById('card-modal-close').addEventListener('click', closeCardModal)
+    cardModalEl.addEventListener('click', function(e) {
+      if (e.target === cardModalEl) closeCardModal()
+    })
+
+    cardForm.addEventListener('submit', async function(e) {
+      e.preventDefault()
+      var body = {
+        cardHolder:  document.getElementById('card-holder-input').value.trim(),
+        cardNumber:  document.getElementById('card-number-input').value.trim(),
+        expireMonth: parseInt(document.getElementById('card-month-input').value, 10),
+        expireYear:  parseInt(document.getElementById('card-year-input').value, 10),
+        isDefault:   document.getElementById('card-default-input').checked
+      }
+      try {
+        var res = await fetch(API_BASE + '/api/me/cards', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cardToken },
+          body: JSON.stringify(body)
+        })
+        if (!res.ok) {
+          var err = await res.json().catch(function() { return {} })
+          alert('カードの登録に失敗しました: ' + (err.error || '不明なエラー'))
+          return
+        }
+        closeCardModal()
+        loadCards()
+      } catch (reqErr) {
+        alert('通信エラーが発生しました。')
+      }
+    })
+
+    cardListEl.addEventListener('click', async function(e) {
+      if (!e.target.classList.contains('card-delete-btn')) return
+      if (!confirm('このカードを削除しますか？')) return
+      try {
+        await fetch(API_BASE + '/api/me/cards/' + e.target.dataset.cardId, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + cardToken }
+        })
+        loadCards()
+      } catch (reqErr) {}
     })
   </script>
 
