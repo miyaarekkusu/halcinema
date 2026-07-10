@@ -555,6 +555,335 @@ body {
 .qr-modal__actions .toolbar__btn { flex: 1; padding: 12px; font-size: 14px; }
 
 /* ════════════════════════════════════════════════
+   スケジュール枠割り当て（schedule.html）
+   固定枠に映画をドラッグして割り当てる。
+   掃除込みで枠に収まらない映画はドロップできない。
+════════════════════════════════════════════════ */
+.sched-legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  font-size: 12px; color: var(--ad-text-sub);
+  margin-bottom: 18px;
+}
+.sched-legend__item { display: flex; align-items: center; gap: 6px; }
+.sched-legend__swatch { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+.sched-legend__swatch--show  { background: var(--ad-green); }
+.sched-legend__swatch--clean { background: repeating-linear-gradient(45deg, var(--ad-text-muted) 0 3px, transparent 3px 6px); border: 1px solid var(--ad-border); }
+.sched-legend__swatch--idle  { background: var(--ad-surface3); }
+.sched-legend__swatch--reserve { background: transparent; border: 1px dashed var(--ad-green); }
+
+.sched-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+  align-items: start;
+}
+
+.sched-boards { display: flex; flex-direction: column; gap: 18px; }
+
+.screen-board {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.screen-board__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; margin-bottom: 14px;
+}
+.screen-board__name { font-size: 15px; font-weight: 700; }
+.screen-board__summary { font-size: 11px; color: var(--ad-text-muted); }
+
+.slot-track { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* 1枠。幅は枠の長さに比例（分×係数） */
+.slot {
+  border: 1px solid var(--ad-border);
+  border-radius: 8px;
+  background: var(--ad-surface2);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 118px;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.slot--reserve { border-style: dashed; border-color: rgba(74,222,128,0.5); }
+.slot--ok    { border-color: var(--ad-green); box-shadow: 0 0 0 2px rgba(74,222,128,0.25) inset; }
+.slot--over  { border-color: var(--ad-red);   box-shadow: 0 0 0 2px rgba(232,33,43,0.25) inset; }
+.slot--over.slot--shake { animation: slot-shake 0.3s; }
+
+@keyframes slot-shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.slot__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px; font-size: 11px; color: var(--ad-text-muted);
+}
+.slot__order { font-weight: 700; color: var(--ad-text-sub); }
+.slot__len { font-variant-numeric: tabular-nums; }
+
+.slot__empty {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ad-text-muted); font-size: 12px;
+  border: 1px dashed var(--ad-border); border-radius: 6px;
+  min-height: 54px;
+}
+.slot--reserve .slot__empty { color: var(--ad-green); opacity: 0.7; }
+
+.slot__movie { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.slot__movie-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.slot__movie-title { font-size: 13px; font-weight: 700; color: var(--ad-text); }
+.slot__clear {
+  background: none; border: none; color: var(--ad-text-muted);
+  cursor: pointer; font-size: 15px; line-height: 1; padding: 0 2px;
+}
+.slot__clear:hover { color: var(--ad-red); }
+
+/* 占有バー（上映＋掃除＋飽き枠） */
+.slot__bar { display: flex; height: 10px; border-radius: 3px; overflow: hidden; background: var(--ad-surface3); }
+.slot__bar-show  { background: var(--ad-green); }
+.slot__bar-clean { background: repeating-linear-gradient(45deg, var(--ad-text-muted) 0 3px, transparent 3px 6px); }
+.slot__bar-idle  { background: transparent; }
+
+.slot__meta { font-size: 10px; color: var(--ad-text-muted); font-variant-numeric: tabular-nums; }
+.slot__meta b { color: var(--ad-text-sub); font-weight: 700; }
+
+/* 映画プール（右側・ドラッグ元） */
+.movie-pool {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+  padding: 16px;
+  position: sticky;
+  top: 76px;
+}
+.movie-pool__title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.movie-pool__hint { font-size: 11px; color: var(--ad-text-muted); margin-bottom: 14px; line-height: 1.5; }
+.movie-pool__list { display: flex; flex-direction: column; gap: 10px; }
+
+.movie-chip {
+  background: var(--ad-surface2);
+  border: 1px solid var(--ad-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: grab;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.movie-chip:hover { border-color: var(--ad-green); background: var(--ad-surface3); }
+.movie-chip:active { cursor: grabbing; }
+.movie-chip--dragging { opacity: 0.4; }
+.movie-chip__title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.movie-chip__meta { font-size: 11px; color: var(--ad-text-muted); font-variant-numeric: tabular-nums; }
+
+/* トースト（振替通知デモ・エラー通知） */
+.sched-toast {
+  position: fixed;
+  right: 24px; bottom: 24px;
+  max-width: 340px;
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-left: 3px solid var(--ad-green);
+  border-radius: 8px;
+  padding: 14px 16px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  font-size: 13px; color: var(--ad-text); line-height: 1.5;
+  z-index: 1200;
+  animation: sched-toast-in 0.2s ease;
+}
+.sched-toast--error { border-left-color: var(--ad-red); }
+.sched-toast[hidden] { display: none; }
+.sched-toast__title { font-weight: 700; margin-bottom: 4px; }
+.sched-toast--error .sched-toast__title { color: var(--ad-red); }
+.sched-toast:not(.sched-toast--error) .sched-toast__title { color: var(--ad-green); }
+
+@keyframes sched-toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 警報バナー（障害発生中に画面上部で点滅） ── */
+.alert-banner {
+  display: flex; flex-direction: column; gap: 6px;
+  background: rgba(232,33,43,0.12);
+  border: 1px solid var(--ad-red);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  animation: alert-pulse 1.1s ease-in-out infinite;
+}
+.alert-banner[hidden] { display: none; }
+.alert-banner__row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.alert-banner__tag {
+  background: var(--ad-red); color: #fff; font-weight: 700;
+  font-size: 11px; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.08em;
+}
+.alert-banner__text { color: var(--ad-text); }
+.alert-banner__text b { color: var(--ad-red); }
+
+@keyframes alert-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(232,33,43,0.0); }
+  50%     { box-shadow: 0 0 0 4px rgba(232,33,43,0.18); }
+}
+
+/* ── タイムライン（横=営業時間 / 縦=スクリーン） ── */
+.tl-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+  background: var(--ad-surface);
+}
+.tl-grid { min-width: max-content; }
+
+.tl-ruler { display: flex; border-bottom: 1px solid var(--ad-border); height: 26px; }
+.tl-ruler__spacer { flex-shrink: 0; border-right: 1px solid var(--ad-border); }
+.tl-ruler__scale { position: relative; }
+.tl-ruler__tick {
+  position: absolute; top: 6px;
+  font-size: 10px; color: var(--ad-text-muted);
+  transform: translateX(-50%);
+  font-variant-numeric: tabular-nums;
+}
+
+.tl-row { display: flex; border-bottom: 1px solid var(--ad-border); }
+.tl-row:last-child { border-bottom: none; }
+.tl-row--down { background: rgba(232,33,43,0.05); }
+
+.tl-row__label {
+  flex-shrink: 0;
+  border-right: 1px solid var(--ad-border);
+  padding: 8px 10px;
+  display: flex; flex-direction: column; gap: 3px; justify-content: center;
+}
+.tl-row__name { font-size: 13px; font-weight: 700; }
+.tl-row__status { font-size: 10px; }
+.tl-row__status--ok   { color: var(--ad-green); }
+.tl-row__status--down { color: var(--ad-red); font-weight: 700; }
+
+.tl-track {
+  position: relative;
+  height: 66px;
+  background-image: repeating-linear-gradient(90deg, var(--ad-border) 0 1px, transparent 1px var(--tl-hour, 72px));
+}
+
+/* 現在時刻ライン */
+.tl-now {
+  position: absolute; top: 0; bottom: 0; width: 2px;
+  background: var(--ad-red); z-index: 3; pointer-events: none;
+}
+.tl-now::after {
+  content: attr(data-label);
+  position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; color: #fff; background: var(--ad-red);
+  padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+}
+
+/* 障害オーバーレイ（行全体を使用不可に） */
+.tl-row__down-overlay {
+  position: absolute; top: 6px; bottom: 6px; left: 4px; right: 4px;
+  background: repeating-linear-gradient(45deg, rgba(232,33,43,0.18) 0 8px, rgba(232,33,43,0.30) 8px 16px);
+  border: 1px solid var(--ad-red);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.05em;
+  z-index: 4; pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+/* 1枠（タイムライン上に絶対配置） */
+.tl-slot {
+  position: absolute; top: 9px; height: 48px;
+  border: 1px solid var(--ad-border);
+  border-radius: 6px; overflow: hidden;
+  display: flex; z-index: 2;
+  transition: box-shadow 0.12s, border-color 0.12s;
+}
+.tl-slot--reserve { border-style: dashed; border-color: rgba(74,222,128,0.6); }
+.tl-slot--empty {
+  background: var(--ad-surface2);
+  align-items: center; justify-content: center;
+}
+.tl-slot--empty .tl-slot__empty-label { font-size: 11px; color: var(--ad-text-muted); }
+.tl-slot--reserve.tl-slot--empty .tl-slot__empty-label { color: var(--ad-green); opacity: 0.75; }
+.tl-slot--ok   { border-color: var(--ad-green); box-shadow: 0 0 0 2px rgba(74,222,128,0.3) inset; }
+.tl-slot--over { border-color: var(--ad-red);   box-shadow: 0 0 0 2px rgba(232,33,43,0.3) inset; }
+.tl-slot--over.tl-slot--shake { animation: slot-shake 0.3s; }
+
+@keyframes slot-shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* 枠内の占有セグメント（上映／掃除／飽き枠） */
+.tl-seg { height: 100%; flex-shrink: 0; }
+.tl-seg--show  { background: var(--ad-green); }
+.tl-seg--clean { background: repeating-linear-gradient(45deg, rgba(85,92,114,0.9) 0 3px, rgba(85,92,114,0.3) 3px 6px); }
+.tl-seg--idle  { background: var(--ad-surface3); flex: 1; }
+
+.tl-slot__title {
+  position: absolute; left: 6px; top: 5px;
+  font-size: 11px; font-weight: 700; color: #0D0F14;
+  max-width: calc(100% - 24px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  pointer-events: none;
+}
+.tl-slot__sub {
+  position: absolute; left: 6px; bottom: 4px;
+  font-size: 9px; color: rgba(13,15,20,0.7); font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.tl-slot__clear {
+  position: absolute; top: 2px; right: 2px;
+  background: rgba(13,15,20,0.55); color: #fff; border: none;
+  width: 16px; height: 16px; border-radius: 4px; line-height: 1;
+  cursor: pointer; font-size: 12px; padding: 0; z-index: 3;
+}
+.tl-slot__clear:hover { background: var(--ad-red); }
+.tl-slot__transfer {
+  position: absolute; bottom: 2px; right: 2px;
+  background: var(--ad-red); color: #fff; border: none;
+  font-size: 9px; padding: 2px 6px; border-radius: 4px; cursor: pointer; z-index: 3;
+}
+.tl-slot__transfer:hover { background: var(--ad-red-dark); }
+
+/* ── 障害・警報 発生パネル ── */
+.alert-panel {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 20px;
+}
+.alert-panel__head { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.alert-panel__hint { font-size: 11px; color: var(--ad-text-muted); margin-bottom: 14px; }
+.alert-panel__form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.alert-type-btn {
+  background: var(--ad-surface2); border: 1px solid var(--ad-border);
+  color: var(--ad-text); font-family: inherit; font-size: 12px;
+  padding: 8px 14px; border-radius: 6px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.alert-type-btn:hover { border-color: var(--ad-red); background: rgba(232,33,43,0.08); }
+.alert-panel__active { display: flex; flex-direction: column; gap: 8px; }
+.alert-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: rgba(232,33,43,0.08); border: 1px solid rgba(232,33,43,0.4);
+  border-radius: 6px; padding: 8px 12px; font-size: 12px;
+}
+.alert-item__text b { color: var(--ad-red); }
+.alert-item__clear {
+  background: var(--ad-surface2); border: 1px solid var(--ad-border);
+  color: var(--ad-text-sub); font-size: 11px; padding: 5px 12px;
+  border-radius: 5px; cursor: pointer; font-family: inherit;
+}
+.alert-item__clear:hover { border-color: var(--ad-green); color: var(--ad-green); }
+.alert-panel__none { font-size: 12px; color: var(--ad-text-muted); }
+
+/* ════════════════════════════════════════════════
    レスポンシブ
 ════════════════════════════════════════════════ */
 @media (max-width: 768px) {
@@ -568,6 +897,8 @@ body {
   .pos-layout { grid-template-columns: 1fr; }
   .pos-cart { position: static; }
   .qr-modal__row { font-size: 14px; }
+  .sched-layout { grid-template-columns: 1fr; }
+  .movie-pool { position: static; }
 }
 
 @media (max-width: 480px) {

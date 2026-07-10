@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スケジュール枠割り当て | HAL CINEMA 管理者画面</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body data-page="schedule">
+
+<div class="admin-screen">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <span class="sidebar__brand">HAL CINEMA</span>
+      <span class="sidebar__sub">管理者画面</span>
+    </div>
+    <nav class="sidebar__nav">
+      <p class="sidebar__section-label">概要</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+      </ul>
+      <p class="sidebar__section-label">スケジュール</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
+      </ul>
+      <p class="sidebar__section-label">端末切り替え</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
+        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
+        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+      </ul>
+      <p class="sidebar__section-label">システム</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+        <li><a class="sidebar__item" data-page="logs" href="logs.html">ログ</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-col">
+
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__menu-btn" id="sidebar-toggle" aria-label="メニュー">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="topbar__breadcrumb">
+          <span class="topbar__breadcrumb-root">管理者画面</span>
+          <span class="topbar__breadcrumb-sep">›</span>
+          <span class="topbar__breadcrumb-current">スケジュール枠割り当て</span>
+        </nav>
+      </div>
+      <div class="topbar__right">
+        <span class="topbar__user" id="topbar-user">admin</span>
+        <button class="topbar__logout" id="logout-btn">ログアウト</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <section class="page-section">
+        <h1 class="page-title">スケジュール枠割り当て</h1>
+        <p style="color:var(--ad-text-muted); font-size:12px; margin:-14px 0 18px;">
+          横軸＝1日の営業時間、縦軸＝スクリーン。どの時間帯にどのスクリーンが空いているかを一覧できます。右の映画を枠へドラッグして割り当て（掃除20分込みで枠に収まらない映画はドロップ不可）。
+        </p>
+
+        <!-- 障害発生中バナー（点滅） -->
+        <div class="alert-banner" id="alert-banner" hidden>
+          <div class="alert-banner__row">
+            <span class="alert-banner__tag">警報</span>
+            <span class="alert-banner__text" id="alert-banner-text"></span>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <label style="font-size:12px; color:var(--ad-text-sub);">上映日</label>
+          <input class="toolbar__search" type="date" id="sched-date" value="2026-07-11" style="min-width:auto;">
+          <span style="flex:1;"></span>
+          <span style="font-size:12px; color:var(--ad-text-muted);">掃除時間：一律 <b style="color:var(--ad-text-sub);">20分</b></span>
+        </div>
+
+        <div class="sched-legend">
+          <span class="sched-legend__item"><span class="sched-legend__swatch sched-legend__swatch--show"></span>上映</span>
+          <span class="sched-legend__item"><span class="sched-legend__swatch sched-legend__swatch--clean"></span>掃除</span>
+          <span class="sched-legend__item"><span class="sched-legend__swatch sched-legend__swatch--idle"></span>飽き枠（空き時間）</span>
+          <span class="sched-legend__item"><span class="sched-legend__swatch sched-legend__swatch--reserve"></span>予備枠（振替専用）</span>
+        </div>
+
+        <div class="sched-layout">
+          <div>
+            <div class="tl-scroll">
+              <div class="tl-grid" id="tl-grid"><!-- タイムライン描画 --></div>
+            </div>
+
+            <!-- 障害・警報の発生（デモ） -->
+            <div class="alert-panel">
+              <p class="alert-panel__head">障害・警報の発生（デモ）</p>
+              <p class="alert-panel__hint">スクリーンを選んで種類を押すと、上のタイムラインでそのスクリーンが「使用不可」になります。見ため確認用です。</p>
+              <div class="alert-panel__form">
+                <select class="toolbar__select" id="alert-screen"></select>
+                <button class="alert-type-btn" data-type="雨漏り">雨漏り</button>
+                <button class="alert-type-btn" data-type="嘔吐">嘔吐</button>
+                <button class="alert-type-btn" data-type="機械トラブル">機械トラブル</button>
+                <button class="alert-type-btn" data-type="停電">停電</button>
+              </div>
+              <div class="alert-panel__active" id="alert-active"></div>
+            </div>
+          </div>
+
+          <aside class="movie-pool">
+            <p class="movie-pool__title">上映する映画</p>
+            <p class="movie-pool__hint">枠へドラッグして割り当て。同じ映画を複数の枠に入れられます。</p>
+            <div class="movie-pool__list" id="movie-pool-list"></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="sched-toast" id="sched-toast" hidden>
+  <div class="sched-toast__title" id="sched-toast-title"></div>
+  <div id="sched-toast-body"></div>
+</div>
+
+<script src="admin-common.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var CLEAN = 20;          // 掃除時間（分）一律
+  var DAY_START = 9 * 60;  // 09:00
+  var DAY_END   = 24 * 60; // 24:00
+  var SCALE = 1.2;         // px / 分
+  var LABEL_W = 96;        // スクリーン名列の幅
+  var NOW = 15 * 60;       // デモ用「現在時刻」15:00
+
+  var DAY_MIN = DAY_END - DAY_START;
+  var DAY_W = DAY_MIN * SCALE;
+  var HOUR_W = 60 * SCALE;
+
+  // ── ダミーデータ ──────────────────────────────
+  var movies = [
+    { id: 1, title: '映画1', dur: 150 }, // 2時間30分
+    { id: 2, title: '映画2', dur: 90 },  // 1時間30分
+    { id: 3, title: '映画3', dur: 60 },  // 1時間
+    { id: 4, title: '映画4（大長編）', dur: 180 }, // 3時間 → 3時間枠には掃除込みで入らない
+  ];
+  var movieById = {};
+  movies.forEach(function (m) { movieById[m.id] = m; });
+
+  function toMin(hhmm) { var p = hhmm.split(':'); return (+p[0]) * 60 + (+p[1]); }
+  function fmtLen(min) {
+    var h = Math.floor(min / 60), m = min % 60;
+    return (h ? h + '時間' : '') + (m ? m + '分' : '') || '0分';
+  }
+  function fits(movie, slot) { return movie.dur + CLEAN <= slot.len; }
+
+  // type: 0=通常枠 / 1=予備枠  len: 分（180=3時間 / 240=4時間 / 150=2.5時間）
+  // alert: null | { type }
+  var screens = [
+    { id: 1, name: 'スクリーン1', alert: null, slots: [
+      { order: 1, start: '09:30', len: 180, type: 0, movieId: 2 },
+      { order: 2, start: '13:00', len: 180, type: 0, movieId: null },
+      { order: 3, start: '16:30', len: 180, type: 0, movieId: null },
+      { order: 4, start: '20:00', len: 240, type: 0, movieId: 1 },
+    ]},
+    { id: 2, name: 'スクリーン2', alert: null, slots: [
+      { order: 1, start: '10:00', len: 180, type: 0, movieId: 3 },
+      { order: 2, start: '13:30', len: 240, type: 0, movieId: null },
+      { order: 3, start: '18:00', len: 180, type: 0, movieId: null },
+      { order: 4, start: '21:30', len: 150, type: 1, movieId: null }, // 予備枠
+    ]},
+  ];
+  var screenById = {};
+  screens.forEach(function (s) { screenById[s.id] = s; });
+
+  // ── 映画プール ───────────────────────────────
+  var poolEl = document.getElementById('movie-pool-list');
+  function renderPool() {
+    poolEl.innerHTML = '';
+    movies.forEach(function (m) {
+      var chip = document.createElement('div');
+      chip.className = 'movie-chip';
+      chip.draggable = true;
+      chip.dataset.movieId = m.id;
+      chip.innerHTML =
+        '<div class="movie-chip__title">' + m.title + '</div>' +
+        '<div class="movie-chip__meta">上映 ' + fmtLen(m.dur) + ' ＋ 掃除' + CLEAN + '分 ＝ ' + (m.dur + CLEAN) + '分</div>';
+      chip.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/plain', String(m.id));
+        e.dataTransfer.effectAllowed = 'copy';
+        chip.classList.add('movie-chip--dragging');
+      });
+      chip.addEventListener('dragend', function () { chip.classList.remove('movie-chip--dragging'); });
+      poolEl.appendChild(chip);
+    });
+  }
+
+  // ── タイムライン ─────────────────────────────
+  var gridEl = document.getElementById('tl-grid');
+  function renderTimeline() {
+    gridEl.innerHTML = '';
+
+    // 時間ルーラー
+    var ruler = document.createElement('div');
+    ruler.className = 'tl-ruler';
+    var spacer = document.createElement('div');
+    spacer.className = 'tl-ruler__spacer';
+    spacer.style.width = LABEL_W + 'px';
+    ruler.appendChild(spacer);
+    var scale = document.createElement('div');
+    scale.className = 'tl-ruler__scale';
+    scale.style.width = DAY_W + 'px';
+    for (var h = DAY_START; h <= DAY_END; h += 60) {
+      var tick = document.createElement('span');
+      tick.className = 'tl-ruler__tick';
+      tick.style.left = ((h - DAY_START) * SCALE) + 'px';
+      tick.textContent = (h / 60) + ':00';
+      scale.appendChild(tick);
+    }
+    ruler.appendChild(scale);
+    gridEl.appendChild(ruler);
+
+    // スクリーン行
+    screens.forEach(function (screen) {
+      var row = document.createElement('div');
+      row.className = 'tl-row' + (screen.alert ? ' tl-row--down' : '');
+
+      var label = document.createElement('div');
+      label.className = 'tl-row__label';
+      label.style.width = LABEL_W + 'px';
+      label.innerHTML =
+        '<span class="tl-row__name">' + screen.name + '</span>' +
+        (screen.alert
+          ? '<span class="tl-row__status tl-row__status--down">使用不可</span>'
+          : '<span class="tl-row__status tl-row__status--ok">使用可</span>');
+      row.appendChild(label);
+
+      var track = document.createElement('div');
+      track.className = 'tl-track';
+      track.style.width = DAY_W + 'px';
+      track.style.setProperty('--tl-hour', HOUR_W + 'px');
+
+      // 現在時刻ライン
+      if (NOW >= DAY_START && NOW <= DAY_END) {
+        var now = document.createElement('div');
+        now.className = 'tl-now';
+        now.style.left = ((NOW - DAY_START) * SCALE) + 'px';
+        now.dataset.label = '現在 ' + (NOW / 60) + ':00';
+        track.appendChild(now);
+      }
+
+      // 枠
+      screen.slots.forEach(function (slot) {
+        track.appendChild(renderSlot(screen, slot));
+      });
+
+      // 障害オーバーレイ
+      if (screen.alert) {
+        var ov = document.createElement('div');
+        ov.className = 'tl-row__down-overlay';
+        ov.textContent = '使用不可：' + screen.alert.type;
+        track.appendChild(ov);
+      }
+
+      row.appendChild(track);
+      gridEl.appendChild(row);
+    });
+  }
+
+  function renderSlot(screen, slot) {
+    var el = document.createElement('div');
+    var startMin = toMin(slot.start);
+    el.style.left = ((startMin - DAY_START) * SCALE) + 'px';
+    el.style.width = (slot.len * SCALE) + 'px';
+
+    if (slot.movieId) {
+      var m = movieById[slot.movieId];
+      var idle = slot.len - m.dur - CLEAN;
+      el.className = 'tl-slot' + (slot.type === 1 ? ' tl-slot--reserve' : '');
+      el.innerHTML =
+        '<div class="tl-seg tl-seg--show" style="width:' + (m.dur * SCALE) + 'px"></div>' +
+        '<div class="tl-seg tl-seg--clean" style="width:' + (CLEAN * SCALE) + 'px"></div>' +
+        '<div class="tl-seg tl-seg--idle"></div>' +
+        '<span class="tl-slot__title">' + m.title + '</span>' +
+        '<span class="tl-slot__sub">' + slot.start + '〜 飽き' + (idle > 0 ? fmtLen(idle) : '0分') + '</span>' +
+        '<button class="tl-slot__clear" title="空にする">×</button>' +
+        (slot.type === 0 && hasEmptyReserve(screen) && !screen.alert
+          ? '<button class="tl-slot__transfer">予備枠へ振替</button>' : '');
+
+      el.querySelector('.tl-slot__clear').addEventListener('click', function () { slot.movieId = null; rerender(); });
+      var tb = el.querySelector('.tl-slot__transfer');
+      if (tb) tb.addEventListener('click', function () { transferToReserve(screen, slot); });
+    } else {
+      el.className = 'tl-slot tl-slot--empty' + (slot.type === 1 ? ' tl-slot--reserve' : '');
+      el.innerHTML = '<span class="tl-slot__empty-label">' +
+        (slot.type === 1 ? '予備枠 ' : '空き枠 ') + slot.start + '・' + fmtLen(slot.len) + '</span>';
+    }
+
+    // ドロップ受け入れ
+    el.addEventListener('dragover', function (e) {
+      var m = dragMovie(e);
+      if (!m) return;
+      e.preventDefault();
+      el.classList.remove('tl-slot--ok', 'tl-slot--over');
+      var ok = fits(m, slot) && !screen.alert;
+      el.classList.add(ok ? 'tl-slot--ok' : 'tl-slot--over');
+      e.dataTransfer.dropEffect = ok ? 'copy' : 'none';
+    });
+    el.addEventListener('dragleave', function () { el.classList.remove('tl-slot--ok', 'tl-slot--over'); });
+    el.addEventListener('drop', function (e) {
+      e.preventDefault();
+      var m = dragMovie(e);
+      el.classList.remove('tl-slot--ok');
+      if (!m) return;
+      if (screen.alert) {
+        rejectDrop(el);
+        toast('このスクリーンは使用不可です', screen.name + ' は「' + screen.alert.type + '」で使用不可です。障害を解除するか、別スクリーンの枠へ割り当ててください。', true);
+        return;
+      }
+      if (!fits(m, slot)) {
+        rejectDrop(el);
+        toast('この枠には入れられません', m.title + '（掃除込み ' + (m.dur + CLEAN) + '分）は ' + fmtLen(slot.len) + 'の枠に収まりません。', true);
+        return;
+      }
+      slot.movieId = m.id;
+      rerender();
+    });
+
+    return el;
+  }
+
+  function rejectDrop(el) {
+    el.classList.add('tl-slot--over', 'tl-slot--shake');
+    setTimeout(function () { el.classList.remove('tl-slot--over', 'tl-slot--shake'); }, 350);
+  }
+
+  function hasEmptyReserve(screen) {
+    return screen.slots.some(function (s) { return s.type === 1 && !s.movieId; });
+  }
+
+  function transferToReserve(screen, slot) {
+    var reserve = null;
+    for (var i = 0; i < screen.slots.length; i++) {
+      var s = screen.slots[i];
+      if (s.type === 1 && !s.movieId) { reserve = s; break; }
+    }
+    var m = movieById[slot.movieId];
+    if (!reserve) { toast('振替できません', '空いている予備枠がありません。', true); return; }
+    if (!fits(m, reserve)) { toast('振替できません', m.title + 'は予備枠（' + fmtLen(reserve.len) + '）に収まりません。', true); return; }
+    reserve.movieId = m.id;
+    slot.movieId = null;
+    rerender();
+    var n = Math.floor(Math.random() * 40) + 5;
+    toast('振替を予約者へ通知しました', m.title + ' を「' + slot.start + '」から予備枠「' + reserve.start + '」へ振替。予約者 ' + n + '名に「上映時刻/スクリーンが変わりました」を送信しました。', false);
+  }
+
+  // ドラッグ中の映画（dragover中は getData 不可なので dragging チップから取得）
+  function dragMovie(e) {
+    var id = e.dataTransfer.getData('text/plain');
+    if (!id) {
+      var dragging = document.querySelector('.movie-chip--dragging');
+      if (dragging) id = dragging.dataset.movieId;
+    }
+    return id ? movieById[Number(id)] : null;
+  }
+
+  // ── 障害・警報 ───────────────────────────────
+  var alertScreenSel = document.getElementById('alert-screen');
+  var alertActiveEl = document.getElementById('alert-active');
+  var alertBanner = document.getElementById('alert-banner');
+  var alertBannerText = document.getElementById('alert-banner-text');
+
+  function initAlertControls() {
+    alertScreenSel.innerHTML = screens.map(function (s) {
+      return '<option value="' + s.id + '">' + s.name + '</option>';
+    }).join('');
+    document.querySelectorAll('.alert-type-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var screen = screenById[Number(alertScreenSel.value)];
+        var type = btn.dataset.type;
+        screen.alert = { type: type };
+        var affected = screen.slots.filter(function (s) { return s.movieId; }).length;
+        rerender();
+        toast(screen.name + ' で障害発生', type + ' により使用不可。上映中/予定 ' + affected + '件は他スクリーンの空き枠へ振替が必要です。', true);
+      });
+    });
+  }
+
+  function renderAlerts() {
+    var active = screens.filter(function (s) { return s.alert; });
+    if (active.length === 0) {
+      alertActiveEl.innerHTML = '<p class="alert-panel__none">発生中の障害はありません。</p>';
+      alertBanner.hidden = true;
+      return;
+    }
+    alertActiveEl.innerHTML = '';
+    active.forEach(function (s) {
+      var item = document.createElement('div');
+      item.className = 'alert-item';
+      item.innerHTML =
+        '<span class="alert-item__text"><b>' + s.name + '</b>：' + s.alert.type + '（使用不可）</span>' +
+        '<button class="alert-item__clear">解除</button>';
+      item.querySelector('.alert-item__clear').addEventListener('click', function () {
+        s.alert = null;
+        rerender();
+        toast(s.name + ' の障害を解除', '使用可に戻しました。', false);
+      });
+      alertActiveEl.appendChild(item);
+    });
+    alertBanner.hidden = false;
+    alertBannerText.innerHTML = active.map(function (s) {
+      return '<b>' + s.name + '</b>：' + s.alert.type + '（使用不可）';
+    }).join(' ／ ');
+  }
+
+  // ── トースト ──
+  var toastEl = document.getElementById('sched-toast');
+  var toastTitle = document.getElementById('sched-toast-title');
+  var toastBody = document.getElementById('sched-toast-body');
+  var toastTimer = null;
+  function toast(title, body, isError) {
+    toastTitle.textContent = title;
+    toastBody.textContent = body;
+    toastEl.classList.toggle('sched-toast--error', !!isError);
+    toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.hidden = true; }, 4400);
+  }
+
+  function rerender() { renderTimeline(); renderAlerts(); }
+
+  renderPool();
+  initAlertControls();
+  rerender();
+});
+</script>
+</body>
+</html>
