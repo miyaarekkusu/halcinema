@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -50,7 +50,7 @@
       <h1 class="auth-title">ログイン</h1>
       <p class="auth-subtitle">会員アカウントでサインインしてください</p>
 
-      <form class="auth-form" action="#" method="post">
+      <form class="auth-form" action="#" method="post" novalidate>
 
         <!-- メールアドレス -->
         <div class="form-group">
@@ -106,6 +106,14 @@
         <a href="register.html">会員登録はこちら</a>
       </p>
 
+      <!-- 開発用：管理者画面へのテストログイン -->
+      <div class="auth-test">
+        <p class="auth-test__label">開発用</p>
+        <button type="button" id="test-admin-login-btn" class="btn btn-ghost btn-sm auth-test__btn">
+          テストログイン（管理者画面へ）
+        </button>
+      </div>
+
     </div>
   </main>
 
@@ -132,6 +140,8 @@
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script>
+    const API_BASE = 'http://localhost:8080';
+
     // パスワード表示トグル
     document.getElementById('toggle-password').addEventListener('click', function () {
       const input = document.getElementById('password');
@@ -148,6 +158,66 @@
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
           <circle cx="12" cy="12" r="3"/>`;
       }
+    });
+
+    // 管理者ログイン（暫定：クライアント側で判定。サーバー側に管理者APIができ次第置き換える）
+    const ADMIN_CREDENTIALS = [{ id: 'admin', password: 'halcinema2025' }];
+
+    function goToAdmin(id) {
+      sessionStorage.setItem('hal_admin_authed', 'true');
+      sessionStorage.setItem('hal_admin_id', id);
+      location.href = '../admin/index.html';
+    }
+
+    // ログインフォーム送信
+    document.querySelector('.auth-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      // 管理者IDでのログインはクライアント側で判定して管理者画面へ
+      const isAdmin = ADMIN_CREDENTIALS.some(function (c) { return c.id === email && c.password === password; });
+      if (isAdmin) {
+        goToAdmin(email);
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn') || document.querySelector('.auth-submit');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const res = await fetch(API_BASE + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error === 'invalid credentials'
+            ? 'メールアドレスまたはパスワードが正しくありません'
+            : 'ログインに失敗しました: ' + data.error);
+          if (submitBtn) submitBtn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem('hal_token',  data.token);
+        localStorage.setItem('hal_member', JSON.stringify(data.member));
+
+        const redirect = new URLSearchParams(location.search).get('redirect') || 'mypage.html';
+        location.href = redirect;
+
+      } catch (err) {
+        alert('サーバーに接続できませんでした。APIが起動しているか確認してください。');
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+
+    // 開発用：フォーム入力なしで即座に管理者画面へ
+    document.getElementById('test-admin-login-btn').addEventListener('click', function () {
+      goToAdmin('admin');
     });
   </script>
 

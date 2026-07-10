@@ -49,6 +49,17 @@ halcinema/
 │   └── sample.html       → 新規ページ作成用テンプレート
 ├── data/
 │   └── movies.json   → 映画データ（上映中6本・上映予定5本）
+├── admin/            → 管理者画面（html/login.html からログインして遷移）
+│   ├── admin.css          → 管理者画面共通CSS
+│   ├── admin-common.js    → 認証ガード・ログアウト・サイドバー・QRテスト共通JS
+│   ├── index.html         → ダッシュボード（情報表示のみ）
+│   ├── ticket.html        → 発券端末
+│   ├── food.html          → フード販売
+│   ├── goods.html         → グッズ販売
+│   ├── gate.html          → 入場ゲート
+│   ├── backyard.html      → バックヤード
+│   ├── settings.html      → 設定
+│   └── logs.html          → ログ
 ├── backend/          → Go APIサーバー（2次開発〜）
 │   ├── cmd/api/main.go        → エントリーポイント
 │   ├── internal/config/db.go → DB接続設定
@@ -166,6 +177,9 @@ halcinema/
 | 2026-06-23 | バックエンド初期構築（backend/ + Go API + Docker環境）       | Claude Code |
 | 2026-06-23 | schema.sql・docker-compose.yml・.env.example 作成            | Claude Code |
 | 2026-06-23 | note/database.txt 作成（DB接続・操作手順）                   | Claude Code |
+| 2026-07-10 | 管理者画面を admin/ フォルダとして新規作成（ダッシュボード＋7項目ページ）、html/login.html から管理者ID/パスワードでログイン→admin/へ遷移する仕組みを実装 | Claude Code |
+| 2026-07-10 | login.html に開発用テストログインボタンを追加。フード/グッズ/ゲートに詳細サブタブ（受付・受理中注文・在庫・POS・履歴／予約状態確認・通過管理・座席変更）を実装し、QR読み取りポップアップを全画面モーダルに変更 | Claude Code |
+| 2026-07-10 | 管理者画面の絵文字をすべて削除。今後の追加予定（QR実演＋発券プリンタ連携、チャットボット音声予約、DB要すり合わせ事項、ポイント拡張）を note/修正追加予定メモ.txt に追記 | Claude Code |
 
 ## 作成済みページ一覧
 
@@ -185,3 +199,5 @@ halcinema/
 | `html/theater.html`   | 劇場情報       | 🔲 未作成 |
 | `html/payment.html`   | 決済           | ✅ 完成 |
 | `html/ticket.html`    | 予約完了       | ✅ 完成 |
+| `admin/index.html`    | 管理者ダッシュボード | ✅ 完成（表示のみ、サーバー未接続） |
+| `admin/ticket.html` 他6ページ | 管理者各機能（発券・フード・グッズ・入場ゲート・バックヤード・設定・ログ） | 🔲 プレースホルダー（サーバー接続後に実装） |

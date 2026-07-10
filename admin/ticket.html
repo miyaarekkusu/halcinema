@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>発券端末 | HAL CINEMA 管理者画面</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body data-page="ticket">
+
+<div class="admin-screen">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <span class="sidebar__brand">HAL CINEMA</span>
+      <span class="sidebar__sub">管理者画面</span>
+    </div>
+    <nav class="sidebar__nav">
+      <p class="sidebar__section-label">概要</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+      </ul>
+      <p class="sidebar__section-label">端末切り替え</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
+        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
+        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+      </ul>
+      <p class="sidebar__section-label">システム</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+        <li><a class="sidebar__item" data-page="logs" href="logs.html">ログ</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-col">
+
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__menu-btn" id="sidebar-toggle" aria-label="メニュー">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="topbar__breadcrumb">
+          <span class="topbar__breadcrumb-root">管理者画面</span>
+          <span class="topbar__breadcrumb-sep">›</span>
+          <span class="topbar__breadcrumb-current">発券</span>
+        </nav>
+      </div>
+      <div class="topbar__right">
+        <button class="topbar__qr-btn" id="qr-test-btn">QRコード読み取り（テスト）</button>
+        <span class="topbar__user" id="topbar-user">admin</span>
+        <button class="topbar__logout" id="logout-btn">ログアウト</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <section class="page-section">
+        <h1 class="page-title">発券端末</h1>
+        <div class="toolbar">
+          <input class="toolbar__search" type="search" placeholder="予約番号・氏名で検索…">
+          <button class="toolbar__btn toolbar__btn--primary">チケット発券</button>
+        </div>
+        <div class="placeholder-box"><p>予約データ・発券機能はサーバー接続後に実装されます</p></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="qr-modal-backdrop" id="qr-modal-backdrop" hidden>
+  <div class="qr-modal">
+    <div class="qr-modal__head">
+      <span class="qr-modal__title">QRコード読み取り</span>
+      <button class="qr-modal__close" id="qr-modal-close" aria-label="閉じる">×</button>
+    </div>
+    <div class="qr-modal__body" id="qr-modal-body"></div>
+    <div class="qr-modal__actions">
+      <button class="toolbar__btn" id="qr-modal-cancel">閉じる</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="qr-modal-action">確認</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin-common.js" defer></script>
+</body>
+</html>

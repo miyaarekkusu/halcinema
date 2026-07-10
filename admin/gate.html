@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>入場ゲート | HAL CINEMA 管理者画面</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body data-page="gate">
+
+<div class="admin-screen">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <span class="sidebar__brand">HAL CINEMA</span>
+      <span class="sidebar__sub">管理者画面</span>
+    </div>
+    <nav class="sidebar__nav">
+      <p class="sidebar__section-label">概要</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+      </ul>
+      <p class="sidebar__section-label">端末切り替え</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
+        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
+        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+      </ul>
+      <p class="sidebar__section-label">システム</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+        <li><a class="sidebar__item" data-page="logs" href="logs.html">ログ</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-col">
+
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__menu-btn" id="sidebar-toggle" aria-label="メニュー">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="topbar__breadcrumb">
+          <span class="topbar__breadcrumb-root">管理者画面</span>
+          <span class="topbar__breadcrumb-sep">›</span>
+          <span class="topbar__breadcrumb-current">入場ゲート</span>
+        </nav>
+      </div>
+      <div class="topbar__right">
+        <button class="topbar__qr-btn" id="qr-test-btn">QRコード読み取り（テスト）</button>
+        <span class="topbar__user" id="topbar-user">admin</span>
+        <button class="topbar__logout" id="logout-btn">ログアウト</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <section class="page-section">
+        <h1 class="page-title">入場ゲート</h1>
+        <p style="color:var(--ad-text-muted); font-size:12px; margin:-14px 0 20px;">スタッフ用端末</p>
+
+        <div class="subtab-nav">
+          <button class="subtab-item subtab-item--active" data-tab="status">予約状態確認</button>
+          <button class="subtab-item" data-tab="passed">通過管理</button>
+          <button class="subtab-item" data-tab="seat-change">座席変更</button>
+        </div>
+
+        <!-- 予約状態確認 -->
+        <div class="subtab-pane" data-tab-pane="status">
+          <div class="toolbar">
+            <select class="toolbar__select">
+              <option>スクリーンを選択…</option>
+              <option>スクリーン 1</option>
+              <option>スクリーン 2</option>
+              <option>スクリーン 3</option>
+            </select>
+            <input class="toolbar__search" type="search" placeholder="予約番号・氏名で検索…">
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr><th>予約番号</th><th>氏名</th><th>座席</th><th>上映</th><th>状態</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>HAL-483920</td><td>山田 太郎</td><td>G-5</td><td>12:30 / スクリーン2</td><td><span class="badge badge--gray">未使用</span></td></tr>
+              <tr><td>HAL-483915</td><td>佐藤 花子</td><td>D-8</td><td>12:30 / スクリーン2</td><td><span class="badge badge--green">使用済み</span></td></tr>
+              <tr><td>HAL-483901</td><td>鈴木 一郎</td><td>H-2</td><td>15:00 / スクリーン1</td><td><span class="badge badge--gray">未使用</span></td></tr>
+            </tbody>
+          </table>
+          <div class="placeholder-box"><p>実データはサーバー接続後に反映されます</p></div>
+        </div>
+
+        <!-- 通過管理：ゲート通過後の識別 -->
+        <div class="subtab-pane" data-tab-pane="passed" hidden>
+          <div class="toolbar">
+            <select class="toolbar__select">
+              <option>すべて表示</option>
+              <option>未使用のみ</option>
+              <option>使用済みのみ</option>
+            </select>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr><th>予約番号</th><th>座席</th><th>通過時刻</th><th>スクリーン</th><th>状態</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>HAL-483915</td><td>D-8</td><td>12:24</td><td>スクリーン2</td><td><span class="badge badge--green">通過済み</span></td></tr>
+              <tr><td>HAL-483902</td><td>C-3</td><td>12:19</td><td>スクリーン2</td><td><span class="badge badge--green">通過済み</span></td></tr>
+              <tr><td>HAL-483920</td><td>G-5</td><td>—</td><td>スクリーン2</td><td><span class="badge badge--gray">未通過</span></td></tr>
+            </tbody>
+          </table>
+          <div class="placeholder-box"><p>ゲート通過ログの自動記録はサーバー接続後に実装されます</p></div>
+        </div>
+
+        <!-- 座席変更：座席選択画面のように直感的に操作 -->
+        <div class="subtab-pane" data-tab-pane="seat-change" hidden>
+          <div class="toolbar">
+            <input class="toolbar__search" type="search" id="seat-change-search" placeholder="予約番号で検索…">
+            <button class="toolbar__btn toolbar__btn--primary" id="seat-change-search-btn">検索</button>
+          </div>
+          <div class="placeholder-box" id="seat-change-info" style="display:none; padding:16px 24px; text-align:left;"></div>
+          <div id="seatmap-root"></div>
+          <div class="toolbar" style="justify-content:flex-end; margin-top:8px;">
+            <button class="toolbar__btn toolbar__btn--primary" id="seat-confirm-btn" disabled>この座席に変更を確定</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="qr-modal-backdrop" id="qr-modal-backdrop" hidden>
+  <div class="qr-modal">
+    <div class="qr-modal__head">
+      <span class="qr-modal__title">QRコード読み取り</span>
+      <button class="qr-modal__close" id="qr-modal-close" aria-label="閉じる">×</button>
+    </div>
+    <div class="qr-modal__body" id="qr-modal-body"></div>
+    <div class="qr-modal__actions">
+      <button class="toolbar__btn" id="qr-modal-cancel">閉じる</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="qr-modal-action">確認</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin-common.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var searchBtn   = document.getElementById('seat-change-search-btn');
+    var infoBox     = document.getElementById('seat-change-info');
+    var seatmapRoot = document.getElementById('seatmap-root');
+    var confirmBtn  = document.getElementById('seat-confirm-btn');
+
+    function loadReservation() {
+      var rows = 'ABCDEFGH';
+      var current = rows[Math.floor(Math.random() * rows.length)] + '-' + (Math.floor(Math.random() * 12) + 1);
+      var resNo = 'HAL-' + String(Math.floor(Math.random() * 900000) + 100000);
+
+      infoBox.style.display = 'block';
+      infoBox.innerHTML = '<p>予約番号 <strong>' + resNo + '</strong>／現在の座席 <strong>' + current + '</strong><br>作品：サンプルムービー ／ 12:30～14:45 ／ スクリーン 2</p>';
+
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'この座席に変更を確定';
+
+      window.AdminUI.initSeatMap({
+        root: seatmapRoot,
+        rows: 8,
+        cols: 12,
+        currentSeat: current,
+        takenRate: 0.25,
+        confirmBtn: confirmBtn,
+        onConfirm: function (newSeat) {
+          confirmBtn.textContent = '' + newSeat + ' へ変更しました';
+          confirmBtn.disabled = true;
+        },
+      });
+    }
+
+    searchBtn.addEventListener('click', loadReservation);
+    loadReservation();
+  });
+</script>
+</body>
+</html>

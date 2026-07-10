@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>フード販売 | HAL CINEMA 管理者画面</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body data-page="food">
+
+<div class="admin-screen">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <span class="sidebar__brand">HAL CINEMA</span>
+      <span class="sidebar__sub">管理者画面</span>
+    </div>
+    <nav class="sidebar__nav">
+      <p class="sidebar__section-label">概要</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+      </ul>
+      <p class="sidebar__section-label">端末切り替え</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
+        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
+        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+      </ul>
+      <p class="sidebar__section-label">システム</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+        <li><a class="sidebar__item" data-page="logs" href="logs.html">ログ</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-col">
+
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__menu-btn" id="sidebar-toggle" aria-label="メニュー">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="topbar__breadcrumb">
+          <span class="topbar__breadcrumb-root">管理者画面</span>
+          <span class="topbar__breadcrumb-sep">›</span>
+          <span class="topbar__breadcrumb-current">フード</span>
+        </nav>
+      </div>
+      <div class="topbar__right">
+        <button class="topbar__qr-btn" id="qr-test-btn">QRコード読み取り（テスト）</button>
+        <span class="topbar__user" id="topbar-user">admin</span>
+        <button class="topbar__logout" id="logout-btn">ログアウト</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <section class="page-section">
+        <h1 class="page-title">フード販売</h1>
+        <p style="color:var(--ad-text-muted); font-size:12px; margin:-14px 0 20px;">スタッフ用端末 ／ QRコードを読み取ると事前注文の受け渡し画面が優先表示されます</p>
+
+        <div class="subtab-nav">
+          <button class="subtab-item subtab-item--active" data-tab="reception">受付</button>
+          <button class="subtab-item" data-tab="processing">受理中注文</button>
+          <button class="subtab-item" data-tab="inventory">在庫</button>
+          <button class="subtab-item" data-tab="pos">POS（店頭販売）</button>
+          <button class="subtab-item" data-tab="history">履歴</button>
+        </div>
+
+        <!-- 受付：事前注文の受け渡し -->
+        <div class="subtab-pane" data-tab-pane="reception">
+          <div class="toolbar">
+            <input class="toolbar__search" type="search" placeholder="注文番号で検索…">
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr><th>注文番号</th><th>内容</th><th>金額</th><th>状態</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>F-483920</td>
+                <td>ポップコーン(L) ×1 / コーラ(M) ×2</td>
+                <td class="numeric">¥1,450</td>
+                <td><span class="badge badge--green">準備完了</span></td>
+                <td><button class="toolbar__btn toolbar__btn--primary">受け渡し</button></td>
+              </tr>
+              <tr>
+                <td>F-483915</td>
+                <td>ナチョス ×1</td>
+                <td class="numeric">¥600</td>
+                <td><span class="badge badge--yellow">調理中</span></td>
+                <td><button class="toolbar__btn" disabled>受け渡し</button></td>
+              </tr>
+              <tr>
+                <td>F-483901</td>
+                <td>ホットドッグ ×2 / コーラ(L) ×1</td>
+                <td class="numeric">¥1,300</td>
+                <td><span class="badge badge--green">準備完了</span></td>
+                <td><button class="toolbar__btn toolbar__btn--primary">受け渡し</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="placeholder-box"><p>実データ・受け渡し操作はサーバー接続後に反映されます</p></div>
+        </div>
+
+        <!-- 受理中注文 -->
+        <div class="subtab-pane" data-tab-pane="processing" hidden>
+          <table class="admin-table">
+            <thead>
+              <tr><th>注文番号</th><th>内容</th><th>受付時刻</th><th>状態</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>F-483915</td><td>ナチョス ×1</td><td>14:02</td><td><span class="badge badge--yellow">調理中</span></td></tr>
+              <tr><td>F-483918</td><td>ポップコーン(M) ×2</td><td>14:05</td><td><span class="badge badge--yellow">調理中</span></td></tr>
+              <tr><td>F-483920</td><td>ポップコーン(L) ×1 / コーラ(M) ×2</td><td>14:08</td><td><span class="badge badge--green">準備完了</span></td></tr>
+            </tbody>
+          </table>
+          <div class="placeholder-box"><p>注文の受理〜調理状況の更新はサーバー接続後に実装されます</p></div>
+        </div>
+
+        <!-- 在庫 -->
+        <div class="subtab-pane" data-tab-pane="inventory" hidden>
+          <table class="admin-table">
+            <thead>
+              <tr><th>商品名</th><th>在庫数</th><th>状態</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>ポップコーン（コーン豆）</td><td class="numeric">42 kg</td><td><span class="badge badge--green">十分</span></td></tr>
+              <tr><td>コーラ（カップ）</td><td class="numeric">18</td><td><span class="badge badge--yellow">残りわずか</span></td></tr>
+              <tr><td>ナチョス用チーズソース</td><td class="numeric">0</td><td><span class="badge badge--red">欠品</span></td></tr>
+              <tr><td>ホットドッグバンズ</td><td class="numeric">65</td><td><span class="badge badge--green">十分</span></td></tr>
+            </tbody>
+          </table>
+          <div class="placeholder-box"><p>在庫の増減・発注管理はサーバー接続後に実装されます</p></div>
+        </div>
+
+        <!-- POS：店頭で直接購入する人向け -->
+        <div class="subtab-pane" data-tab-pane="pos" hidden id="food-pos-pane">
+          <div class="pos-layout">
+            <div class="pos-products">
+              <button class="pos-product" data-name="ポップコーン(S)" data-price="400"><span class="pos-product__name">ポップコーン(S)</span><span class="pos-product__price">¥400</span></button>
+              <button class="pos-product" data-name="ポップコーン(L)" data-price="600"><span class="pos-product__name">ポップコーン(L)</span><span class="pos-product__price">¥600</span></button>
+              <button class="pos-product" data-name="コーラ(M)" data-price="350"><span class="pos-product__name">コーラ(M)</span><span class="pos-product__price">¥350</span></button>
+              <button class="pos-product" data-name="コーラ(L)" data-price="450"><span class="pos-product__name">コーラ(L)</span><span class="pos-product__price">¥450</span></button>
+              <button class="pos-product" data-name="ナチョス" data-price="600"><span class="pos-product__name">ナチョス</span><span class="pos-product__price">¥600</span></button>
+              <button class="pos-product" data-name="ホットドッグ" data-price="500"><span class="pos-product__name">ホットドッグ</span><span class="pos-product__price">¥500</span></button>
+            </div>
+            <div class="pos-cart">
+              <p class="pos-cart__title">会計中の内容</p>
+              <div class="pos-cart__list"></div>
+              <p class="pos-cart__empty">商品を選択してください</p>
+              <div class="pos-cart__total"><span>合計</span><span class="pos-cart__total-value">¥0</span></div>
+              <button class="toolbar__btn toolbar__btn--primary pos-checkout-btn" style="width:100%;" disabled>会計する</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 履歴 -->
+        <div class="subtab-pane" data-tab-pane="history" hidden>
+          <table class="admin-table">
+            <thead>
+              <tr><th>伝票番号</th><th>日時</th><th>内容</th><th>金額</th><th>担当</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>F-483890</td><td>13:40</td><td>ポップコーン(S) ×1</td><td class="numeric">¥400</td><td>admin</td></tr>
+              <tr><td>F-483885</td><td>13:22</td><td>コーラ(L) ×2</td><td class="numeric">¥900</td><td>admin</td></tr>
+              <tr><td>F-483870</td><td>12:58</td><td>ホットドッグ ×1 / コーラ(M) ×1</td><td class="numeric">¥850</td><td>admin</td></tr>
+            </tbody>
+          </table>
+          <div class="placeholder-box"><p>過去の販売履歴はサーバー接続後にすべて表示されます</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="qr-modal-backdrop" id="qr-modal-backdrop" hidden>
+  <div class="qr-modal">
+    <div class="qr-modal__head">
+      <span class="qr-modal__title">QRコード読み取り</span>
+      <button class="qr-modal__close" id="qr-modal-close" aria-label="閉じる">×</button>
+    </div>
+    <div class="qr-modal__body" id="qr-modal-body"></div>
+    <div class="qr-modal__actions">
+      <button class="toolbar__btn" id="qr-modal-cancel">閉じる</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="qr-modal-action">確認</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin-common.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.AdminUI.initPosCart(document.getElementById('food-pos-pane'));
+  });
+</script>
+</body>
+</html>

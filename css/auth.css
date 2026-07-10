@@ -211,6 +211,25 @@
   color: var(--c-red-dark);
 }
 
+/* 開発用テストログイン */
+.auth-test {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--c-border);
+  text-align: center;
+}
+
+.auth-test__label {
+  font-size: 10px;
+  color: var(--c-text-muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.auth-test__btn {
+  width: 100%;
+}
+
 /* ── スマホ対応 ───────────────────────────────────────────── */
 @media (max-width: 480px) {
   .auth-card {
