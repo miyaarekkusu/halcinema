@@ -230,6 +230,7 @@ t_SEAT ───┼── t_SEAT_STOCK│       └── t_RESERVATION_DETAIL �
 | f_rating | VARCHAR(10) | NOT NULL | 年齢区分（G / PG12 / R15+ / R18+） |
 | f_release_date | DATE | NOT NULL | 公開日 |
 | f_is_showing | SMALLINT | NOT NULL, DEFAULT 1, CHECK(0,1) | 0:終映 / 1:上映中 |
+| f_trailer_id | VARCHAR(20) | | YouTube動画ID。予告編埋め込みに使用（NULLなら「予告編 準備中」表示） |
 
 ---
 

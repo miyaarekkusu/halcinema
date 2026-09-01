@@ -23,6 +23,8 @@ type Movie struct {
 	Synopsis    string `gorm:"column:f_synopsis"`
 	Formats     string `gorm:"column:f_formats"`
 	IsShowing   int    `gorm:"column:f_is_showing"`
+	TrailerID   string `gorm:"column:f_trailer_id"`
+	ImageURL    string `gorm:"->;column:f_image_url"`
 }
 
 func (Movie) TableName() string { return "t_movie" }
@@ -37,9 +39,12 @@ func NewHandler(db *gorm.DB) *Handler {
 
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	var movies []Movie
-	q := h.db.Order("f_movie_id")
+	q := h.db.Model(&Movie{}).
+		Select("t_movie.*, mi.f_image_url").
+		Joins("LEFT JOIN t_movie_image mi ON mi.f_image_id = t_movie.f_image_id").
+		Order("t_movie.f_movie_id")
 	if r.URL.Query().Get("showing") == "1" {
-		q = q.Where("f_is_showing = 1")
+		q = q.Where("t_movie.f_is_showing = 1")
 	}
 	if err := q.Find(&movies).Error; err != nil {
 		jsonError(w, "db error", http.StatusInternalServerError)
@@ -64,7 +69,11 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var m Movie
-	if err := h.db.First(&m, id).Error; err != nil {
+	if err := h.db.Model(&Movie{}).
+		Select("t_movie.*, mi.f_image_url").
+		Joins("LEFT JOIN t_movie_image mi ON mi.f_image_id = t_movie.f_image_id").
+		Where("t_movie.f_movie_id = ?", id).
+		First(&m).Error; err != nil {
 		jsonError(w, "not found", http.StatusNotFound)
 		return
 	}
@@ -97,6 +106,8 @@ func movieJSON(m Movie) map[string]any {
 		"synopsis":    m.Synopsis,
 		"formats":     formats,
 		"isShowing":   m.IsShowing,
+		"imageUrl":    m.ImageURL,
+		"trailerId":   m.TrailerID,
 	}
 }
 
