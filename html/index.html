@@ -186,6 +186,12 @@
       img.closest('.movie-poster-ph').innerHTML = POSTER_PH
     }
 
+    function posterTag(m) {
+      return m.imageUrl
+        ? '<div class="movie-poster-ph"><img src="../' + m.imageUrl + '" alt="' + m.title + '" onerror="onPosterError(this)"></div>'
+        : '<div class="movie-poster-ph">' + POSTER_PH + '</div>'
+    }
+
     function comingDateLabel(iso) {
       var d = new Date(iso)
       return d.getFullYear() + '年' + (d.getMonth() + 1) + '月公開予定'
@@ -194,7 +200,7 @@
     function buildNowCard(m) {
       var year = new Date(m.releaseDate).getFullYear()
       return '<div class="card movie-card">'
-        + '<div class="movie-poster-ph"><img src="../images/poster/' + m.id + '.jpg" alt="' + m.title + '" onerror="onPosterError(this)"></div>'
+        + posterTag(m)
         + '<span class="badge badge-red movie-card-badge">上映中</span>'
         + '<div class="movie-card-overlay">'
         + '<p class="movie-card-title">' + m.title + '</p>'
@@ -205,11 +211,12 @@
 
     function buildComingCard(m) {
       return '<div class="card movie-card">'
-        + '<div class="movie-poster-ph"><img src="../images/poster/' + m.id + '.jpg" alt="' + m.title + '" onerror="onPosterError(this)"></div>'
+        + posterTag(m)
         + '<span class="badge badge-dark movie-card-badge">公開予定</span>'
         + '<div class="movie-card-overlay">'
         + '<p class="movie-card-title">' + m.title + '</p>'
         + '<p class="text-sm text-sub">' + comingDateLabel(m.releaseDate) + '</p>'
+        + '<a href="movie-detail.html?id=' + m.movieId + '" class="btn btn-secondary btn-sm">詳細を見る</a>'
         + '</div></div>'
     }
 

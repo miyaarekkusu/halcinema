@@ -229,7 +229,9 @@
         '<section class="section">'
         + '<div class="movie-detail-grid">'
         + '<div><div class="movie-detail-poster">'
-        + '<img src="../images/poster/' + movie.id + '.jpg" alt="' + movie.title + '" onerror="onDetailPosterError(this)">'
+        + (movie.imageUrl
+            ? '<img src="../' + movie.imageUrl + '" alt="' + movie.title + '" onerror="onDetailPosterError(this)">'
+            : DETAIL_POSTER_PH)
         + '</div></div>'
         + '<div class="movie-detail-info">'
         + '<div class="movie-detail-badges">' + statusBadge + formatBadges + '</div>'
@@ -255,10 +257,6 @@
               + '<p class="trailer-label">予告編は公開次第掲載します</p>')
         + '</section>'
         + scheduleSection
-
-      document.getElementById('trailer-box').addEventListener('click', function() {
-        alert('予告編動画を再生します')
-      })
 
       if (hasSchedule) {
         buildDates()
