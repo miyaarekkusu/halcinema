@@ -11,6 +11,7 @@ import (
 
 	"github.com/miyaarekkusu/halcinema/backend/internal/auth"
 	"github.com/miyaarekkusu/halcinema/backend/internal/cards"
+	"github.com/miyaarekkusu/halcinema/backend/internal/chat"
 	"github.com/miyaarekkusu/halcinema/backend/internal/movies"
 	"github.com/miyaarekkusu/halcinema/backend/internal/reservations"
 	"github.com/miyaarekkusu/halcinema/backend/internal/schedules"
@@ -65,6 +66,9 @@ func (app *application) mount() http.Handler {
 		r.Delete("/{id}", cardHandler.Delete)
 		r.Patch("/{id}/default", cardHandler.SetDefault)
 	})
+
+	chatHandler := chat.NewHandler(app.db)
+	r.With(optionalJWTMiddleware).Post("/api/chat", chatHandler.Converse)
 
 	return r
 }

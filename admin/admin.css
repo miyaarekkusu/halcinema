@@ -782,24 +782,12 @@ body {
   padding: 1px 5px; border-radius: 3px; white-space: nowrap;
 }
 
-/* 障害オーバーレイ（行全体を使用不可に） */
-.tl-row__down-overlay {
-  position: absolute; top: 6px; bottom: 6px; left: 4px; right: 4px;
-  background: repeating-linear-gradient(45deg, rgba(232,33,43,0.18) 0 8px, rgba(232,33,43,0.30) 8px 16px);
-  border: 1px solid var(--ad-red);
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.05em;
-  z-index: 4; pointer-events: none;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
-}
-
 /* 1枠（タイムライン上に絶対配置） */
 .tl-slot {
   position: absolute; top: 9px; height: 48px;
   border: 1px solid var(--ad-border);
   border-radius: 6px; overflow: hidden;
-  display: flex; z-index: 2;
+  display: flex; z-index: 2; cursor: pointer;
   transition: box-shadow 0.12s, border-color 0.12s;
 }
 .tl-slot--reserve { border-style: dashed; border-color: rgba(74,222,128,0.6); }
@@ -812,6 +800,13 @@ body {
 .tl-slot--ok   { border-color: var(--ad-green); box-shadow: 0 0 0 2px rgba(74,222,128,0.3) inset; }
 .tl-slot--over { border-color: var(--ad-red);   box-shadow: 0 0 0 2px rgba(232,33,43,0.3) inset; }
 .tl-slot--over.tl-slot--shake { animation: slot-shake 0.3s; }
+
+/* 障害発生中のスクリーン：予定（枠）自体を赤色にする */
+.tl-slot--incident { border-color: var(--ad-red); }
+.tl-slot--incident .tl-seg--show,
+.tl-slot--incident .tl-seg--clean,
+.tl-slot--incident .tl-seg--idle { background: var(--ad-red); }
+.tl-slot--incident.tl-slot--empty { background: rgba(232,33,43,0.18); }
 
 @keyframes slot-shake {
   0%,100% { transform: translateX(0); }

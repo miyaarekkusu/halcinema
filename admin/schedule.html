@@ -35,7 +35,6 @@
       <p class="sidebar__section-label">システム</p>
       <ul class="sidebar__list">
         <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
-        <li><a class="sidebar__item" data-page="logs" href="logs.html">ログ</a></li>
       </ul>
     </nav>
   </aside>
@@ -63,7 +62,7 @@
       <section class="page-section">
         <h1 class="page-title">スケジュール枠割り当て</h1>
         <p style="color:var(--ad-text-muted); font-size:12px; margin:-14px 0 18px;">
-          横軸＝1日の営業時間、縦軸＝スクリーン。どの時間帯にどのスクリーンが空いているかを一覧できます。右の映画を枠へドラッグして割り当て（掃除20分込みで枠に収まらない映画はドロップ不可）。
+          横軸＝1日の営業時間、縦軸＝スクリーン。どの時間帯にどのスクリーンが空いているかを一覧できます。右の映画を枠へドラッグして割り当て（掃除20分込みで枠に収まらない映画はドロップ不可）。タイムライン上の予定（枠）をクリックすると詳細とトラブル対応ができます。
         </p>
 
         <!-- 障害発生中バナー（点滅） -->
@@ -94,17 +93,10 @@
               <div class="tl-grid" id="tl-grid"><!-- タイムライン描画 --></div>
             </div>
 
-            <!-- 障害・警報の発生（デモ） -->
+            <!-- 発生中の障害 -->
             <div class="alert-panel">
-              <p class="alert-panel__head">障害・警報の発生（デモ）</p>
-              <p class="alert-panel__hint">スクリーンを選んで種類を押すと、上のタイムラインでそのスクリーンが「使用不可」になります。見ため確認用です。</p>
-              <div class="alert-panel__form">
-                <select class="toolbar__select" id="alert-screen"></select>
-                <button class="alert-type-btn" data-type="雨漏り">雨漏り</button>
-                <button class="alert-type-btn" data-type="嘔吐">嘔吐</button>
-                <button class="alert-type-btn" data-type="機械トラブル">機械トラブル</button>
-                <button class="alert-type-btn" data-type="停電">停電</button>
-              </div>
+              <p class="alert-panel__head">発生中の障害</p>
+              <p class="alert-panel__hint">タイムライン上の予定（枠）をクリックすると、詳細の確認とトラブル報告・解除ができます。</p>
               <div class="alert-panel__active" id="alert-active"></div>
             </div>
           </div>
@@ -123,6 +115,16 @@
 <div class="sched-toast" id="sched-toast" hidden>
   <div class="sched-toast__title" id="sched-toast-title"></div>
   <div id="sched-toast-body"></div>
+</div>
+
+<div class="qr-modal-backdrop" id="slot-modal-backdrop" hidden>
+  <div class="qr-modal">
+    <div class="qr-modal__head">
+      <span class="qr-modal__title" id="slot-modal-title">枠の詳細</span>
+      <button class="qr-modal__close" id="slot-modal-close" aria-label="閉じる">×</button>
+    </div>
+    <div class="qr-modal__body" id="slot-modal-body"></div>
+  </div>
 </div>
 
 <script src="admin-common.js" defer></script>
@@ -251,18 +253,10 @@ document.addEventListener('DOMContentLoaded', function () {
         track.appendChild(now);
       }
 
-      // 枠
+      // 枠（障害発生中はrenderSlot内で予定を赤色にする）
       screen.slots.forEach(function (slot) {
         track.appendChild(renderSlot(screen, slot));
       });
-
-      // 障害オーバーレイ
-      if (screen.alert) {
-        var ov = document.createElement('div');
-        ov.className = 'tl-row__down-overlay';
-        ov.textContent = '使用不可：' + screen.alert.type;
-        track.appendChild(ov);
-      }
 
       row.appendChild(track);
       gridEl.appendChild(row);
@@ -278,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (slot.movieId) {
       var m = movieById[slot.movieId];
       var idle = slot.len - m.dur - CLEAN;
-      el.className = 'tl-slot' + (slot.type === 1 ? ' tl-slot--reserve' : '');
+      el.className = 'tl-slot' + (slot.type === 1 ? ' tl-slot--reserve' : '') + (screen.alert ? ' tl-slot--incident' : '');
       el.innerHTML =
         '<div class="tl-seg tl-seg--show" style="width:' + (m.dur * SCALE) + 'px"></div>' +
         '<div class="tl-seg tl-seg--clean" style="width:' + (CLEAN * SCALE) + 'px"></div>' +
@@ -289,14 +283,16 @@ document.addEventListener('DOMContentLoaded', function () {
         (slot.type === 0 && hasEmptyReserve(screen) && !screen.alert
           ? '<button class="tl-slot__transfer">予備枠へ振替</button>' : '');
 
-      el.querySelector('.tl-slot__clear').addEventListener('click', function () { slot.movieId = null; rerender(); });
+      el.querySelector('.tl-slot__clear').addEventListener('click', function (e) { e.stopPropagation(); slot.movieId = null; rerender(); });
       var tb = el.querySelector('.tl-slot__transfer');
-      if (tb) tb.addEventListener('click', function () { transferToReserve(screen, slot); });
+      if (tb) tb.addEventListener('click', function (e) { e.stopPropagation(); transferToReserve(screen, slot); });
     } else {
-      el.className = 'tl-slot tl-slot--empty' + (slot.type === 1 ? ' tl-slot--reserve' : '');
+      el.className = 'tl-slot tl-slot--empty' + (slot.type === 1 ? ' tl-slot--reserve' : '') + (screen.alert ? ' tl-slot--incident' : '');
       el.innerHTML = '<span class="tl-slot__empty-label">' +
         (slot.type === 1 ? '予備枠 ' : '空き枠 ') + slot.start + '・' + fmtLen(slot.len) + '</span>';
     }
+
+    el.addEventListener('click', function () { openSlotModal(screen, slot); });
 
     // ドロップ受け入れ
     el.addEventListener('dragover', function (e) {
@@ -367,25 +363,21 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ── 障害・警報 ───────────────────────────────
-  var alertScreenSel = document.getElementById('alert-screen');
   var alertActiveEl = document.getElementById('alert-active');
   var alertBanner = document.getElementById('alert-banner');
   var alertBannerText = document.getElementById('alert-banner-text');
 
-  function initAlertControls() {
-    alertScreenSel.innerHTML = screens.map(function (s) {
-      return '<option value="' + s.id + '">' + s.name + '</option>';
-    }).join('');
-    document.querySelectorAll('.alert-type-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var screen = screenById[Number(alertScreenSel.value)];
-        var type = btn.dataset.type;
-        screen.alert = { type: type };
-        var affected = screen.slots.filter(function (s) { return s.movieId; }).length;
-        rerender();
-        toast(screen.name + ' で障害発生', type + ' により使用不可。上映中/予定 ' + affected + '件は他スクリーンの空き枠へ振替が必要です。', true);
-      });
-    });
+  function setIncident(screen, type) {
+    screen.alert = { type: type };
+    var affected = screen.slots.filter(function (s) { return s.movieId; }).length;
+    rerender();
+    toast(screen.name + ' で障害発生', type + ' により使用不可。上映中/予定 ' + affected + '件は他スクリーンの空き枠へ振替が必要です。', true);
+  }
+
+  function clearIncident(screen) {
+    screen.alert = null;
+    rerender();
+    toast(screen.name + ' の障害を解除', '使用可に戻しました。', false);
   }
 
   function renderAlerts() {
@@ -402,11 +394,7 @@ document.addEventListener('DOMContentLoaded', function () {
       item.innerHTML =
         '<span class="alert-item__text"><b>' + s.name + '</b>：' + s.alert.type + '（使用不可）</span>' +
         '<button class="alert-item__clear">解除</button>';
-      item.querySelector('.alert-item__clear').addEventListener('click', function () {
-        s.alert = null;
-        rerender();
-        toast(s.name + ' の障害を解除', '使用可に戻しました。', false);
-      });
+      item.querySelector('.alert-item__clear').addEventListener('click', function () { clearIncident(s); });
       alertActiveEl.appendChild(item);
     });
     alertBanner.hidden = false;
@@ -414,6 +402,68 @@ document.addEventListener('DOMContentLoaded', function () {
       return '<b>' + s.name + '</b>：' + s.alert.type + '（使用不可）';
     }).join(' ／ ');
   }
+
+  // ── 枠の詳細モーダル（クリックで開く。ここからトラブル報告／解除も行う） ──
+  var slotModalBackdrop = document.getElementById('slot-modal-backdrop');
+  var slotModalTitle = document.getElementById('slot-modal-title');
+  var slotModalBody = document.getElementById('slot-modal-body');
+  var slotModalClose = document.getElementById('slot-modal-close');
+  var INCIDENT_TYPES = ['雨漏り', '嘔吐', '機械トラブル', '停電'];
+
+  function openSlotModal(screen, slot) {
+    var rows = [];
+    if (slot.movieId) {
+      var m = movieById[slot.movieId];
+      var idle = slot.len - m.dur - CLEAN;
+      slotModalTitle.textContent = m.title;
+      rows.push(['スクリーン', screen.name]);
+      rows.push(['時間', slot.start + '〜（' + fmtLen(slot.len) + '枠）']);
+      rows.push(['上映時間', fmtLen(m.dur)]);
+      rows.push(['掃除時間', CLEAN + '分']);
+      rows.push(['飽き枠', idle > 0 ? fmtLen(idle) : '0分']);
+      rows.push(['枠種別', slot.type === 1 ? '予備枠' : '通常枠']);
+    } else {
+      slotModalTitle.textContent = slot.type === 1 ? '予備枠' : '空き枠';
+      rows.push(['スクリーン', screen.name]);
+      rows.push(['開始', slot.start]);
+      rows.push(['長さ', fmtLen(slot.len)]);
+      rows.push(['枠種別', slot.type === 1 ? '予備枠（振替専用）' : '通常枠']);
+    }
+
+    var html = rows.map(function (r) {
+      return '<div class="qr-modal__row"><span class="qr-modal__key">' + r[0] + '</span><span class="qr-modal__val">' + r[1] + '</span></div>';
+    }).join('');
+
+    html += '<div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--ad-border);">';
+    if (screen.alert) {
+      html +=
+        '<p style="font-size:12px; color:var(--ad-text-muted); margin-bottom:10px;">このスクリーンは <b style="color:var(--ad-red);">' + screen.alert.type + '</b> により使用不可です。</p>' +
+        '<button class="toolbar__btn toolbar__btn--primary" id="slot-modal-clear-btn" style="width:100%;">障害を解除する</button>';
+    } else {
+      html +=
+        '<p style="font-size:12px; color:var(--ad-text-muted); margin-bottom:10px;">トラブルが発生した場合、種類を選んでこのスクリーンを使用不可にできます。</p>' +
+        '<div class="alert-panel__form" style="margin:0;">' +
+        INCIDENT_TYPES.map(function (t) { return '<button class="alert-type-btn" data-type="' + t + '">' + t + '</button>'; }).join('') +
+        '</div>';
+    }
+    html += '</div>';
+
+    slotModalBody.innerHTML = html;
+
+    var clearBtn = document.getElementById('slot-modal-clear-btn');
+    if (clearBtn) clearBtn.addEventListener('click', function () { clearIncident(screen); hideSlotModal(); });
+    slotModalBody.querySelectorAll('.alert-type-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { setIncident(screen, btn.dataset.type); hideSlotModal(); });
+    });
+
+    slotModalBackdrop.hidden = false;
+  }
+
+  function hideSlotModal() { slotModalBackdrop.hidden = true; }
+
+  slotModalClose.addEventListener('click', hideSlotModal);
+  slotModalBackdrop.addEventListener('click', function (e) { if (e.target === slotModalBackdrop) hideSlotModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideSlotModal(); });
 
   // ── トースト ──
   var toastEl = document.getElementById('sched-toast');
@@ -432,7 +482,6 @@ document.addEventListener('DOMContentLoaded', function () {
   function rerender() { renderTimeline(); renderAlerts(); }
 
   renderPool();
-  initAlertControls();
   rerender();
 });
 </script>

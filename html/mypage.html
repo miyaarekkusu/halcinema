@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/mypage.css">
+  <link rel="stylesheet" href="../css/ticket.css">
 </head>
 <body>
 
@@ -160,54 +161,81 @@
     </div>
   </footer>
 
-  <!-- チケット詳細モーダル -->
-  <div id="ticket-modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;overflow-y:auto;padding:40px 16px;">
-    <div id="ticket-modal" style="background:var(--c-bg-2);border:1px solid var(--c-border-em);border-radius:16px;max-width:420px;margin:0 auto;overflow:hidden;">
+  <!-- チケット詳細モーダル（css/ticket.css の .ticket-card テンプレートを使用） -->
+  <div id="ticket-modal-backdrop" class="tm-backdrop">
+    <div class="ticket-card tm-modal" id="ticket-modal">
 
-      <!-- モーダルヘッダー -->
-      <div style="background:var(--c-red);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:16px;font-weight:800;letter-spacing:0.06em;color:#fff;">HAL <span style="opacity:0.75;">CINEMA</span></span>
-        <button id="modal-close" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
-      </div>
-
-      <!-- QRコードエリア（座席数分のQRコードを表示） -->
-      <div style="padding:24px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;border-bottom:1px dashed var(--c-border-em);">
-        <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:var(--c-text-muted);text-transform:uppercase;">受付用 QR コード</p>
-        <div id="modal-qr-list" style="display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;max-height:360px;overflow-y:auto;"></div>
-        <p id="modal-reservation-id" style="font-size:11px;color:var(--c-text-muted);letter-spacing:0.04em;"></p>
-      </div>
-
-      <!-- チケット詳細 -->
-      <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px;">
-        <div style="display:flex;gap:10px;font-size:14px;">
-          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">作品</span>
-          <span id="modal-title" style="color:var(--c-text);font-weight:600;"></span>
-        </div>
-        <div style="display:flex;gap:10px;font-size:14px;">
-          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">スクリーン</span>
-          <span id="modal-screen" style="color:var(--c-text);"></span>
-        </div>
-        <div style="display:flex;gap:10px;font-size:14px;">
-          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">日時</span>
-          <span id="modal-datetime" style="color:var(--c-text);"></span>
-        </div>
-        <div style="display:flex;gap:10px;font-size:14px;">
-          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">座席</span>
-          <span id="modal-seats" style="color:var(--c-text);"></span>
-        </div>
-        <div style="display:flex;gap:10px;font-size:14px;">
-          <span style="color:var(--c-text-muted);width:72px;flex-shrink:0;">枚数</span>
-          <span id="modal-count" style="color:var(--c-text);"></span>
-        </div>
-        <hr style="border:none;border-top:1px solid var(--c-border);margin:4px 0;">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;">
-          <span style="font-size:13px;color:var(--c-text-muted);">お支払金額</span>
-          <span id="modal-amount" style="font-size:22px;font-weight:800;color:var(--c-text);"></span>
+      <!-- ヘッダー -->
+      <div class="ticket-card-header">
+        <span class="ticket-header-logo">HAL <span>CINEMA</span></span>
+        <div class="tm-header-right">
+          <span class="ticket-admit" id="modal-status-badge">予約済み</span>
+          <button id="modal-close" class="tm-close-btn" aria-label="閉じる">×</button>
         </div>
       </div>
 
-      <div style="padding:12px 20px;background:var(--c-bg-3);border-top:1px solid var(--c-border);font-size:11px;color:var(--c-text-muted);text-align:center;">
-        ※ 入場時にQRコードをスタッフにご提示ください
+      <!-- 左右分割：チケット情報 / QRコード -->
+      <div class="ticket-card-body">
+
+        <!-- 左：チケット情報 -->
+        <div class="ticket-info-side">
+          <div>
+            <p class="ticket-movie-title" id="modal-title">—</p>
+            <p class="ticket-movie-format" id="modal-format"></p>
+          </div>
+          <div class="ticket-detail-table">
+            <div class="ticket-detail-row">
+              <span class="ticket-detail-label">日時</span>
+              <span class="ticket-detail-value" id="modal-datetime">—</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span class="ticket-detail-label">スクリーン</span>
+              <span class="ticket-detail-value" id="modal-screen">—</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span class="ticket-detail-label">座席</span>
+              <span class="ticket-detail-value" id="modal-seats">—</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span class="ticket-detail-label">枚数</span>
+              <span class="ticket-detail-value" id="modal-count">—</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span class="ticket-detail-label">予約番号</span>
+              <span class="ticket-detail-value" id="modal-reservation-id">—</span>
+            </div>
+          </div>
+          <div class="ticket-amount-row">
+            <span class="ticket-amount-label">お支払金額</span>
+            <span class="ticket-amount-value" id="modal-amount">0</span>
+            <span class="ticket-amount-unit">円（税込）</span>
+          </div>
+        </div>
+
+        <div class="ticket-divider"></div>
+
+        <!-- 右：QRコード（座席数分） -->
+        <div class="ticket-qr-side">
+          <p class="ticket-qr-label">受付用 QR コード</p>
+          <div id="modal-qr-list" class="tm-qr-list"></div>
+        </div>
+
+      </div><!-- /.ticket-card-body -->
+
+      <!-- 下：購入データ（フード・グッズ）※購入がある場合のみ表示 -->
+      <div class="tm-goods-section" id="modal-goods-section" style="display:none;">
+        <div class="ticket-card-header tm-goods-header">
+          <span class="ticket-header-logo" style="font-size:14px;">🍿 フード・グッズ 受け取り用QR</span>
+        </div>
+        <div class="tm-goods-qr-wrap">
+          <div class="tm-qr-canvas" id="modal-goods-qrcode"></div>
+          <p class="ticket-reservation-id" id="modal-goods-order-id"></p>
+        </div>
+        <div class="tm-goods-body" id="modal-goods-body"></div>
+      </div>
+
+      <div class="ticket-card-footer">
+        ※ 入場・お受け取りの際にQRコードをスタッフにご提示ください
       </div>
     </div>
   </div>
@@ -310,6 +338,7 @@
       item.setAttribute('data-amount',   String(data.amount || 0))
       item.setAttribute('data-status',   data.status || 'reserved')
       item.setAttribute('data-tickets',  data.tickets && data.tickets.length ? JSON.stringify(data.tickets) : '')
+      item.setAttribute('data-foods',    data.foods && data.foods.length ? JSON.stringify(data.foods) : '')
       item.innerHTML =
         '<div class="ticket-poster">' + POSTER_SVG + '</div>'
         + '<div class="ticket-info">'
@@ -366,7 +395,8 @@
         count:    (latest.ticketCount || '') + '枚',
         amount:   latest.finalAmount || 0,
         status:   'reserved',
-        tickets:  latest.tickets || []
+        tickets:  latest.tickets || [],
+        foods:    latest.foods || []
       }, true);
     }
 
@@ -383,19 +413,19 @@
       var isUsed  = ticket.status === 2 || ticket.status === 3
 
       var block = document.createElement('div')
-      block.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;'
+      block.className = 'tm-qr-block'
 
       var qrHolder = document.createElement('div')
-      qrHolder.style.cssText = 'background:#fff;padding:10px;border-radius:8px;'
+      qrHolder.className = 'tm-qr-canvas'
       block.appendChild(qrHolder)
 
       var seatP = document.createElement('p')
-      seatP.style.cssText = 'font-size:13px;font-weight:700;color:var(--c-text);'
+      seatP.className = 'tm-qr-seat-label'
       seatP.textContent = seatLabel
       block.appendChild(seatP)
 
       var statusP = document.createElement('p')
-      statusP.style.fontSize = '12px'
+      statusP.className = 'tm-qr-status'
       statusP.innerHTML = isUsed
         ? '<span style="color:var(--c-text-muted);">● 使用済み</span>'
         : '<span style="color:#4caf87;font-weight:700;">● 予約済み</span>'
@@ -405,12 +435,48 @@
 
       new QRCode(qrHolder, {
         text        : qrValue,
-        width       : 150,
-        height      : 150,
+        width       : 120,
+        height      : 120,
         colorDark   : '#000000',
         colorLight  : '#ffffff',
         correctLevel: QRCode.CorrectLevel.M
       })
+    }
+
+    // 購入データ（フード・グッズ）セクションの描画。購入がなければ非表示にする。
+    var goodsSectionEl = document.getElementById('modal-goods-section')
+    var goodsQrEl       = document.getElementById('modal-goods-qrcode')
+    var goodsBodyEl      = document.getElementById('modal-goods-body')
+
+    function renderGoodsSection(data) {
+      var foods = Array.isArray(data.foods) ? data.foods.filter(function (f) { return (f.count || 1) > 0 }) : []
+
+      if (foods.length === 0) {
+        goodsSectionEl.style.display = 'none'
+        return
+      }
+
+      goodsSectionEl.style.display = ''
+      goodsQrEl.innerHTML = ''
+
+      var orderCode = (data.code || data.id || 'HAL-CINEMA') + '-GOODS'
+      new QRCode(goodsQrEl, {
+        text        : orderCode,
+        width       : 130,
+        height      : 130,
+        colorDark   : '#000000',
+        colorLight  : '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      })
+      document.getElementById('modal-goods-order-id').textContent = '受取注文番号: ' + orderCode
+
+      goodsBodyEl.innerHTML = foods.map(function (f) {
+        var count = f.count || 1
+        return '<div class="tm-goods-row">'
+          + '<span class="tm-goods-row-name">' + f.name + ' ×' + count + '</span>'
+          + '<span class="tm-goods-row-price">' + (Number(f.price || 0) * count).toLocaleString() + ' 円</span>'
+          + '</div>'
+      }).join('')
     }
 
     function openTicketModal(data) {
@@ -424,15 +490,17 @@
         renderTicketQR(t, data.seats, data.id)
       })
 
-      document.getElementById('modal-reservation-id').textContent = data.code
-        ? '予約番号: ' + data.code
-        : (data.id ? '予約ID: ' + data.id : '')
-      document.getElementById('modal-title').textContent    = data.title + (data.format ? '（' + data.format + '）' : '')
+      document.getElementById('modal-reservation-id').textContent = data.code || data.id || '—'
+      document.getElementById('modal-status-badge').textContent   = data.status === 'reserved' ? '予約済み' : '使用済み'
+      document.getElementById('modal-title').textContent    = data.title || '—'
+      document.getElementById('modal-format').textContent   = data.format || ''
       document.getElementById('modal-screen').textContent   = data.screen   || '—'
       document.getElementById('modal-datetime').textContent = data.datetime || '—'
       document.getElementById('modal-seats').textContent    = data.seats    || '—'
       document.getElementById('modal-count').textContent    = data.count    || '—'
-      document.getElementById('modal-amount').textContent   = Number(data.amount).toLocaleString() + ' 円'
+      document.getElementById('modal-amount').textContent   = Number(data.amount || 0).toLocaleString()
+
+      renderGoodsSection(data)
 
       backdrop.style.display = 'block'
       document.body.style.overflow = 'hidden'
@@ -456,6 +524,9 @@
 
       var tickets = []
       try { tickets = JSON.parse(item.dataset.tickets || '[]') } catch (parseErr) { tickets = [] }
+
+      var foods = []
+      try { foods = JSON.parse(item.dataset.foods || '[]') } catch (foodsParseErr) { foods = [] }
 
       if (tickets.length === 0 && item.dataset.id && token) {
         try {
@@ -481,7 +552,8 @@
         count   : item.dataset.count,
         amount  : item.dataset.amount,
         status  : item.dataset.status,
-        tickets : tickets
+        tickets : tickets,
+        foods   : foods
       })
     })
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -18,6 +19,7 @@ import (
 type Reservation struct {
 	ReservationID     int       `gorm:"column:f_reservation_id;primaryKey;autoIncrement"`
 	MemberID          *int      `gorm:"column:f_member_id"`
+	GuestName         *string   `gorm:"column:f_guest_name"`
 	ScheduleID        int       `gorm:"column:f_schedule_id"`
 	ReservedAt        time.Time `gorm:"column:f_reserved_at"`
 	ReservationCode   string    `gorm:"column:f_reservation_code"`
@@ -75,73 +77,82 @@ func NewHandler(db *gorm.DB) *Handler {
 	return &Handler{db: db}
 }
 
-type seatReq struct {
+// SeatReq は座席1つ分の予約リクエスト（座席ID＋料金区分）。
+// HTTPリクエストのデコード先であると同時に、CreateReservationInput.Seats の要素型として
+// チャット予約（internal/chat）からも直接組み立てて使う。
+type SeatReq struct {
 	SeatID          int `json:"seatId"`
 	PriceCategoryID int `json:"priceCategoryId"`
 }
 
 type createReq struct {
 	ScheduleID    int       `json:"scheduleId"`
-	Seats         []seatReq `json:"seats"`
+	Seats         []SeatReq `json:"seats"`
 	PaymentMethod int       `json:"paymentMethod"`
+	GuestName     string    `json:"guestName"`
 }
 
-func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	var req createReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		jsonError(w, "invalid request", http.StatusBadRequest)
-		return
-	}
-	if req.ScheduleID == 0 || len(req.Seats) == 0 {
-		jsonError(w, "scheduleId and seats are required", http.StatusBadRequest)
-		return
-	}
-	if req.PaymentMethod < 1 || req.PaymentMethod > 3 {
-		req.PaymentMethod = 1
-	}
+// CreateReservationInput は CreateReservation への入力。
+// HTTPハンドラ（Create）とチャット予約の両方から共通で使う。
+type CreateReservationInput struct {
+	ScheduleID    int
+	Seats         []SeatReq
+	PaymentMethod int
+	MemberID      int // 0 = ゲスト
+	GuestName     string
+}
 
-	memberID := memberIDFromCtx(r)
+// CreateReservationResult は CreateReservation の結果。
+type CreateReservationResult struct {
+	ReservationID   int
+	ReservationCode string
+	TotalAmount     int
+	ReservedAt      time.Time
+	Tickets         []map[string]any
+}
 
+// ErrSeatNotAvailable は指定座席のいずれかがすでに埋まっている場合に返る。
+var ErrSeatNotAvailable = errors.New("seat not available")
+
+// CreateReservation は座席の排他ロック→空席確認→価格計算→予約・明細・チケット作成
+// →在庫更新までを1トランザクションで行う。Web予約API（Create）とAIチャット予約の
+// どちらから呼んでも同じ整合性保証（二重予約防止）を持つ。
+func CreateReservation(db *gorm.DB, input CreateReservationInput) (*CreateReservationResult, error) {
 	// JWTのmember_idが実在しない場合（DBリセット後の古いトークン等）、
 	// そのままINSERTするとt_reservationの外部キー制約違反(23503)でクラッシュするため
 	// 事前に存在確認し、ゲスト扱いに倒せるよう明示的なエラーを返す。
-	if memberID > 0 {
+	if input.MemberID > 0 {
 		var memberCount int64
-		if err := h.db.Table("t_member").Where("f_member_id = ?", memberID).Count(&memberCount).Error; err != nil {
-			jsonError(w, "internal error", http.StatusInternalServerError)
-			return
+		if err := db.Table("t_member").Where("f_member_id = ?", input.MemberID).Count(&memberCount).Error; err != nil {
+			return nil, err
 		}
 		if memberCount == 0 {
-			jsonError(w, "session expired, please log in again", http.StatusUnauthorized)
-			return
+			return nil, ErrMemberNotFound
 		}
 	}
 
-	var reservationID int
-	var reservationCode string
-	var totalAmount int
-	var ticketsOut []map[string]any
+	var result CreateReservationResult
 
-	seatIDs := make([]int, len(req.Seats))
-	for i, s := range req.Seats {
+	seatIDs := make([]int, len(input.Seats))
+	for i, s := range input.Seats {
 		seatIDs[i] = s.SeatID
 	}
 
-	err := h.db.Transaction(func(tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		// 排他ロックで空席確認（GORM clause.Locking + IN ?）
 		var lockedStocks []SeatStock
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("f_schedule_id = ? AND f_seat_id IN ? AND f_stock_status = 0",
-				req.ScheduleID, seatIDs).
+				input.ScheduleID, seatIDs).
 			Find(&lockedStocks).Error; err != nil {
 			return err
 		}
-		if len(lockedStocks) != len(req.Seats) {
-			return errors.New("seat not available")
+		if len(lockedStocks) != len(input.Seats) {
+			return ErrSeatNotAvailable
 		}
 
 		// 合計金額計算
-		for _, s := range req.Seats {
+		for _, s := range input.Seats {
 			catID := s.PriceCategoryID
 			if catID == 0 {
 				catID = 1
@@ -149,32 +160,37 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 			var sp ScreenPrice
 			price := 1900
 			if err := tx.Where("f_schedule_id = ? AND f_price_category_id = ?",
-				req.ScheduleID, catID).First(&sp).Error; err == nil {
+				input.ScheduleID, catID).First(&sp).Error; err == nil {
 				price = sp.Price
 			}
-			totalAmount += price
+			result.TotalAmount += price
 		}
 
-		reservationCode = fmt.Sprintf("HAL%s", time.Now().Format("20060102150405"))
+		result.ReservationCode = fmt.Sprintf("HAL%s", time.Now().Format("20060102150405"))
 
 		resv := Reservation{
-			ScheduleID:        req.ScheduleID,
-			ReservationCode:   reservationCode,
-			TotalAmount:       totalAmount,
-			PaymentMethod:     req.PaymentMethod,
+			ScheduleID:        input.ScheduleID,
+			ReservationCode:   result.ReservationCode,
+			TotalAmount:       result.TotalAmount,
+			PaymentMethod:     input.PaymentMethod,
 			PaymentStatus:     1,
 			ReservationStatus: 0,
 			ReservedAt:        time.Now(),
 		}
-		if memberID > 0 {
+		if input.MemberID > 0 {
+			memberID := input.MemberID
 			resv.MemberID = &memberID
+		} else {
+			guestName := input.GuestName
+			resv.GuestName = &guestName
 		}
 		if err := tx.Create(&resv).Error; err != nil {
 			return err
 		}
-		reservationID = resv.ReservationID
+		result.ReservationID = resv.ReservationID
+		result.ReservedAt = resv.ReservedAt
 
-		for _, s := range req.Seats {
+		for _, s := range input.Seats {
 			catID := s.PriceCategoryID
 			if catID == 0 {
 				catID = 1
@@ -182,12 +198,12 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 			price := 1900
 			var sp ScreenPrice
 			if err := tx.Where("f_schedule_id = ? AND f_price_category_id = ?",
-				req.ScheduleID, catID).First(&sp).Error; err == nil {
+				input.ScheduleID, catID).First(&sp).Error; err == nil {
 				price = sp.Price
 			}
 
 			detail := ReservationDetail{
-				ReservationID:   reservationID,
+				ReservationID:   result.ReservationID,
 				SeatID:          s.SeatID,
 				PriceCategoryID: catID,
 				TicketPrice:     price,
@@ -213,7 +229,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 			tx.Table("t_seat").Select("f_row_label, f_seat_number").
 				Where("f_seat_id = ?", s.SeatID).Scan(&seatRow)
 
-			ticketsOut = append(ticketsOut, map[string]any{
+			result.Tickets = append(result.Tickets, map[string]any{
 				"seatId":     s.SeatID,
 				"rowLabel":   seatRow.RowLabel,
 				"seatNumber": seatRow.SeatNumber,
@@ -224,7 +240,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 		// 座席在庫を予約済みに更新
 		if err := tx.Model(&SeatStock{}).
-			Where("f_schedule_id = ? AND f_seat_id IN ?", req.ScheduleID, seatIDs).
+			Where("f_schedule_id = ? AND f_seat_id IN ?", input.ScheduleID, seatIDs).
 			Update("f_stock_status", 1).Error; err != nil {
 			return err
 		}
@@ -233,9 +249,50 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		if err.Error() == "seat not available" {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// ErrMemberNotFound はJWTのmember_idがDBに存在しない場合に返る。
+var ErrMemberNotFound = errors.New("member not found")
+
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+	var req createReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonError(w, "invalid request", http.StatusBadRequest)
+		return
+	}
+	if req.ScheduleID == 0 || len(req.Seats) == 0 {
+		jsonError(w, "scheduleId and seats are required", http.StatusBadRequest)
+		return
+	}
+	if req.PaymentMethod < 1 || req.PaymentMethod > 3 {
+		req.PaymentMethod = 1
+	}
+
+	memberID := memberIDFromCtx(r)
+	guestName := strings.TrimSpace(req.GuestName)
+	if memberID <= 0 && guestName == "" {
+		jsonError(w, "guestName is required for guest reservation", http.StatusBadRequest)
+		return
+	}
+
+	result, err := CreateReservation(h.db, CreateReservationInput{
+		ScheduleID:    req.ScheduleID,
+		Seats:         req.Seats,
+		PaymentMethod: req.PaymentMethod,
+		MemberID:      memberID,
+		GuestName:     guestName,
+	})
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrSeatNotAvailable):
 			jsonError(w, "seat not available", http.StatusConflict)
-		} else {
+		case errors.Is(err, ErrMemberNotFound):
+			jsonError(w, "session expired, please log in again", http.StatusUnauthorized)
+		default:
 			jsonError(w, "reservation failed: "+err.Error(), http.StatusInternalServerError)
 		}
 		return
@@ -244,11 +301,11 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]any{
-		"reservationId":   reservationID,
-		"reservationCode": reservationCode,
-		"totalAmount":     totalAmount,
-		"reservedAt":      time.Now().Format(time.RFC3339),
-		"tickets":         ticketsOut,
+		"reservationId":   result.ReservationID,
+		"reservationCode": result.ReservationCode,
+		"totalAmount":     result.TotalAmount,
+		"reservedAt":      result.ReservedAt.Format(time.RFC3339),
+		"tickets":         result.Tickets,
 	})
 }
 

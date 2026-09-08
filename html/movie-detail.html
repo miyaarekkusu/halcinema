@@ -87,6 +87,11 @@
       img.closest('.movie-detail-poster').innerHTML = DETAIL_POSTER_PH
     }
 
+    function detailPosterImgTag(movie) {
+      if (!movie.posterSlug) return DETAIL_POSTER_PH
+      return '<img src="../images/poster/' + movie.posterSlug + '.jpg" alt="' + movie.title + '" onerror="onDetailPosterError(this)">'
+    }
+
     var API_BASE = 'http://localhost:8080'
     var DAY_JA = ['日','月','火','水','木','金','土']
     var today  = new Date()
@@ -229,7 +234,7 @@
         '<section class="section">'
         + '<div class="movie-detail-grid">'
         + '<div><div class="movie-detail-poster">'
-        + '<img src="../images/poster/' + movie.id + '.jpg" alt="' + movie.title + '" onerror="onDetailPosterError(this)">'
+        + detailPosterImgTag(movie)
         + '</div></div>'
         + '<div class="movie-detail-info">'
         + '<div class="movie-detail-badges">' + statusBadge + formatBadges + '</div>'
@@ -256,9 +261,12 @@
         + '</section>'
         + scheduleSection
 
-      document.getElementById('trailer-box').addEventListener('click', function() {
-        alert('予告編動画を再生します')
-      })
+      var trailerBoxEl = document.querySelector('.trailer-box:not(.playing)')
+      if (trailerBoxEl) {
+        trailerBoxEl.addEventListener('click', function() {
+          alert('予告編動画を再生します')
+        })
+      }
 
       if (hasSchedule) {
         buildDates()

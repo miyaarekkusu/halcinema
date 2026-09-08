@@ -78,6 +78,14 @@
             </div>
           </div>
 
+          <!-- お客様情報（未ログイン＝ゲスト予約時のみ表示） -->
+          <div id="guest-name-section" style="display:none;">
+            <div class="form-group">
+              <label class="form-label" for="guest-name">お名前（発券・入場確認に使用します）</label>
+              <input class="form-input" type="text" id="guest-name" placeholder="山田 太郎" autocomplete="name">
+            </div>
+          </div>
+
           <!-- 予約内容サマリー -->
           <div>
             <p class="payment-method-label" style="margin-bottom:10px;">予約内容</p>
@@ -205,6 +213,12 @@
   var pointsUsed   = 0;
   var POINT_BALANCE = 1450;
 
+  // ── ゲスト予約：未ログインならお名前入力欄を表示 ──────────
+  var isLoggedIn = !!localStorage.getItem('hal_token');
+  if (isTicketFlow && !isLoggedIn) {
+    document.getElementById('guest-name-section').style.display = '';
+  }
+
   // ── ステップバー生成 ──────────────────────────────────────
   var TICKET_STEPS = [
     '座席選択', '券種選択', 'フード・グッズ', '注文確認', '決済', '完了'
@@ -246,7 +260,13 @@
 
   // ── 金額計算 ──────────────────────────────────────────────
   if (isTicketFlow) {
-    baseAmount = ticketData.totalPrice || 0;
+    // ticketData.totalPrice は券種選択時点（フード選択より前）の座席チケット代金のみのため、
+    // フード・グッズ選択で追加された分をここで合算する
+    var seatTicketAmount = ticketData.totalPrice || 0;
+    var foodSubtotal = (ticketData.foods || []).reduce(function(s, f) {
+      return s + f.price * (f.count || 1);
+    }, 0);
+    baseAmount = seatTicketAmount + foodSubtotal;
   } else {
     var ticketAmount  = reservation.totalAmount || 0;
     var goodsSubtotal = goodsCart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
@@ -390,6 +410,15 @@
   // ── 次へボタン ────────────────────────────────────────────
   document.getElementById('next-btn').addEventListener('click', async function() {
     var method = document.querySelector('input[name="method"]:checked').value;
+    var guestName = '';
+
+    if (isTicketFlow && !isLoggedIn) {
+      guestName = document.getElementById('guest-name').value.trim();
+      if (!guestName) {
+        alert('お名前を入力してください。');
+        return;
+      }
+    }
 
     if (method === 'card') {
       var num  = document.getElementById('card-number').value.replace(/\s/g, '');
@@ -431,7 +460,8 @@
           var reservationBody = JSON.stringify({
             scheduleId:    scheduleId,
             seats:         seatsPayload,
-            paymentMethod: payMethodCode
+            paymentMethod: payMethodCode,
+            guestName:     guestName
           });
 
           var token = localStorage.getItem('hal_token');
@@ -448,6 +478,22 @@
           if (res.status === 401 && token) {
             localStorage.removeItem('hal_token');
             localStorage.removeItem('hal_member');
+            if (!guestName) {
+              guestName = window.prompt('ログイン状態が無効になっていました。ゲスト予約として続けるため、お名前を入力してください。') || '';
+              guestName = guestName.trim();
+              if (!guestName) {
+                alert('お名前が入力されなかったため、予約を中止しました。');
+                nextBtn.disabled = false;
+                nextBtn.textContent = '次へ';
+                return;
+              }
+              reservationBody = JSON.stringify({
+                scheduleId:    scheduleId,
+                seats:         seatsPayload,
+                paymentMethod: payMethodCode,
+                guestName:     guestName
+              });
+            }
             res = await fetch(API_BASE + '/api/reservations', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -478,7 +524,8 @@
             finalAmount:     finalAmount,
             pointsUsed:      pointsUsed,
             paidAt:          new Date().toISOString(),
-            tickets:         data.tickets || []
+            tickets:         data.tickets || [],
+            foods:           ticketData.foods || []
           };
           sessionStorage.setItem('reservationData', JSON.stringify(resData));
           sessionStorage.removeItem('halcinema_seats');

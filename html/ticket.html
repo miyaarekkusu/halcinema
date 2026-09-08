@@ -210,7 +210,8 @@
       finalAmount     : reservation.finalAmount !== undefined ? reservation.finalAmount : reservation.totalAmount,
       issuedAt        : reservation.paidAt,
       status          : 'reserved',
-      tickets         : reservation.tickets || []
+      tickets         : reservation.tickets || [],
+      foods           : reservation.foods || []
     }))
   </script>
 

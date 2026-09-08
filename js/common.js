@@ -64,6 +64,18 @@
           <p class="widget-status">● オンライン</p>
         </div>
         <div class="widget-header-actions">
+          <button class="widget-action-btn" id="history-btn-widget" title="会話履歴">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <polyline points="12 7 12 12 16 14"/>
+            </svg>
+          </button>
+          <button class="widget-action-btn" id="new-chat-btn-widget" title="新規チャット">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
           <button class="widget-action-btn" id="voice-toggle-widget" title="自動読み上げ">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>

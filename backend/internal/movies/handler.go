@@ -11,18 +11,19 @@ import (
 )
 
 type Movie struct {
-	MovieID     int    `gorm:"column:f_movie_id;primaryKey"`
-	Title       string `gorm:"column:f_title"`
-	TitleEn     string `gorm:"column:f_title_en"`
-	Genre       string `gorm:"column:f_genre"`
-	Duration    *int   `gorm:"column:f_duration"`
-	Rating      string `gorm:"column:f_rating"`
-	ReleaseDate string `gorm:"column:f_release_date"`
-	Director    string `gorm:"column:f_director"`
-	CastInfo    string `gorm:"column:f_cast_info"`
-	Synopsis    string `gorm:"column:f_synopsis"`
-	Formats     string `gorm:"column:f_formats"`
-	IsShowing   int    `gorm:"column:f_is_showing"`
+	MovieID     int     `gorm:"column:f_movie_id;primaryKey"`
+	Title       string  `gorm:"column:f_title"`
+	TitleEn     string  `gorm:"column:f_title_en"`
+	Genre       string  `gorm:"column:f_genre"`
+	Duration    *int    `gorm:"column:f_duration"`
+	Rating      string  `gorm:"column:f_rating"`
+	ReleaseDate string  `gorm:"column:f_release_date"`
+	Director    string  `gorm:"column:f_director"`
+	CastInfo    string  `gorm:"column:f_cast_info"`
+	Synopsis    string  `gorm:"column:f_synopsis"`
+	Formats     string  `gorm:"column:f_formats"`
+	PosterSlug  *string `gorm:"column:f_poster_slug"`
+	IsShowing   int     `gorm:"column:f_is_showing"`
 }
 
 func (Movie) TableName() string { return "t_movie" }
@@ -84,6 +85,11 @@ func movieJSON(m Movie) map[string]any {
 		formats = strings.Split(m.Formats, ",")
 	}
 
+	var posterSlug any
+	if m.PosterSlug != nil {
+		posterSlug = *m.PosterSlug
+	}
+
 	return map[string]any{
 		"movieId":     m.MovieID,
 		"title":       m.Title,
@@ -96,6 +102,7 @@ func movieJSON(m Movie) map[string]any {
 		"cast":        m.CastInfo,
 		"synopsis":    m.Synopsis,
 		"formats":     formats,
+		"posterSlug":  posterSlug,
 		"isShowing":   m.IsShowing,
 	}
 }

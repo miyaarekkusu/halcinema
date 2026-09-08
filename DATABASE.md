@@ -173,7 +173,7 @@ token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 | 5 | 上映スケジュール | t_SCHEDULE | 映画×スクリーン×日時の組み合わせ |
 | 6 | 料金区分 | t_PRICE_CATEGORY | 一般・学生・シニア等の客属性区分 |
 | 7 | 上映料金 | t_SCREEN_PRICE | 上映回×料金区分→金額 |
-| 8 | 予約 | t_RESERVATION | 予約ヘッダ。ゲスト予約は f_member_id=NULL |
+| 8 | 予約 | t_RESERVATION | 予約ヘッダ。ゲスト予約は f_member_id=NULL、f_guest_nameに氏名を保持 |
 | 9 | 予約明細 | t_RESERVATION_DETAIL | 座席1つ分の明細 |
 | 10 | チケット | t_TICKET | 発券されたQRチケット |
 | 11 | 座席在庫 | t_SEAT_STOCK | 上映回ごとの座席空き状態（二重予約防止の要） |
@@ -184,6 +184,10 @@ token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 | 16 | 上映枠 | t_SLOT | スクリーン×日付の固定枠。ここに映画を割り当てる（枠方式の中核） |
 | 17 | 振替履歴 | t_SCHEDULE_CHANGE_LOG | 枠・時刻・スクリーン変更／中止の履歴 |
 | 18 | 通知 | t_NOTIFICATION | 振替・時刻/スクリーン変更を予約者へ通知 |
+| 19 | 管理者 | t_ADMIN | 管理者画面のログインアカウント。操作担当者の記録にも使用 |
+| 20 | フード・グッズ注文 | t_GOODS_ORDER | 事前注文（予約とセット決済）とPOS店頭販売の両方を管理 |
+| 21 | フード・グッズ注文明細 | t_GOODS_ORDER_DETAIL | 注文1件ごとの商品×数量×金額明細 |
+| 22 | スクリーン障害 | t_SCREEN_INCIDENT | 雨漏り・嘔吐・機械トラブル・停電等によるスクリーン使用不可の記録 |
 
 ### ER図（簡略）
 
@@ -306,6 +310,7 @@ UNIQUE制約: `(f_schedule_id, f_price_category_id)`
 |--------|----|------|------|
 | f_reservation_id | SERIAL | PK | 予約ID |
 | f_member_id | INTEGER | NULL可, FK→t_MEMBER | NULL=ゲスト予約 |
+| f_guest_name | VARCHAR(100) | NULL可 | ゲスト予約時の氏名（会員予約はt_MEMBERの氏名を使うためNULL） |
 | f_schedule_id | INTEGER | NOT NULL, FK→t_SCHEDULE | 予約した上映回 |
 | f_reserved_at | TIMESTAMP | NOT NULL, DEFAULT NOW | 予約日時 |
 | f_reservation_code | VARCHAR(20) | NOT NULL, UNIQUE | 顧客提示番号 |
@@ -397,7 +402,7 @@ UNIQUE制約: `(f_screen_id, f_show_date, f_slot_order)`
 | f_from_start_time | TIME | NULL可 | 変更前の開始時刻 |
 | f_to_start_time | TIME | NULL可 | 変更後の開始時刻 |
 | f_reason | VARCHAR(255) | NULL可 | 変更理由（機材故障 等） |
-| f_changed_by | INTEGER | NULL可 | 操作した管理者（管理者テーブル導入後にFK化） |
+| f_changed_by | INTEGER | NULL可, FK→t_ADMIN | 操作した管理者 |
 | f_changed_at | TIMESTAMP | NOT NULL, DEFAULT NOW | 変更日時 |
 
 ---
@@ -475,6 +480,8 @@ WHERE f_screen_id = (
 
 `t_RESERVATION.f_member_id` は NULL 許可。会員・ゲストを同一テーブルで管理する。
 ゲストはJWTなしで予約可能（API側で `member_id = NULL` で INSERT する）。
+氏名は会員なら`t_MEMBER`から取得し、ゲストは`t_RESERVATION.f_guest_name`に予約時点で保存する
+（管理者画面の発券・入場ゲートでの「氏名検索」に会員・ゲスト共通で対応するため）。
 
 ### 枠方式（スケジュール管理の基本方針）
 
@@ -518,6 +525,96 @@ WHERE f_screen_id = (
 
 ---
 
+### t_GOODS（グッズ・商品）
+
+| カラム | 型 | 制約 | 説明 |
+|--------|----|------|------|
+| f_goods_id | SERIAL | PK | 商品ID |
+| f_goods_name | VARCHAR(200) | NOT NULL | 商品名 |
+| f_goods_type | VARCHAR(50) | NOT NULL, DEFAULT '一般', CHECK | フード / ドリンク / グッズ / 一般 |
+| f_price | INTEGER | NOT NULL | 単価（税込・円） |
+| f_stock | INTEGER | NOT NULL, DEFAULT 0 | 在庫数量（`f_stock_unit`の単位で数える） |
+| f_stock_unit | VARCHAR(10) | NOT NULL, DEFAULT '個' | 在庫の単位（例：個 / kg / 本）。商品ごとに固定 |
+| f_stock_alert_threshold | INTEGER | NOT NULL, DEFAULT 10 | この数値以下で管理画面上「残りわずか」表示。0で「欠品」 |
+| f_is_active | SMALLINT | NOT NULL, DEFAULT 1, CHECK(0,1) | 0:非表示 / 1:販売中 |
+| f_created_at | TIMESTAMP | NOT NULL, DEFAULT NOW | 登録日時 |
+
+在庫バッジの判定式（アプリ側）：
+```
+f_stock = 0                        → 欠品
+0 < f_stock <= f_stock_alert_threshold → 残りわずか
+f_stock > f_stock_alert_threshold  → 十分
+```
+
+---
+
+### t_ADMIN（管理者）
+
+| カラム | 型 | 制約 | 説明 |
+|--------|----|------|------|
+| f_admin_id | SERIAL | PK | 管理者ID |
+| f_admin_code | VARCHAR(50) | NOT NULL, UNIQUE | ログインID |
+| f_admin_name | VARCHAR(50) | NOT NULL | 表示名 |
+| f_password | VARCHAR(255) | NOT NULL | bcryptハッシュ済みパスワード |
+| f_role | VARCHAR(20) | NOT NULL, DEFAULT 'staff' | 権限区分（将来の権限分けに備えた予備項目） |
+| f_created_at | TIMESTAMP | NOT NULL, DEFAULT NOW | 登録日時 |
+
+`t_SCHEDULE_CHANGE_LOG.f_changed_by` や `t_GOODS_ORDER.f_staff_id` の参照先。
+
+---
+
+### t_GOODS_ORDER（フード・グッズ注文）
+
+事前注文（座席予約とセットで1回の決済）とPOS店頭販売（管理者画面での直接会計）を`f_order_type`で区別して同じテーブルで管理する。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|----|------|------|
+| f_order_id | SERIAL | PK | 注文ID |
+| f_reservation_id | INTEGER | NULL可, FK→t_RESERVATION | 事前注文の場合のみ紐付く予約。POS店頭販売はNULL |
+| f_order_type | SMALLINT | NOT NULL, CHECK(1,2) | 1:事前注文（予約紐付） / 2:POS店頭販売 |
+| f_order_code | VARCHAR(20) | NOT NULL, UNIQUE | 注文番号（画面表示：F-xxxxxx / G-xxxxxx） |
+| f_total_amount | INTEGER | NOT NULL | 合計金額（税込・円） |
+| f_order_status | SMALLINT | NOT NULL, DEFAULT 0, CHECK(0,1,2,3) | 0:受付・調理/準備中 / 1:準備完了 / 2:受け渡し済み / 3:キャンセル |
+| f_ordered_at | TIMESTAMP | NOT NULL, DEFAULT NOW | 注文受付日時 |
+| f_delivered_at | TIMESTAMP | NULL可 | 受け渡し日時 |
+| f_staff_id | INTEGER | NULL可, FK→t_ADMIN | 対応した担当者 |
+
+POS店頭販売は会計と同時に受け渡しが完了するため、登録時点で`f_order_status=2`・`f_delivered_at=NOW()`とする想定。
+
+---
+
+### t_GOODS_ORDER_DETAIL（フード・グッズ注文明細）
+
+| カラム | 型 | 制約 | 説明 |
+|--------|----|------|------|
+| f_detail_id | SERIAL | PK | 明細ID |
+| f_order_id | INTEGER | NOT NULL, FK→t_GOODS_ORDER | 注文ヘッダ |
+| f_goods_id | INTEGER | NOT NULL, FK→t_GOODS | 商品 |
+| f_quantity | INTEGER | NOT NULL | 数量 |
+| f_unit_price | INTEGER | NOT NULL | 注文確定時の単価スナップショット（税込・円） |
+
+`t_RESERVATION_DETAIL.f_ticket_price`と同じ考え方で、後から`t_GOODS.f_price`が変わっても過去の注文履歴に影響しない。
+
+---
+
+### t_SCREEN_INCIDENT（スクリーン障害）
+
+雨漏り・嘔吐・機械トラブル・停電等でスクリーンが使用不可になった状態を記録する。`f_resolved_at`がNULLの行が存在する＝そのスクリーンは現在使用不可、という判定にする。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|----|------|------|
+| f_incident_id | SERIAL | PK | 障害ID |
+| f_screen_id | INTEGER | NOT NULL, FK→t_SCREEN | 対象スクリーン |
+| f_incident_type | VARCHAR(50) | NOT NULL | 障害種別（雨漏り／嘔吐／機械トラブル／停電 等） |
+| f_occurred_at | TIMESTAMP | NOT NULL, DEFAULT NOW | 発生日時 |
+| f_resolved_at | TIMESTAMP | NULL可 | 解除日時（NULL=対応中） |
+| f_reported_by | INTEGER | NULL可, FK→t_ADMIN | 発生登録した管理者 |
+| f_resolved_by | INTEGER | NULL可, FK→t_ADMIN | 解除操作をした管理者 |
+
+障害発生中のスクリーンに割り当てられている`t_SCHEDULE`は、他スクリーン・予備枠への振替対象として扱う（`t_SCHEDULE_CHANGE_LOG`に記録）。
+
+---
+
 ## 7. ステータスコード一覧
 
 | テーブル | カラム | 値 |
@@ -533,6 +630,8 @@ WHERE f_screen_id = (
 | t_SCHEDULE_CHANGE_LOG | f_change_type | `1`:枠振替 / `2`:時刻変更 / `3`:スクリーン変更 / `4`:中止 |
 | t_NOTIFICATION | f_type | `1`:枠振替 / `2`:時刻変更 / `3`:スクリーン変更 / `4`:中止 |
 | t_NOTIFICATION | f_is_read | `0`:未読 / `1`:既読 |
+| t_GOODS_ORDER | f_order_type | `1`:事前注文（予約紐付） / `2`:POS店頭販売 |
+| t_GOODS_ORDER | f_order_status | `0`:受付・調理/準備中 / `1`:準備完了 / `2`:受け渡し済み / `3`:キャンセル |
 
 ---
 
@@ -598,3 +697,6 @@ psql -d hal_cinema -c "\dt"
 |------|------|------|
 | 2026-06-23 | DATABASE.md 初版作成（テーブル定義・JWT説明・アーキテクチャ） | Claude Code |
 | 2026-07-10 | 枠方式へ移行する設計を追加（t_SLOT / t_SCHEDULE_CHANGE_LOG / t_NOTIFICATION、予備枠・振替・通知の運用ルール、t_SCHEDULE に f_slot_id 追加） | Claude Code |
+| 2026-09-01 | t_GOODS に f_stock_unit（在庫単位）・f_stock_alert_threshold（残りわずかしきい値、商品ごと）を追加。t_GOODS のテーブル定義をDATABASE.mdに追記 | Claude Code |
+| 2026-09-01 | 管理者画面（admin/）のDB設計を追加：t_ADMIN（管理者アカウント）、t_GOODS_ORDER・t_GOODS_ORDER_DETAIL（フード・グッズの事前注文＋POS店頭販売）、t_SCREEN_INCIDENT（スクリーン障害管理）を新設。t_RESERVATION に f_guest_name（ゲスト予約の氏名）を追加 | Claude Code |
+| 2026-09-01 | 設計のみでschema.sqlに未実装だったt_SLOT／t_SCHEDULE_CHANGE_LOG／t_NOTIFICATIONを実装。t_SCHEDULE に f_slot_id 列を追加（f_changed_by は t_ADMIN へのFKとして実装） | Claude Code |
