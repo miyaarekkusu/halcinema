@@ -187,8 +187,10 @@
     }
 
     function posterTag(m) {
-      return m.imageUrl
-        ? '<div class="movie-poster-ph"><img src="../' + m.imageUrl + '" alt="' + m.title + '" onerror="onPosterError(this)"></div>'
+      var title = String(m.title || '').replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]) })
+      var url = m.imageUrl ? encodeURI(String(m.imageUrl).replace(/^\/+/, '')) : ''
+      return url
+        ? '<div class="movie-poster-ph"><img src="../' + url + '" alt="' + title + '" onerror="onPosterError(this)"></div>'
         : '<div class="movie-poster-ph">' + POSTER_PH + '</div>'
     }
 
