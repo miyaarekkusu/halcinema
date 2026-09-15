@@ -329,6 +329,18 @@ async function releaseStaleHold() {
   }
 }
 
+// ─── bfcache対策 ──────────────────────────────────────────────────
+// ticket-select.html等の「戻る」ボタン（history.back()）でこのページに
+// 戻ってきた場合、ブラウザによってはページ全体をJS未実行のままメモリ
+// （bfcache）から復元することがある。その場合、下のreleaseStaleHold()を
+// 含むスクリプトが再実行されず、仮押さえが解放されないまま残ってしまう。
+// pageshowイベントでbfcache復元（event.persisted）を検知し、強制的に
+// リロードして必ずスクリプトを再実行させる（＝仮押さえ解放＋最新の
+// 座席状況の再取得を保証する）。
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) location.reload()
+})
+
 // ─── API 座席在庫初期化 ─────────────────────────────────────────────
 // 在庫確認が完了するまで seatsReady=false にしてクリックを止め、
 // 「取得中に選択された座席が実は予約済みだった」というレースを防ぐ。
