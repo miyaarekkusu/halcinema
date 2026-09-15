@@ -53,10 +53,11 @@ type Ticket struct {
 func (Ticket) TableName() string { return "t_ticket" }
 
 type SeatStock struct {
-	StockID     int `gorm:"column:f_stock_id;primaryKey"`
-	ScheduleID  int `gorm:"column:f_schedule_id"`
-	SeatID      int `gorm:"column:f_seat_id"`
-	StockStatus int `gorm:"column:f_stock_status"`
+	StockID     int     `gorm:"column:f_stock_id;primaryKey"`
+	ScheduleID  int     `gorm:"column:f_schedule_id"`
+	SeatID      int     `gorm:"column:f_seat_id"`
+	StockStatus int     `gorm:"column:f_stock_status"`
+	HoldToken   *string `gorm:"column:f_hold_token"`
 }
 
 func (SeatStock) TableName() string { return "t_seat_stock" }
@@ -91,6 +92,7 @@ type createReq struct {
 	Seats         []SeatReq `json:"seats"`
 	PaymentMethod int       `json:"paymentMethod"`
 	GuestName     string    `json:"guestName"`
+	HoldToken     string    `json:"holdToken"`
 }
 
 // CreateReservationInput は CreateReservation への入力。
@@ -101,6 +103,10 @@ type CreateReservationInput struct {
 	PaymentMethod int
 	MemberID      int // 0 = ゲスト
 	GuestName     string
+	// HoldToken は座席選択画面の仮押さえ（schedules.Hold）で発行したトークン。
+	// 空の場合（AIチャット予約など仮押さえを経由しないフロー）は従来通り
+	// 空席（f_stock_status=0）のみを対象にする。
+	HoldToken string
 }
 
 // CreateReservationResult は CreateReservation の結果。
@@ -116,10 +122,20 @@ type CreateReservationResult struct {
 // ErrSeatNotAvailable は指定座席のいずれかがすでに埋まっている場合に返る。
 var ErrSeatNotAvailable = errors.New("seat not available")
 
+// MaxSeatsPerReservation は1回の予約で選択できる座席数の上限。
+const MaxSeatsPerReservation = 6
+
+// ErrTooManySeats は座席数が MaxSeatsPerReservation を超えている場合に返る。
+var ErrTooManySeats = errors.New("too many seats")
+
 // CreateReservation は座席の排他ロック→空席確認→価格計算→予約・明細・チケット作成
 // →在庫更新までを1トランザクションで行う。Web予約API（Create）とAIチャット予約の
 // どちらから呼んでも同じ整合性保証（二重予約防止）を持つ。
 func CreateReservation(db *gorm.DB, input CreateReservationInput) (*CreateReservationResult, error) {
+	if len(input.Seats) > MaxSeatsPerReservation {
+		return nil, ErrTooManySeats
+	}
+
 	// JWTのmember_idが実在しない場合（DBリセット後の古いトークン等）、
 	// そのままINSERTするとt_reservationの外部キー制約違反(23503)でクラッシュするため
 	// 事前に存在確認し、ゲスト扱いに倒せるよう明示的なエラーを返す。
@@ -141,11 +157,18 @@ func CreateReservation(db *gorm.DB, input CreateReservationInput) (*CreateReserv
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		// 排他ロックで空席確認（GORM clause.Locking + IN ?）
+		// 排他ロックで空席確認（GORM clause.Locking + IN ?）。
+		// 空席（0）に加えて、自分自身が座席選択画面で仮押さえ済み（3・同じholdToken）
+		// または仮押さえが期限切れ（3・expired）の座席も対象にしてよい。
+		// HoldTokenが空（AIチャット予約など仮押さえを経由しないフロー）の場合は
+		// 従来通り空席のみが対象になる。
 		var lockedStocks []SeatStock
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("f_schedule_id = ? AND f_seat_id IN ? AND f_stock_status = 0",
-				input.ScheduleID, seatIDs).
+			Where(`f_schedule_id = ? AND f_seat_id IN ? AND (
+				f_stock_status = 0
+				OR (f_stock_status = 3 AND f_hold_token = ?)
+				OR (f_stock_status = 3 AND f_hold_expires_at < CURRENT_TIMESTAMP)
+			)`, input.ScheduleID, seatIDs, input.HoldToken).
 			Find(&lockedStocks).Error; err != nil {
 			return err
 		}
@@ -242,10 +265,14 @@ func CreateReservation(db *gorm.DB, input CreateReservationInput) (*CreateReserv
 			})
 		}
 
-		// 座席在庫を予約済みに更新
+		// 座席在庫を予約済みに更新（仮押さえ情報はここで用済みになるためクリアする）
 		if err := tx.Model(&SeatStock{}).
 			Where("f_schedule_id = ? AND f_seat_id IN ?", input.ScheduleID, seatIDs).
-			Update("f_stock_status", 1).Error; err != nil {
+			Updates(map[string]any{
+				"f_stock_status":    1,
+				"f_hold_token":      nil,
+				"f_hold_expires_at": nil,
+			}).Error; err != nil {
 			return err
 		}
 
@@ -289,11 +316,14 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		PaymentMethod: req.PaymentMethod,
 		MemberID:      memberID,
 		GuestName:     guestName,
+		HoldToken:     strings.TrimSpace(req.HoldToken),
 	})
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrSeatNotAvailable):
 			jsonError(w, "seat not available", http.StatusConflict)
+		case errors.Is(err, ErrTooManySeats):
+			jsonError(w, fmt.Sprintf("a reservation can include at most %d seats", MaxSeatsPerReservation), http.StatusBadRequest)
 		case errors.Is(err, ErrMemberNotFound):
 			jsonError(w, "session expired, please log in again", http.StatusUnauthorized)
 		default:

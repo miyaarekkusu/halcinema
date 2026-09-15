@@ -466,7 +466,8 @@
             scheduleId:    scheduleId,
             seats:         seatsPayload,
             paymentMethod: payMethodCode,
-            guestName:     guestName
+            guestName:     guestName,
+            holdToken:     ticketData.holdToken || ''
           });
 
           var token = localStorage.getItem('hal_token');
@@ -496,7 +497,8 @@
                 scheduleId:    scheduleId,
                 seats:         seatsPayload,
                 paymentMethod: payMethodCode,
-                guestName:     guestName
+                guestName:     guestName,
+                holdToken:     ticketData.holdToken || ''
               });
             }
             res = await fetch(API_BASE + '/api/reservations', {
@@ -534,6 +536,7 @@
           };
           sessionStorage.setItem('reservationData', JSON.stringify(resData));
           sessionStorage.removeItem('halcinema_seats');
+          sessionStorage.removeItem('halcinema_hold');
           location.href = 'ticket.html';
           return;
 
@@ -560,6 +563,7 @@
       };
       sessionStorage.setItem('reservationData', JSON.stringify(fbData));
       sessionStorage.removeItem('halcinema_seats');
+      sessionStorage.removeItem('halcinema_hold');
       location.href = 'ticket.html';
 
     } else if (isGoodsOnlyFlow) {

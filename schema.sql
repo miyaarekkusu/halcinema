@@ -206,13 +206,19 @@ CREATE INDEX idx_ticket_status ON t_TICKET (f_ticket_status);
 
 -- ============================================================
 --  11. 座席在庫テーブル  t_SEAT_STOCK
+--  ※ f_stock_status=3（仮押さえ中）は座席選択→次へ の時点で10分間だけ確保する
+--     一時ロック。f_hold_token を持つ本人だけが決済完了時に本予約へ移行できる。
+--     10分間操作がなければ f_hold_expires_at 超過として空席扱いに戻す
+--     （バッチ処理は使わず、参照・取得のたびに期限切れを判定する）。
 -- ============================================================
 CREATE TABLE t_SEAT_STOCK (
-    f_stock_id      SERIAL   PRIMARY KEY,
-    f_schedule_id   INTEGER  NOT NULL REFERENCES t_SCHEDULE (f_schedule_id),
-    f_seat_id       INTEGER  NOT NULL REFERENCES t_SEAT     (f_seat_id),
-    f_stock_status  SMALLINT NOT NULL DEFAULT 0
-        CHECK (f_stock_status IN (0, 1, 2)),
+    f_stock_id         SERIAL       PRIMARY KEY,
+    f_schedule_id      INTEGER      NOT NULL REFERENCES t_SCHEDULE (f_schedule_id),
+    f_seat_id          INTEGER      NOT NULL REFERENCES t_SEAT     (f_seat_id),
+    f_stock_status     SMALLINT     NOT NULL DEFAULT 0
+        CHECK (f_stock_status IN (0, 1, 2, 3)),
+    f_hold_token       VARCHAR(64),
+    f_hold_expires_at  TIMESTAMP,
 
     CONSTRAINT uq_seat_stock UNIQUE (f_schedule_id, f_seat_id)
 );

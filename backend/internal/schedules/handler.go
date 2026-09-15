@@ -4,10 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
+
+// HoldDurationMinutes は座席の仮押さえ（次へ押下〜決済完了までのロック）の有効時間。
+// この間に決済が完了しなければ自動的に空席へ戻る（バッチ不要、参照時に判定）。
+const HoldDurationMinutes = 10
 
 type Schedule struct {
 	ScheduleID int    `gorm:"column:f_schedule_id;primaryKey"`
@@ -21,10 +28,12 @@ type Schedule struct {
 func (Schedule) TableName() string { return "t_schedule" }
 
 type SeatStock struct {
-	StockID     int `gorm:"column:f_stock_id;primaryKey"`
-	ScheduleID  int `gorm:"column:f_schedule_id"`
-	SeatID      int `gorm:"column:f_seat_id"`
-	StockStatus int `gorm:"column:f_stock_status"`
+	StockID         int        `gorm:"column:f_stock_id;primaryKey"`
+	ScheduleID      int        `gorm:"column:f_schedule_id"`
+	SeatID          int        `gorm:"column:f_seat_id"`
+	StockStatus     int        `gorm:"column:f_stock_status"`
+	HoldToken       *string    `gorm:"column:f_hold_token"`
+	HoldExpiresAt   *time.Time `gorm:"column:f_hold_expires_at"`
 }
 
 func (SeatStock) TableName() string { return "t_seat_stock" }
@@ -146,10 +155,15 @@ func (h *Handler) GetSeats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 仮押さえ（f_stock_status=3）は f_hold_expires_at を過ぎていれば
+	// バッチを挟まずその場で空席（0）扱いにする。
 	var rows []seatWithStock
 	h.db.Raw(`
 		SELECT t.f_seat_id, t.f_row_label, t.f_seat_number, t.f_seat_type,
-		       COALESCE(ss.f_stock_status, 0) AS f_stock_status
+		       CASE
+		         WHEN ss.f_stock_status = 3 AND ss.f_hold_expires_at < CURRENT_TIMESTAMP THEN 0
+		         ELSE COALESCE(ss.f_stock_status, 0)
+		       END AS f_stock_status
 		FROM t_seat t
 		LEFT JOIN t_seat_stock ss
 		       ON ss.f_seat_id = t.f_seat_id AND ss.f_schedule_id = ?
@@ -173,6 +187,142 @@ func (h *Handler) GetSeats(w http.ResponseWriter, r *http.Request) {
 		"scheduleId": scheduleID,
 		"seats":      seats,
 	})
+}
+
+type holdReq struct {
+	SeatIDs   []int  `json:"seatIds"`
+	HoldToken string `json:"holdToken"`
+}
+
+// Hold は座席選択画面で「次へ」を押した時点で対象の座席を一時的にロックする。
+// 他のユーザーには「予約中」として見え、HoldDurationMinutes以内に決済が完了
+// しなければ自動的に空席へ戻る。すでに自分自身（同じholdToken）が保持している
+// 座席や、期限切れの仮押さえも取得対象にしてよい。
+func (h *Handler) Hold(w http.ResponseWriter, r *http.Request) {
+	scheduleID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		jsonError(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	var req holdReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonError(w, "invalid request", http.StatusBadRequest)
+		return
+	}
+	req.HoldToken = strings.TrimSpace(req.HoldToken)
+	if len(req.SeatIDs) == 0 || req.HoldToken == "" {
+		jsonError(w, "seatIds and holdToken are required", http.StatusBadRequest)
+		return
+	}
+
+	expiresAt := time.Now().Add(HoldDurationMinutes * time.Minute)
+	var unavailable []int
+
+	err = h.db.Transaction(func(tx *gorm.DB) error {
+		var stocks []SeatStock
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("f_schedule_id = ? AND f_seat_id IN ?", scheduleID, req.SeatIDs).
+			Find(&stocks).Error; err != nil {
+			return err
+		}
+
+		stockBySeat := make(map[int]SeatStock, len(stocks))
+		for _, s := range stocks {
+			stockBySeat[s.SeatID] = s
+		}
+
+		for _, seatID := range req.SeatIDs {
+			s, exists := stockBySeat[seatID]
+			acquirable := !exists || s.StockStatus == 0 ||
+				(s.StockStatus == 3 && s.HoldToken != nil && *s.HoldToken == req.HoldToken) ||
+				(s.StockStatus == 3 && s.HoldExpiresAt != nil && s.HoldExpiresAt.Before(time.Now()))
+			if !acquirable {
+				unavailable = append(unavailable, seatID)
+			}
+		}
+		if len(unavailable) > 0 {
+			return nil // ロールバック不要（何も更新しない）。呼び出し元にunavailableを返す
+		}
+
+		for _, seatID := range req.SeatIDs {
+			if _, exists := stockBySeat[seatID]; exists {
+				if err := tx.Model(&SeatStock{}).
+					Where("f_schedule_id = ? AND f_seat_id = ?", scheduleID, seatID).
+					Updates(map[string]any{
+						"f_stock_status":    3,
+						"f_hold_token":      req.HoldToken,
+						"f_hold_expires_at": expiresAt,
+					}).Error; err != nil {
+					return err
+				}
+			} else {
+				if err := tx.Create(&SeatStock{
+					ScheduleID:    scheduleID,
+					SeatID:        seatID,
+					StockStatus:   3,
+					HoldToken:     &req.HoldToken,
+					HoldExpiresAt: &expiresAt,
+				}).Error; err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		jsonError(w, "hold failed: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if len(unavailable) > 0 {
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(map[string]any{
+			"error":       "seat not available",
+			"unavailable": unavailable,
+		})
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]any{
+		"ok":        true,
+		"expiresAt": expiresAt.Format(time.RFC3339),
+	})
+}
+
+// ReleaseHold は座席選択のやり直し等で仮押さえを明示的に解放する。
+// 自分（同じholdToken）が保持している座席だけを空席に戻す。
+func (h *Handler) ReleaseHold(w http.ResponseWriter, r *http.Request) {
+	scheduleID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		jsonError(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	var req holdReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonError(w, "invalid request", http.StatusBadRequest)
+		return
+	}
+	req.HoldToken = strings.TrimSpace(req.HoldToken)
+	if req.HoldToken == "" {
+		jsonError(w, "holdToken is required", http.StatusBadRequest)
+		return
+	}
+
+	q := h.db.Model(&SeatStock{}).
+		Where("f_schedule_id = ? AND f_stock_status = 3 AND f_hold_token = ?", scheduleID, req.HoldToken)
+	if len(req.SeatIDs) > 0 {
+		q = q.Where("f_seat_id IN ?", req.SeatIDs)
+	}
+	q.Updates(map[string]any{
+		"f_stock_status":    0,
+		"f_hold_token":      nil,
+		"f_hold_expires_at": nil,
+	})
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]any{"ok": true})
 }
 
 func jsonError(w http.ResponseWriter, msg string, code int) {

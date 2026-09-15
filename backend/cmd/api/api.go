@@ -56,6 +56,8 @@ func (app *application) mount() http.Handler {
 	scheduleHandler := schedules.NewHandler(app.db)
 	r.Get("/api/schedules", scheduleHandler.List)
 	r.Get("/api/schedules/{id}/seats", scheduleHandler.GetSeats)
+	r.Post("/api/schedules/{id}/hold", scheduleHandler.Hold)
+	r.Post("/api/schedules/{id}/release-hold", scheduleHandler.ReleaseHold)
 
 	reservationHandler := reservations.NewHandler(app.db)
 	r.With(optionalJWTMiddleware).Post("/api/reservations", reservationHandler.Create)

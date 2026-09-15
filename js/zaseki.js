@@ -57,6 +57,12 @@ const STATE_AVAILABLE = 0
 const STATE_SELECTED  = 1
 const STATE_TAKEN     = 2
 
+const MAX_SEATS = 6 // 1回の予約で選択できる座席数の上限
+
+function selectedCount() {
+  return seatObjects.filter(s => s.state === STATE_SELECTED).length
+}
+
 // ─── DOM ──────────────────────────────────────────────────────────
 const canvas       = document.querySelector('canvas.webgl')
 const canvasWrap   = document.querySelector('.zaseki-canvas-wrap')
@@ -302,10 +308,33 @@ function setSeatState(seatObj, newState) {
   })
 }
 
+// ─── 仮押さえ（ダブルブッキング対策） ────────────────────────────────
+// 「次へ」を押した時点で対象座席を一時ロックし、他のユーザーには「予約中」
+// として見せる。ここへ（再度）来た＝前回の仮押さえは使わないということなので、
+// 座席マップを取得する前に明示的に解放しておく。
+async function releaseStaleHold() {
+  const raw = sessionStorage.getItem('halcinema_hold')
+  if (!raw) return
+  sessionStorage.removeItem('halcinema_hold')
+  try {
+    const hold = JSON.parse(raw)
+    if (!hold || !hold.scheduleId || !hold.token) return
+    await fetch(`${API_BASE}/api/schedules/${hold.scheduleId}/release-hold`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ seatIds: hold.seatIds || [], holdToken: hold.token }),
+    })
+  } catch (e) {
+    console.warn('仮押さえの解放に失敗しました（期限切れで自動解放されます）:', e)
+  }
+}
+
 // ─── API 座席在庫初期化 ─────────────────────────────────────────────
 // 在庫確認が完了するまで seatsReady=false にしてクリックを止め、
 // 「取得中に選択された座席が実は予約済みだった」というレースを防ぐ。
 ;(async function fetchSeatAvailability() {
+  await releaseStaleHold()
+
   const p          = new URLSearchParams(location.search)
   const scheduleId = p.get('scheduleId')
   const screen     = p.get('screen')
@@ -413,6 +442,10 @@ canvas.addEventListener('click', (e) => {
   if (!seatObj || seatObj.state === STATE_TAKEN) return
 
   if (seatObj.state === STATE_AVAILABLE) {
+    if (selectedCount() >= MAX_SEATS) {
+      alert(`座席は1回のご予約につき最大${MAX_SEATS}席までお選びいただけます。`)
+      return
+    }
     setSeatState(seatObj, STATE_SELECTED)
     lastSelected = seatObj
   } else {
@@ -492,7 +525,7 @@ function updateUI() {
   confirmBtn.disabled = count === 0
 
   if (count === 0) {
-    selectedList.innerHTML = '<p class="zaseki-empty-msg">座席をクリックして選択してください</p>'
+    selectedList.innerHTML = `<p class="zaseki-empty-msg">座席をクリックして選択してください（最大${MAX_SEATS}席）</p>`
   } else {
     selectedList.innerHTML = selected.map(s =>
       `<span class="zaseki-seat-tag" data-label="${s.label}">${s.label}</span>`
@@ -533,10 +566,65 @@ function restoreSavedSeats() {
   updateUI()
 }
 
-// 次へボタン
-confirmBtn.addEventListener('click', () => {
+// 「次へ」を押した選択がすでに他の人に取られていた場合、失敗した座席だけを
+// 選択解除して座席マップ上でも「予約中」に更新する（サーバー側の最新状態を反映）。
+function deselectUnavailableSeats(unavailableSeatIds) {
+  const idSet = new Set(unavailableSeatIds)
+  seatObjects.forEach(obj => {
+    const seatId = obj.group.userData.seatId
+    if (seatId == null || !idSet.has(seatId)) return
+    setSeatState(obj, STATE_TAKEN)
+    const idx = clickableGroups.indexOf(obj.group)
+    if (idx !== -1) clickableGroups.splice(idx, 1)
+  })
+  updateUI()
+  buildTwoDMap()
+}
+
+// 次へボタン：まず仮押さえ（10分間の一時ロック）を取得してから遷移する。
+// 他の人がすでに選んでいた座席があれば失敗するので、その分だけ選択解除して
+// ユーザーに選び直してもらう。
+confirmBtn.addEventListener('click', async () => {
   const selected = seatObjects.filter(s => s.state === STATE_SELECTED)
   const labels   = selected.map(s => s.label)
+  const seatIds  = selected.map(s => s.group.userData.seatId).filter(id => id != null)
+
+  if (seatIds.length !== selected.length) {
+    alert('座席情報の取得に失敗しました。ページを再読み込みしてもう一度お試しください。')
+    return
+  }
+
+  confirmBtn.disabled = true
+
+  const holdToken = crypto.randomUUID()
+  try {
+    const holdRes = await fetch(`${API_BASE}/api/schedules/${_halScheduleId}/hold`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ seatIds, holdToken }),
+    })
+
+    if (holdRes.status === 409) {
+      const data = await holdRes.json().catch(() => ({}))
+      alert('選択された座席の一部はちょうど他のお客様が手続き中です。お手数ですが別の座席をお選びください。')
+      deselectUnavailableSeats(data.unavailable || [])
+      confirmBtn.disabled = false
+      return
+    }
+    if (!holdRes.ok) {
+      alert('座席の確保に失敗しました。もう一度お試しください。')
+      confirmBtn.disabled = false
+      return
+    }
+  } catch (e) {
+    console.warn('仮押さえAPIに接続できませんでした（オフラインで続行）:', e)
+  }
+
+  sessionStorage.setItem('halcinema_hold', JSON.stringify({
+    token: holdToken,
+    scheduleId: _halScheduleId,
+    seatIds,
+  }))
 
   // URLパラメータから上映情報を取得
   const p      = new URLSearchParams(location.search)
@@ -547,7 +635,7 @@ confirmBtn.addEventListener('click', () => {
   const time   = p.get('time')   || ''
 
   // seatId マッピング（API連携時のみ有効）
-  const seatIds = selected.map(s => ({
+  const seatIdMap = selected.map(s => ({
     label:  s.label,
     seatId: s.group.userData.seatId || null
   }))
@@ -556,7 +644,7 @@ confirmBtn.addEventListener('click', () => {
   const seatData = {
     scheduleId: _halScheduleId,
     seats:      labels,
-    seatIds:    seatIds,
+    seatIds:    seatIdMap,
     count:      labels.length,
     movie:      movie + (format ? '（' + format + '版）' : ''),
     screen:     screen,
@@ -564,6 +652,7 @@ confirmBtn.addEventListener('click', () => {
     time:       time,
     tickets:    [],   // ticket-select.html で上書き
     totalPrice: 0,
+    holdToken:  holdToken,
   }
   sessionStorage.setItem('halcinema_seats', JSON.stringify(seatData))
 
@@ -643,6 +732,10 @@ function buildTwoDMap() {
         btn.addEventListener('click', () => {
           if (!seatsReady) return
           if (seatObj.state === STATE_AVAILABLE) {
+            if (selectedCount() >= MAX_SEATS) {
+              alert(`座席は1回のご予約につき最大${MAX_SEATS}席までお選びいただけます。`)
+              return
+            }
             setSeatState(seatObj, STATE_SELECTED)
             lastSelected = seatObj
           } else {

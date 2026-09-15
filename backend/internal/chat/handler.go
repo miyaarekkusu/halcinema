@@ -452,6 +452,17 @@ func (h *Handler) finalizeReservation(w http.ResponseWriter, messages []chatMess
 				"申し訳ございません、選択された座席が埋まってしまいました。お手数ですが座席を選び直してください。")
 			return
 		}
+		if errors.Is(err, reservations.ErrTooManySeats) {
+			// 通常は人数聞き取り時点(mergeSlots)で6席以下に絞られるため到達しないはずだが、
+			// バックエンドを直接叩かれた場合等に備えた保険。座席選択からやり直させる。
+			resetSlots := slots
+			resetSlots.SeatIDs = nil
+			resetSlots.PaymentMethod = 0
+			resetSlots.CardID = 0
+			h.presentSeatPicker(w, messages, resetSlots,
+				fmt.Sprintf("申し訳ございません、1回のご予約は最大%d席までです。座席を選び直してください。", reservations.MaxSeatsPerReservation))
+			return
+		}
 		writeJSON(w, chatResponse{
 			Reply:    "予約処理に失敗しました。もう一度お試しください。",
 			Messages: messages,
@@ -505,7 +516,7 @@ func mergeSlots(db *gorm.DB, current, incoming Slots, memberID int) Slots {
 		merged.ScheduleID = incoming.ScheduleID
 	}
 
-	if incoming.SeatCount > 0 && incoming.SeatCount <= 10 {
+	if incoming.SeatCount > 0 && incoming.SeatCount <= reservations.MaxSeatsPerReservation {
 		merged.SeatCount = incoming.SeatCount
 	}
 
