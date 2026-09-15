@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>作品詳細 | HAL CINEMA</title>
-  <script src="../js/config.js"></script>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/mypage.css">
@@ -94,7 +93,7 @@
       return '<img src="../images/poster/' + movie.posterSlug + '.jpg" alt="' + movie.title + '" onerror="onDetailPosterError(this)">'
     }
 
-    var API_BASE = window.HAL_API_BASE
+    var API_BASE = 'http://localhost:8080'
     var DAY_JA = ['日','月','火','水','木','金','土']
     var today  = new Date()
     var TOTAL = 14, VISIBLE = 7
