@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>決済 | HAL CINEMA</title>
+  <script src="../js/config.js"></script>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/step-progress.css">
@@ -209,7 +210,7 @@
   var reservation = JSON.parse(sessionStorage.getItem('reservationData')  || '{}');
   var goodsCart   = JSON.parse(sessionStorage.getItem('goodsCart')         || '[]');
 
-  var API_BASE     = 'http://localhost:8080';
+  var API_BASE     = window.HAL_API_BASE;
   var isTicketFlow = !!ticketData;
   // goods.html の単体訪問モード（グッズのみ、映画予約なし）からの注文。
   // AIチャットボット予約後のグッズ購入（reservation.movieTitleあり）とはここで区別する。

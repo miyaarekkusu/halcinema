@@ -12,7 +12,7 @@
 
 (function () {
 
-  var API_BASE = 'http://localhost:8080';
+  var API_BASE = window.HAL_API_BASE;
   var THREADS_KEY_PREFIX = 'halcinema_chat_threads_';
   var ACTIVE_KEY_PREFIX  = 'halcinema_chat_active_id_';
 

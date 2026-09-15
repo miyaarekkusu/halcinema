@@ -630,9 +630,6 @@ DECLARE
     m4   INT;
     m5   INT;
     m6   INT;
-    m7   INT;
-    m8   INT;
-    m9   INT;
 BEGIN
     SELECT f_screen_id INTO sc1 FROM t_screen WHERE f_screen_name = 'SC1';
     SELECT f_screen_id INTO sc2 FROM t_screen WHERE f_screen_name = 'SC2';
@@ -641,12 +638,9 @@ BEGIN
     SELECT f_movie_id  INTO m1  FROM t_movie WHERE f_title = 'ゴジラ-1.0';
     SELECT f_movie_id  INTO m2  FROM t_movie WHERE f_title = '名探偵コナン 黒鉄の魚影';
     SELECT f_movie_id  INTO m3  FROM t_movie WHERE f_title = 'THE FIRST SLAM DUNK';
-    SELECT f_movie_id  INTO m4  FROM t_movie WHERE f_title = 'スパイダーマン:アクロス';
-    SELECT f_movie_id  INTO m5  FROM t_movie WHERE f_title = '怪物';
-    SELECT f_movie_id  INTO m6  FROM t_movie WHERE f_title = 'インディ・ジョーンズ5';
-    SELECT f_movie_id  INTO m7  FROM t_movie WHERE f_title = 'ちいかわ セイレーン編';
-    SELECT f_movie_id  INTO m8  FROM t_movie WHERE f_title = '魔女の宅急便 4K';
-    SELECT f_movie_id  INTO m9  FROM t_movie WHERE f_title = 'プレジデンツ・ケーキ';
+    SELECT f_movie_id  INTO m4  FROM t_movie WHERE f_title = '君たちはどう生きるか';
+    SELECT f_movie_id  INTO m5  FROM t_movie WHERE f_title = 'プラダを着た悪魔２';
+    SELECT f_movie_id  INTO m6  FROM t_movie WHERE f_title = 'マイケル';
 
     FOR day_offset IN 0..13 LOOP
         d := CURRENT_DATE + day_offset;
@@ -667,12 +661,5 @@ BEGIN
         PERFORM insert_schedule_seed(m5, sc4, d, '15:00');
         PERFORM insert_schedule_seed(m6, sc4, d, '13:00');
         PERFORM insert_schedule_seed(m6, sc4, d, '18:00');
-        PERFORM insert_schedule_seed(m7, sc3, d, '09:00');
-        PERFORM insert_schedule_seed(m7, sc3, d, '13:00');
-        PERFORM insert_schedule_seed(m7, sc3, d, '17:30');
-        PERFORM insert_schedule_seed(m8, sc2, d, '10:30');
-        PERFORM insert_schedule_seed(m8, sc2, d, '15:30');
-        PERFORM insert_schedule_seed(m9, sc4, d, '09:30');
-        PERFORM insert_schedule_seed(m9, sc4, d, '16:30');
     END LOOP;
 END$$;

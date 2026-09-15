@@ -1,0 +1,10 @@
+backend/
+note/
+.claude/
+schema.sql
+DATABASE.md
+GitHub.md
+PROJECT_STATUS.md
+docker-compose.yml
+.env
+.env.example

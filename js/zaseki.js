@@ -46,7 +46,7 @@ const PRICE_PER_SEAT = 1800
 const TAKEN_RATE  = 0.28
 
 // ─── API 連携用グローバル ──────────────────────────────────────────
-const API_BASE = 'http://localhost:8080'
+const API_BASE = window.HAL_API_BASE
 const seatMapByLabel = {}   // label → { seatId, status }
 let   _halScheduleId = null // API から取得したスケジュールID
 let   seatsReady     = true // false の間は座席クリックを無効化（在庫確認中の競合防止）

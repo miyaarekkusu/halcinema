@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>マイページ | HAL CINEMA</title>
+  <script src="../js/config.js"></script>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/mypage.css">
@@ -388,7 +389,7 @@
       });
     });
 
-    var API_BASE   = 'http://localhost:8080';
+    var API_BASE   = window.HAL_API_BASE;
     var POSTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>';
 
     // ── ログイン状態の反映 ──────────────────────────────────

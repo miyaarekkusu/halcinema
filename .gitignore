@@ -7,3 +7,5 @@
 # Go ビルド成果物
 backend/api
 backend/*.exe
+
+.vercel
