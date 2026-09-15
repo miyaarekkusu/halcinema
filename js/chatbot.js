@@ -1024,8 +1024,11 @@
   }
 
   // 予約確定後、その予約に紐づけてグッズ・売店ページへ遷移する。
-  // goods.html は sessionStorage.reservationData の有無で booking-mode に
-  // 自動的に切り替わる（js/goods.js 既存の仕組みをそのまま利用、変更不要）。
+  // goods.html は「reservationDataがあり、かつ ?fromReservation=1 で来た」場合だけ
+  // booking-modeになる（js/goods.js）。?fromReservation=1 を付けずに直接遷移すると、
+  // 過去の予約完了時に残ったreservationDataが原因で、ナビの「グッズ・物販」から
+  // 単体で訪れただけなのに勝手に古い予約へ紐付いてしまうため、このボタン経由の
+  // 遷移だけに限定する。
   function goToGoodsForReservation(payload) {
     var tickets = payload.tickets || [];
     var seats = tickets.map(function (t) { return t.rowLabel + t.seatNumber; });
@@ -1038,7 +1041,7 @@
       totalAmount:     payload.totalAmount || 0
     };
     try { sessionStorage.setItem('reservationData', JSON.stringify(data)); } catch (e) { /* ignore */ }
-    location.href = 'goods.html';
+    location.href = 'goods.html?fromReservation=1';
   }
 
   function showRestartOption(containerId) {

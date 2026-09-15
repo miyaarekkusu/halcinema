@@ -115,7 +115,7 @@
         : '<a href="movie-detail.html?id=' + m.movieId + '" class="btn btn-secondary btn-sm">詳細を見る</a>'
       var meta     = isNow ? year + ' · ' + m.duration + '分' : comingDateLabel(m.releaseDate)
       return '<div class="movie-grid-item card movie-card" data-status="' + status + '">'
-        + '<div class="movie-poster-ph">' + posterImgTag(m) + '</div>'
+        + posterTag(m)
         + badge
         + '<div class="movie-card-overlay">'
         + '<p class="movie-card-title">' + m.title + '</p>'

@@ -5,16 +5,21 @@
    3つの利用シーンすべてに対応する：
    ① wizard  : sessionStorage.halcinema_seats あり
                 → 座席予約ウィザードの一部（次へ→order-confirm.html）
-   ② booking : sessionStorage.reservationData あり
+   ② booking : sessionStorage.reservationData あり ＋ URLに ?fromReservation=1
                 → AIチャットボット予約後の注文（決済へ進む→payment.html直行）
-   ③ standalone : どちらもなし
+                → reservationDataは予約完了のたびに書き込まれ、その後も
+                  ブラウザタブを閉じるまでsessionStorageに残り続けるため、
+                  URLフラグを必須にすることで「ナビの『グッズ・物販』から
+                  単体で来ただけなのに、過去の予約に勝手に紐付く」事故を防ぐ。
+   ③ standalone : 上記のどちらでもない
                 → ナビ「グッズ・物販」からの単体訪問
    ============================================================ */
 (function () {
 
-  var seatData        = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null');
-  var reservationData = JSON.parse(sessionStorage.getItem('reservationData') || 'null');
-  var MODE = seatData ? 'wizard' : (reservationData ? 'booking' : 'standalone');
+  var seatData          = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null');
+  var reservationData   = JSON.parse(sessionStorage.getItem('reservationData') || 'null');
+  var fromReservation   = new URLSearchParams(location.search).get('fromReservation') === '1';
+  var MODE = seatData ? 'wizard' : (reservationData && fromReservation ? 'booking' : 'standalone');
   document.body.classList.add('mode-' + MODE);
 
   var NEXT_BTN_LABEL = { wizard: '次へ', booking: '決済へ進む', standalone: '注文する' };
