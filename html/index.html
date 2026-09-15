@@ -7,6 +7,7 @@
   <script src="../js/config.js"></script>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/movie-card.css">
   <link rel="stylesheet" href="../css/mypage.css">
   <link rel="stylesheet" href="../css/index.css">
 
@@ -68,6 +69,33 @@
   <!-- メインコンテンツ -->
   <main>
     <div class="content-wrap">
+
+      <!-- おすすめ（お気に入りのジャンルから。手がかりが無いときは案内文を出す） -->
+      <section class="section" id="section-recommend" hidden>
+        <div class="section-header">
+          <h2 class="section-title">あなたへの<span>おすすめ</span></h2>
+          <span class="section-note" id="recommend-reason"></span>
+        </div>
+        <div class="movie-row-scroll" id="recommend-list"></div>
+      </section>
+
+      <!-- 本日のランキング -->
+      <section class="section" id="section-ranking" hidden>
+        <div class="section-header">
+          <h2 class="section-title">本日の<span>ランキング</span></h2>
+          <span class="section-note">座席の予約数 TOP5</span>
+        </div>
+        <div class="movie-row-scroll" id="ranking-list"></div>
+      </section>
+
+      <!-- お気に入り（0件のときは行ごと非表示） -->
+      <section class="section" id="section-favorite" hidden>
+        <div class="section-header">
+          <h2 class="section-title">お気に<span>入り</span></h2>
+          <a href="mypage.html" class="section-link">マイページで見る →</a>
+        </div>
+        <div class="movie-row-scroll" id="favorite-list"></div>
+      </section>
 
       <!-- 上映中 -->
       <section class="section" id="schedule">
@@ -179,64 +207,15 @@
   <script type="module" src="../js/hero-cinema.js"></script>
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
-  <script>
-    var API_BASE = window.HAL_API_BASE
-    const POSTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></svg>'
-    const POSTER_PH = POSTER_SVG + '<span class="movie-poster-ph-label">POSTER</span>'
 
-    function onPosterError(img) {
-      img.closest('.movie-poster-ph').innerHTML = POSTER_PH
-    }
-
-    function posterTag(m) {
-      var title = String(m.title || '').replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]) })
-      var url = m.imageUrl ? encodeURI(String(m.imageUrl).replace(/^\/+/, '')) : ''
-      return url
-        ? '<div class="movie-poster-ph"><img src="../' + url + '" alt="' + title + '" onerror="onPosterError(this)"></div>'
-        : '<div class="movie-poster-ph">' + POSTER_PH + '</div>'
-    }
-
-    function comingDateLabel(iso) {
-      var d = new Date(iso)
-      return d.getFullYear() + '年' + (d.getMonth() + 1) + '月公開予定'
-    }
-
-    function buildNowCard(m) {
-      var year = new Date(m.releaseDate).getFullYear()
-      return '<div class="card movie-card">'
-        + posterTag(m)
-        + '<span class="badge badge-red movie-card-badge">上映中</span>'
-        + '<div class="movie-card-overlay">'
-        + '<p class="movie-card-title">' + m.title + '</p>'
-        + '<p class="text-sm text-sub">' + year + ' / ' + m.duration + '分</p>'
-        + '<a href="movie-detail.html?id=' + m.movieId + '" class="btn btn-primary btn-sm">詳細・予約</a>'
-        + '</div></div>'
-    }
-
-    function buildComingCard(m) {
-      return '<div class="card movie-card">'
-        + posterTag(m)
-        + '<span class="badge badge-dark movie-card-badge">公開予定</span>'
-        + '<div class="movie-card-overlay">'
-        + '<p class="movie-card-title">' + m.title + '</p>'
-        + '<p class="text-sm text-sub">' + comingDateLabel(m.releaseDate) + '</p>'
-        + '<a href="movie-detail.html?id=' + m.movieId + '" class="btn btn-secondary btn-sm">詳細を見る</a>'
-        + '</div></div>'
-    }
-
-    fetch(API_BASE + '/api/movies')
-      .then(function(r) { return r.json() })
-      .then(function(movies) {
-        document.getElementById('now-playing-list').innerHTML =
-          movies.filter(function(m) { return m.isShowing === 1 }).map(buildNowCard).join('')
-        document.getElementById('coming-soon-list').innerHTML =
-          movies.filter(function(m) { return m.isShowing !== 1 }).map(buildComingCard).join('')
-      })
-      .catch(function() {
-        document.getElementById('now-playing-list').innerHTML =
-          '<p style="padding:1rem;color:var(--text-muted)">作品情報の取得に失敗しました。</p>'
-      })
-  </script>
+  <!-- 作品行の共通処理（この順番で読むこと） -->
+  <script src="../js/api.js" defer></script>
+  <script src="../js/ui.js" defer></script>
+  <script src="../js/favorites.js" defer></script>
+  <script src="../js/movie-card.js" defer></script>
+  <script src="../js/ranking.js" defer></script>
+  <script src="../js/recommend.js" defer></script>
+  <script src="../js/home.js" defer></script>
 
 </body>
 </html>

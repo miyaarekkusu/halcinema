@@ -7,6 +7,7 @@
   <script src="../js/config.js"></script>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/movie-card.css">
   <link rel="stylesheet" href="../css/mypage.css">
   <link rel="stylesheet" href="../css/movies.css">
 </head>
@@ -82,6 +83,12 @@
 
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
+
+  <!-- お気に入り用の共通処理（下のインラインJSより先に読むこと） -->
+  <script src="../js/api.js" defer></script>
+  <script src="../js/ui.js" defer></script>
+  <script src="../js/favorites.js" defer></script>
+
   <script>
     var DETAIL_POSTER_PH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></svg><span>ポスタービジュアル</span>'
 
@@ -255,7 +262,8 @@
         + '</table>'
         + '<div class="movie-detail-actions">'
         + (hasSchedule ? '<a href="#schedule" class="btn btn-primary btn-lg">上映スケジュールへ</a>' : '')
-        + '<a href="#" class="btn btn-secondary btn-lg">お気に入りに追加</a>'
+        + '<button type="button" class="btn btn-secondary btn-lg fav-detail-btn" id="fav-detail-btn"'
+        + ' data-movie-id="' + movie.movieId + '">お気に入りに追加</button>'
         + '</div></div></div></section>'
         + '<section class="section"><div class="section-header"><h2 class="section-title">予告編<span>動画</span></h2></div>'
         + (movie.trailerId
@@ -301,6 +309,8 @@
         })
       }
 
+      initFavButton()
+
       document.title = movie.title + ' | HAL CINEMA'
     }
 
@@ -318,7 +328,30 @@
       } catch (e) { /* ignore */ }
     }
 
+    // ── お気に入りボタン ──
+    // 未ログインのときは HalFav がログインページへ誘導する
+    function syncFavButton() {
+      var btn = document.getElementById('fav-detail-btn')
+      if (!btn) return
+      var on = HalFav.has(btn.dataset.movieId)
+      btn.classList.toggle('is-on', on)
+      btn.textContent = on ? 'お気に入り登録済み' : 'お気に入りに追加'
+    }
+
+    function initFavButton() {
+      var btn = document.getElementById('fav-detail-btn')
+      if (!btn) return
+      syncFavButton()
+      btn.addEventListener('click', function () {
+        HalFav.toggleWithFeedback(btn.dataset.movieId)
+        syncFavButton()
+      })
+    }
+
     // ── fetch ────────────────────────────────────────────────
+    // js/favorites.js は defer で読み込まれるため、
+    // DOMContentLoaded まで待ってから開始する（HalFav が未定義になるのを防ぐ）
+    document.addEventListener('DOMContentLoaded', function () {
     var movieId = new URLSearchParams(location.search).get('id')
 
     fetch(API_BASE + '/api/movies/' + movieId)
@@ -340,6 +373,7 @@
         document.getElementById('detail-content').innerHTML =
           '<p style="padding:2rem;text-align:center;color:var(--text-muted)">作品情報の取得に失敗しました。</p>'
       })
+    })
   </script>
 
 </body>
