@@ -108,14 +108,6 @@
         <a href="register.html">会員登録はこちら</a>
       </p>
 
-      <!-- 開発用：管理者画面へのテストログイン -->
-      <div class="auth-test">
-        <p class="auth-test__label">開発用</p>
-        <button type="button" id="test-admin-login-btn" class="btn btn-ghost btn-sm auth-test__btn">
-          テストログイン（管理者画面へ）
-        </button>
-      </div>
-
     </div>
   </main>
 
@@ -215,11 +207,6 @@
         alert('サーバーに接続できませんでした。APIが起動しているか確認してください。');
         if (submitBtn) submitBtn.disabled = false;
       }
-    });
-
-    // 開発用：フォーム入力なしで即座に管理者画面へ
-    document.getElementById('test-admin-login-btn').addEventListener('click', function () {
-      goToAdmin('admin');
     });
   </script>
 

@@ -77,7 +77,9 @@ func (app *application) mount() http.Handler {
 	r.With(optionalJWTMiddleware).Post("/api/chat", chatHandler.Converse)
 
 	goodsOrderHandler := goodsorder.NewHandler(app.db)
-	r.With(jwtMiddleware).Post("/api/goods-orders", goodsOrderHandler.Create)
+	// 座席予約とセットのフード注文（reservationId指定）はゲスト予約でも行えるよう
+	// optionalJWTMiddleware にする。ログイン必須のオンライン単体注文はハンドラ内部で判定する。
+	r.With(optionalJWTMiddleware).Post("/api/goods-orders", goodsOrderHandler.Create)
 	r.With(jwtMiddleware).Get("/api/me/goods-orders", goodsOrderHandler.ListMine)
 	r.With(jwtMiddleware).Get("/api/me/goods-orders/{id}", goodsOrderHandler.GetOne)
 

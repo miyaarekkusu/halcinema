@@ -14,10 +14,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// GoodsOrder は t_GOODS_ORDER の f_order_type=3（オンライン単体注文、goods.htmlの
-// 単体訪問モードから会員が予約なしで直接注文するケース）を扱う。
+// GoodsOrder は t_GOODS_ORDER を扱う。f_order_type=1（座席予約ウィザード中に一緒に
+// 選んだフード。f_reservation_idで予約に紐づく）と f_order_type=3（オンライン単体注文、
+// goods.htmlの単体訪問／AI予約後の追加注文モードから予約に紐付けずに直接注文するケース）
+// の2パターンをこのCreateで扱う。
 type GoodsOrder struct {
 	OrderID       int       `gorm:"column:f_order_id;primaryKey;autoIncrement"`
+	ReservationID *int      `gorm:"column:f_reservation_id"`
 	MemberID      *int      `gorm:"column:f_member_id"`
 	OrderType     int       `gorm:"column:f_order_type"`
 	OrderCode     string    `gorm:"column:f_order_code"`
@@ -61,20 +64,44 @@ type itemReq struct {
 type createReq struct {
 	Items         []itemReq `json:"items"`
 	PaymentMethod int       `json:"paymentMethod"`
+	// ReservationID が指定された場合、座席予約とセットで注文されたフードとして
+	// f_order_type=1・f_reservation_id紐付で保存する。この場合はゲスト予約（未ログイン）
+	// でも注文できる（座席予約自体がゲスト可のため）。指定が無い場合は従来通り
+	// f_order_type=3のオンライン単体注文で、ログイン必須。
+	ReservationID int `json:"reservationId,omitempty"`
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	memberID := ctxkeys.MemberID(r.Context())
-	if memberID == 0 {
-		jsonError(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
 
 	var req createReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		jsonError(w, "invalid request", http.StatusBadRequest)
 		return
 	}
+
+	orderType := 3
+	var reservationIDPtr *int
+	if req.ReservationID > 0 {
+		q := h.db.Table("t_reservation").Where("f_reservation_id = ?", req.ReservationID)
+		if memberID > 0 {
+			// ログイン会員なら自分の予約であることまで確認する。ゲスト予約（memberID==0）は
+			// 予約自体がJWT無しで作れるため、reservationIdの実在確認のみで足りる。
+			q = q.Where("f_member_id = ?", memberID)
+		}
+		var count int64
+		if err := q.Count(&count).Error; err != nil || count == 0 {
+			jsonError(w, "reservation not found", http.StatusBadRequest)
+			return
+		}
+		orderType = 1
+		rid := req.ReservationID
+		reservationIDPtr = &rid
+	} else if memberID == 0 {
+		jsonError(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	items := make([]itemReq, 0, len(req.Items))
 	for _, it := range req.Items {
 		name := strings.TrimSpace(it.Name)
@@ -99,9 +126,15 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	orderCode := fmt.Sprintf("G%s", time.Now().Format("20060102150405"))
 	qrCode := uuid.New().String()
 
+	var memberIDPtr *int
+	if memberID > 0 {
+		memberIDPtr = &memberID
+	}
+
 	order := GoodsOrder{
-		MemberID:      &memberID,
-		OrderType:     3,
+		ReservationID: reservationIDPtr,
+		MemberID:      memberIDPtr,
+		OrderType:     orderType,
 		OrderCode:     orderCode,
 		TotalAmount:   total,
 		PaymentMethod: req.PaymentMethod,

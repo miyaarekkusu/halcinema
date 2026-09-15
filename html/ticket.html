@@ -254,7 +254,8 @@
         issuedAt        : reservation.paidAt,
         status          : 'reserved',
         tickets         : reservation.tickets || [],
-        foods           : reservation.foods || []
+        foods           : reservation.foods || [],
+        foodOrder       : reservation.foodOrder || null
       }))
     }
   </script>
