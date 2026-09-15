@@ -304,6 +304,20 @@
       document.title = movie.title + ' | HAL CINEMA'
     }
 
+    // ── 閲覧履歴（AIおすすめ映画チャットで「最初から」参考にするため） ──
+    // localStorageに最近見た映画IDを新しい順・重複なしで保持する（サーバーには送らず、
+    // チャット送信時にフロントから viewedMovieIds として都度渡す）。
+    function recordMovieView(movie) {
+      try {
+        var KEY = 'hal_viewed_movies'
+        var list = JSON.parse(localStorage.getItem(KEY) || '[]')
+        list = list.filter(function(v) { return v.movieId !== movie.movieId })
+        list.unshift({ movieId: movie.movieId, viewedAt: Date.now() })
+        if (list.length > 15) list = list.slice(0, 15)
+        localStorage.setItem(KEY, JSON.stringify(list))
+      } catch (e) { /* ignore */ }
+    }
+
     // ── fetch ────────────────────────────────────────────────
     var movieId = new URLSearchParams(location.search).get('id')
 
@@ -311,6 +325,7 @@
       .then(function(r) { if (!r.ok) throw new Error('movie not found'); return r.json() })
       .then(function(movie) {
         currentMovie = movie
+        recordMovieView(movie)
         if (movie.isShowing === 1) {
           return fetch(API_BASE + '/api/schedules?movieId=' + movie.movieId)
             .then(function(r) { return r.ok ? r.json() : [] })

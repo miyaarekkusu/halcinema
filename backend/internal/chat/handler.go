@@ -104,7 +104,12 @@ func (h *Handler) handleRecommend(w http.ResponseWriter, ctx context.Context, re
 		genreHistory = nil // 取得失敗してもレコメンド自体は続行する（参考情報でしかないため）
 	}
 
-	raw, err := h.deepseek.Complete(ctx, recommendPrompt(movies, genreHistory), req.Messages)
+	viewHistory, err := viewedGenres(h.db, req.ViewedMovieIds)
+	if err != nil {
+		viewHistory = nil // 同上
+	}
+
+	raw, err := h.deepseek.Complete(ctx, recommendPrompt(movies, genreHistory, viewHistory), req.Messages)
 	if err != nil {
 		writeFallback(w, req, "只今混み合っております。少し時間をおいて再度お試しください。")
 		return
@@ -164,6 +169,14 @@ func (h *Handler) handleReserve(w http.ResponseWriter, ctx context.Context, req 
 		return
 	}
 
+	// 決定的処理1.5: 座席は決まっているが支払い方法が未選択→その場で提示。DeepSeekは呼ばない。
+	if slots.MovieID > 0 && slots.ScheduleID > 0 && len(slots.SeatIDs) > 0 && slots.PaymentMethod == 0 {
+		if err := h.presentPaymentPicker(w, req.Messages, slots, memberID); err != nil {
+			writeFallback(w, req, "支払い方法の取得に失敗しました。もう一度お試しください。")
+		}
+		return
+	}
+
 	// 決定的処理2: 全条件が揃った→予約確定。DeepSeekは呼ばない。
 	if slots.MovieID > 0 && slots.ScheduleID > 0 && len(slots.SeatIDs) > 0 && slots.PaymentMethod > 0 {
 		h.finalizeReservation(w, req.Messages, slots, memberID)
@@ -181,9 +194,6 @@ func (h *Handler) handleReserve(w http.ResponseWriter, ctx context.Context, req 
 		// 人数は日程より先に聞く（「何名か」→「いつ・今週のどの回か」の順）。
 		// 上映回はここでは聞かない：人数が決まった時点で決定的処理0（presentSchedulePicker）に進む。
 		promptCtx.Stage = reserveStageSeatCount
-	default: // 座席は選択済み・支払い方法だけ未定
-		promptCtx.Stage = reserveStagePayment
-		promptCtx.PaymentOptions, err = listPaymentOptions(h.db, memberID)
 	}
 	if err != nil {
 		writeFallback(w, req, "情報の取得に失敗しました。もう一度お試しください。")
@@ -223,6 +233,14 @@ func (h *Handler) handleReserve(w http.ResponseWriter, ctx context.Context, req 
 	// マージ後に映画・上映回・人数が揃ったら、ここでも座席ピッカーへ（LLM抜き）
 	if merged.MovieID > 0 && merged.ScheduleID > 0 && merged.SeatCount > 0 && len(merged.SeatIDs) == 0 {
 		h.presentSeatPicker(w, messages, merged, parsed.Reply)
+		return
+	}
+
+	// マージ後に座席も決まっていたら、ここでも支払い方法ピッカーへ（LLM抜き）
+	if merged.MovieID > 0 && merged.ScheduleID > 0 && len(merged.SeatIDs) > 0 && merged.PaymentMethod == 0 {
+		if err := h.presentPaymentPicker(w, messages, merged, memberID); err != nil {
+			writeFallback(w, req, "支払い方法の取得に失敗しました。もう一度お試しください。")
+		}
 		return
 	}
 
@@ -362,6 +380,39 @@ func (h *Handler) presentSeatPicker(w http.ResponseWriter, messages []chatMessag
 		return
 	}
 	writeJSON(w, chatResponse{Reply: reply, Messages: messages, Slots: slots, UIAction: action})
+}
+
+// presentPaymentPicker は支払い方法の選択肢（保存済みカード・新規カード登録・
+// QRコード決済・窓口支払い）をその場で提示する。DeepSeekは呼ばない（決定的処理）。
+// 通常予約(payment.html)と同様、カード未登録でもチャット内で新規登録してから
+// クレジットカード払いを選べるようにする（listPaymentOptions が常に
+// 「新しいクレジットカードを登録して支払う」を含めて返す）。
+func (h *Handler) presentPaymentPicker(w http.ResponseWriter, messages []chatMessage, slots Slots, memberID int) error {
+	options, err := listPaymentOptions(h.db, memberID)
+	if err != nil {
+		return err
+	}
+
+	payload := make([]map[string]any, len(options))
+	for i, p := range options {
+		payload[i] = map[string]any{
+			"label":     p.Label,
+			"method":    p.Method,
+			"cardId":    p.CardID,
+			"isNewCard": p.IsNewCard,
+		}
+	}
+
+	writeJSON(w, chatResponse{
+		Reply:    "お支払い方法をお選びください。",
+		Messages: messages,
+		Slots:    slots,
+		UIAction: &UIAction{
+			Type:     "payment_picker",
+			Payments: payload,
+		},
+	})
+	return nil
 }
 
 // finalizeReservation はDeepSeekを介さず、既存の CreateReservation

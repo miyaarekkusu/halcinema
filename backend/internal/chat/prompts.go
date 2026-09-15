@@ -45,10 +45,11 @@ func truncate(s string, max int) string {
 
 // recommendPrompt はおすすめ映画チャット（intent=recommend）用のプロンプトを組み立てる。
 // 実在する上映中作品の一覧をそのままコンテキストに埋め込み、リストにない作品名を
-// 創作させない（ハルシネーション対策）。genreHistory はその会員が過去によく予約した
-// ジャンル（予約件数が多い順、新規テーブル不要で既存の予約実績から集計）。
-// ゲストや予約履歴がない会員では空になる。
-func recommendPrompt(movies []MovieInfo, genreHistory []string) string {
+// 創作させない（ハルシネーション対策）。
+// genreHistory はその会員が過去によく予約したジャンル（予約件数が多い順、
+// 既存の予約実績から集計）。viewHistory は直近閲覧した映画のジャンル（新しい順、
+// フロントのlocalStorageから）。どちらもゲストや履歴が無い会員では空になる。
+func recommendPrompt(movies []MovieInfo, genreHistory []string, viewHistory []string) string {
 	var b strings.Builder
 	b.WriteString("あなたはHALシネマの「おすすめ映画チャット」です。以下は現在上映中の映画の全リストです。")
 	b.WriteString("このリストに存在する映画のみをおすすめしてください。リストにない映画名を絶対に作り出さないでください。\n\n")
@@ -61,13 +62,21 @@ func recommendPrompt(movies []MovieInfo, genreHistory []string) string {
 			m.MovieID, m.Title, m.Genre, m.Duration, m.Rating, truncate(m.Synopsis, 150))
 	}
 
+	hasHistory := len(genreHistory) > 0 || len(viewHistory) > 0
 	if len(genreHistory) > 0 {
-		fmt.Fprintf(&b, "\nこの会員が過去によく予約したジャンル（多い順）: %s\n", strings.Join(genreHistory, "、"))
-		b.WriteString("会話でまだ好みが聞けていない場合、このジャンル傾向も軽く参考にして構いません（絶対視はしない。会話で聞いた好みを優先する）。\n")
+		fmt.Fprintf(&b, "\nこの会員が過去に予約したジャンル（多い順）: %s\n", strings.Join(genreHistory, "、"))
+	}
+	if len(viewHistory) > 0 {
+		fmt.Fprintf(&b, "\nこの会員が最近閲覧した作品のジャンル（新しい順）: %s\n", strings.Join(viewHistory, "、"))
+	}
+	if hasHistory {
+		b.WriteString("会話の最初のターンでまだ好みを直接聞けていなくても、質問で待たずに上記の予約・閲覧履歴を根拠に積極的におすすめしてください（reply内で「よくご覧いただいている◯◯系の作品から」のように根拠に軽く触れてよい）。閲覧履歴の方がより直近の関心を反映するため、予約履歴と閲覧履歴が食い違う場合は閲覧履歴を優先してください。その後の会話で明示的な好みが聞けたら、そちらを最優先してください。\n")
 	}
 
 	b.WriteString("\nユーザーの好み（ジャンル・気分・一緒に見る人など）を聞き取り、上記リストの中から最大3件をおすすめしてください。")
-	b.WriteString("好みがまだわからない場合は、reply で質問して構いません（その場合 recommendedMovieIds は空配列）。\n")
+	if !hasHistory {
+		b.WriteString("好みも履歴も手がかりが無い場合は、reply で質問して構いません（その場合 recommendedMovieIds は空配列）。\n")
+	}
 	b.WriteString("おすすめする際は、reply の中で各作品の特徴・どんな内容の映画かが伝わる一言（ジャンル感やあらすじの要点）を必ず添えてください。\n\n")
 	b.WriteString("必ず次のJSON形式のみで回答してください（説明文やコードブロック、マークダウンは付けない）:\n")
 	b.WriteString(`{"reply": "ユーザーへの返答文（おすすめする場合は理由と作品の特徴も添える）", "recommendedMovieIds": [上記リストに実在するmovieIdの配列。0〜3件]}`)
@@ -84,34 +93,31 @@ type reserveStage int
 const (
 	reserveStageMovie reserveStage = iota
 	reserveStageSeatCount
-	reserveStagePayment
 )
 
 // reservePromptContext は reservePrompt に渡すコンテキスト。
 type reservePromptContext struct {
-	Stage          reserveStage
-	Slots          Slots
-	Movies         []MovieInfo
-	PaymentOptions []PaymentOptionInfo
+	Stage  reserveStage
+	Slots  Slots
+	Movies []MovieInfo
 }
 
 // reservePrompt はAI予約用の固定システムプロンプトを、現在の進行段階に応じて組み立てる。
-// 日にち・上映回・座席（showDate/scheduleId/seatId）はここでは一切扱わない——
-// すべて決定的処理（handler.go の presentDatePicker / presentSchedulePicker /
-// presentSeatPicker）でボタン操作によりユーザーに直接選ばせるため、
-// DeepSeekのJSON抽出対象にしない。
+// 日にち・上映回・座席・支払い方法（showDate/scheduleId/seatId/paymentMethod）は
+// ここでは一切扱わない——すべて決定的処理（handler.go の presentDatePicker /
+// presentSchedulePicker / presentSeatPicker / presentPaymentPicker）でボタン操作に
+// よりユーザーに直接選ばせるため、DeepSeekのJSON抽出対象にしない。
+// DeepSeekが呼ばれるのは「映画」「人数」の聞き取りだけになる。
 func reservePrompt(ctx reservePromptContext) string {
 	var b strings.Builder
 	b.WriteString("あなたはHALシネマの「AI予約」アシスタントです。ユーザーとの会話から、映画予約に必要な条件を聞き取り、JSONで抽出してください。\n")
-	b.WriteString("予約の流れは 映画 → 人数 → 日にち選択(ボタン操作) → 上映回(時間)選択(ボタン操作) → 座席選択(ボタン操作) → 支払い方法 → 予約確定 の順です。日にち・上映回・座席の具体的な指定はこの会話では扱わず、人数が決まった時点で日にち選択のボタン操作に進みます。\n")
+	b.WriteString("予約の流れは 映画 → 人数 → 日にち選択(ボタン操作) → 上映回(時間)選択(ボタン操作) → 座席選択(ボタン操作) → 支払い方法選択(ボタン操作) → 予約確定 の順です。日にち・上映回・座席・支払い方法の具体的な指定はこの会話では扱わず、人数が決まった時点で日にち選択のボタン操作に進みます。\n")
 	b.WriteString("reply では今回のターンで聞くべきことだけを聞いてください。まだ決まっていない先の段階（座席選択・支払い方法など）を先取りして質問しないでください。\n")
 	b.WriteString("ユーザーが座席予約と一緒に飲食・グッズの購入も希望した場合は、reply で「グッズ・売店は予約確定後にご注文いただけます」という趣旨で案内し、slotsはそのまま変更しないでください。\n\n")
 
 	b.WriteString("【現在わかっている条件】\n")
 	fmt.Fprintf(&b, "- movieId: %s\n", slotOrUnknown(ctx.Slots.MovieID))
-	fmt.Fprintf(&b, "- scheduleId: %s\n", slotOrUnknown(ctx.Slots.ScheduleID))
 	fmt.Fprintf(&b, "- seatCount(希望人数): %s\n", slotOrUnknown(ctx.Slots.SeatCount))
-	fmt.Fprintf(&b, "- paymentMethod: %s\n", slotOrUnknown(ctx.Slots.PaymentMethod))
 	b.WriteString("\n")
 
 	switch ctx.Stage {
@@ -123,20 +129,10 @@ func reservePrompt(ctx reservePromptContext) string {
 		b.WriteString("\nユーザーの発言から観たい映画と希望人数を聞き取ってください。曖昧な場合はreplyで聞き返し、movieId/seatCountはわかった分だけ設定してください。\n")
 	case reserveStageSeatCount:
 		b.WriteString("映画は決まりました。次に何名様（何席）分のご予約か聞き取ってください。上映回（日時）や座席の具体的な位置はまだ聞かないでください（人数が決まり次第、今週の上映スケジュールをボタンで提示します）。\n")
-	case reserveStagePayment:
-		b.WriteString("【選べる支払い方法】\n")
-		for _, p := range ctx.PaymentOptions {
-			if p.CardID > 0 {
-				fmt.Fprintf(&b, "- %s → paymentMethod=%d, cardId=%d\n", p.Label, p.Method, p.CardID)
-			} else {
-				fmt.Fprintf(&b, "- %s → paymentMethod=%d\n", p.Label, p.Method)
-			}
-		}
-		b.WriteString("\nユーザーの発言から支払い方法を1つに決めてください。カードを選んだ場合は対応するcardIdも設定してください。\n")
 	}
 
 	b.WriteString("\n必ず次のJSON形式のみで回答してください（説明文やコードブロック、マークダウンは付けない。わからない項目は0または省略）:\n")
-	b.WriteString(`{"reply": "ユーザーへの返答文", "slots": {"movieId": 0, "scheduleId": 0, "seatCount": 0, "paymentMethod": 0, "cardId": 0}}`)
+	b.WriteString(`{"reply": "ユーザーへの返答文", "slots": {"movieId": 0, "seatCount": 0}}`)
 	b.WriteString("\n映画予約に関係ない質問には、reply で「AI予約では映画のご予約のみ対応しております」という趣旨で丁寧に答え、slotsは今わかっている値のまま変更しないでください。")
 
 	return b.String()

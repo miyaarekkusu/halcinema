@@ -150,6 +150,7 @@
         if (entry.rich.kind === 'date_picker')             return '日にちを選択してください';
         if (entry.rich.kind === 'schedule_picker')        return '上映回を選択してください';
         if (entry.rich.kind === 'seat_picker')            return '座席を選択してください';
+        if (entry.rich.kind === 'payment_picker')         return 'お支払い方法を選択してください';
         if (entry.rich.kind === 'movie_cards')            return 'おすすめ映画をご紹介しました';
         if (entry.rich.kind === 'reservation_confirmed')  return 'ご予約が完了しました';
       }
@@ -464,6 +465,8 @@
       buildDatePickerBlock(block, containerId, rich);
     } else if (rich.kind === 'schedule_picker') {
       buildSchedulePickerBlock(block, containerId, rich);
+    } else if (rich.kind === 'payment_picker') {
+      buildPaymentPickerBlock(block, containerId, rich);
     } else if (rich.kind === 'seat_picker') {
       buildSeatPickerBlock(block, containerId, rich);
     } else if (rich.kind === 'movie_cards') {
@@ -595,6 +598,131 @@
 
   // 通常予約(zaseki.html)の2D座席選択と同じ見た目・情報構成（列番号ヘッダー＋
   // 座席グリッド＋「選択中の座席」タグ一覧を下に表示）をチャット内で再現する。
+  /* ── 支払い方法ピッカー：保存済みカード／新規カード登録／QR／窓口をボタン表示 ──
+     「新しいクレジットカードを登録して支払う」を選ぶと、mypage.htmlのカード追加
+     モーダルと同じ入力項目をチャット内にインラインで表示する。送信すると
+     /api/me/cards に登録し、そのcardIdでそのまま支払い方法を確定する。 */
+  function buildPaymentPickerBlock(block, containerId, rich) {
+    var store = getStore(containerId);
+    var payload = rich.payload || {};
+    var payments = payload.payments || [];
+
+    if (!payments.length) {
+      var empty = document.createElement('p');
+      empty.className = 'schedule-picker-empty';
+      empty.textContent = 'お支払い方法が見つかりませんでした。';
+      block.appendChild(empty);
+      return;
+    }
+
+    var list = document.createElement('div');
+    list.className = 'payment-picker-list';
+
+    function confirmPayment(method, cardId, label) {
+      list.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+      block.classList.add('is-answered');
+      rich.answered = true;
+
+      store.state.slots.paymentMethod = method;
+      store.state.slots.cardId = cardId || 0;
+      saveState(store);
+
+      var text = label + 'で支払います。';
+      recordAndRender(containerId, { role: 'user', text: text });
+      sendToChat(containerId, text);
+    }
+
+    payments.forEach(function (p) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'payment-picker-btn';
+      btn.textContent = p.label;
+      btn.disabled = !!rich.answered;
+
+      if (!rich.answered) {
+        if (p.isNewCard) {
+          btn.addEventListener('click', function () {
+            if (list.querySelector('.payment-new-card-form')) return;
+            list.appendChild(buildNewCardForm(containerId, list, confirmPayment));
+          });
+        } else {
+          btn.addEventListener('click', function () {
+            confirmPayment(p.method, p.cardId, p.label);
+          });
+        }
+      }
+
+      list.appendChild(btn);
+    });
+
+    block.appendChild(list);
+  }
+
+  // 「新しいクレジットカードを登録して支払う」選択時のインライン入力フォーム。
+  // mypage.htmlのカード追加モーダルと同じ項目・同じAPI(/api/me/cards)を使う。
+  function buildNewCardForm(containerId, list, confirmPayment) {
+    var wrap = document.createElement('form');
+    wrap.className = 'payment-new-card-form';
+    wrap.innerHTML =
+      '<label>カード名義<input type="text" class="form-input" data-field="holder" required autocomplete="cc-name"></label>'
+      + '<label>カード番号<input type="text" class="form-input" data-field="number" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" required autocomplete="cc-number"></label>'
+      + '<div class="payment-new-card-row">'
+      + '<label>有効期限（月）<input type="number" class="form-input" data-field="month" min="1" max="12" required autocomplete="cc-exp-month"></label>'
+      + '<label>有効期限（年）<input type="number" class="form-input" data-field="year" min="2026" max="2099" required autocomplete="cc-exp-year"></label>'
+      + '</div>'
+      + '<p class="payment-new-card-note">※ カード番号は下4桁のみ保存されます。CVVの入力は不要です。</p>'
+      + '<p class="payment-new-card-error" hidden></p>'
+      + '<button type="submit" class="rich-confirm-btn">このカードで登録して支払う</button>';
+
+    var errorEl = wrap.querySelector('.payment-new-card-error');
+
+    wrap.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var holder = wrap.querySelector('[data-field="holder"]').value.trim();
+      var number = wrap.querySelector('[data-field="number"]').value.trim();
+      var month  = parseInt(wrap.querySelector('[data-field="month"]').value, 10);
+      var year   = parseInt(wrap.querySelector('[data-field="year"]').value, 10);
+
+      var token = localStorage.getItem('hal_token');
+      if (!token) {
+        errorEl.textContent = 'ログインが必要です。';
+        errorEl.hidden = false;
+        return;
+      }
+
+      var submitBtn = wrap.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '登録中…';
+      errorEl.hidden = true;
+
+      fetch(API_BASE + '/api/me/cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ cardHolder: holder, cardNumber: number, expireMonth: month, expireYear: year })
+      })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+          if (!result.ok) {
+            errorEl.textContent = 'カードの登録に失敗しました: ' + (result.data.error || '入力内容をご確認ください');
+            errorEl.hidden = false;
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'このカードで登録して支払う';
+            return;
+          }
+          wrap.remove();
+          confirmPayment(1, result.data.cardId, result.data.cardBrand + ' •••• ' + result.data.last4);
+        })
+        .catch(function () {
+          errorEl.textContent = '通信に失敗しました。もう一度お試しください。';
+          errorEl.hidden = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'このカードで登録して支払う';
+        });
+    });
+
+    return wrap;
+  }
+
   function buildSeatPickerBlock(block, containerId, rich) {
     var store = getStore(containerId);
     var payload = rich.payload || {};
@@ -974,6 +1102,16 @@
   /* ──────────────────────────────────────────────────────────
      /api/chat 呼び出し
      ────────────────────────────────────────────────────────── */
+  // movie-detail.html が localStorage に書き込む閲覧履歴（新しい順）を
+  // movieIdの配列として取り出す。おすすめ映画チャットで初回ターンから
+  // 参考にするため、毎回のリクエストに乗せる（他intentでは無視される）。
+  function getViewedMovieIds() {
+    try {
+      var list = JSON.parse(localStorage.getItem('hal_viewed_movies') || '[]');
+      return list.map(function (v) { return v.movieId; });
+    } catch (e) { return []; }
+  }
+
   function sendToChat(containerId, text) {
     var store = getStore(containerId);
     store.state.messages.push({ role: 'user', content: text });
@@ -987,7 +1125,12 @@
     fetch(API_BASE + '/api/chat', {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify({ intent: store.state.intent, messages: store.state.messages, slots: store.state.slots })
+      body: JSON.stringify({
+        intent: store.state.intent,
+        messages: store.state.messages,
+        slots: store.state.slots,
+        viewedMovieIds: getViewedMovieIds()
+      })
     })
       .then(function (res) {
         if (!res.ok) throw new Error('http ' + res.status);

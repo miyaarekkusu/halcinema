@@ -157,6 +157,41 @@ func memberGenreHistory(db *gorm.DB, memberID int, limit int) ([]string, error) 
 	return genres, nil
 }
 
+type movieGenreRow struct {
+	MovieID int    `gorm:"column:f_movie_id"`
+	Genre   string `gorm:"column:f_genre"`
+}
+
+// viewedGenres はフロントから渡された「最近閲覧した映画」のID一覧（新しい順）から、
+// 対応するジャンルを閲覧順を保ったまま重複なく返す。上映中/上映予定を問わず
+// t_movie全体を対象にする（閲覧履歴には近日公開作の詳細ページも含まれ得るため）。
+func viewedGenres(db *gorm.DB, movieIDs []int) ([]string, error) {
+	if len(movieIDs) == 0 {
+		return nil, nil
+	}
+	var rows []movieGenreRow
+	if err := db.Table("t_movie").Select("f_movie_id, f_genre").
+		Where("f_movie_id IN ?", movieIDs).Find(&rows).Error; err != nil {
+		return nil, err
+	}
+	genreByID := make(map[int]string, len(rows))
+	for _, r := range rows {
+		genreByID[r.MovieID] = r.Genre
+	}
+
+	seen := map[string]bool{}
+	var genres []string
+	for _, id := range movieIDs {
+		g, ok := genreByID[id]
+		if !ok || g == "" || seen[g] {
+			continue
+		}
+		seen[g] = true
+		genres = append(genres, g)
+	}
+	return genres, nil
+}
+
 // scheduleBelongsToMovie は scheduleId が実在し、かつ movieId の上映回であることを確認する。
 func scheduleBelongsToMovie(db *gorm.DB, scheduleID, movieID int) bool {
 	var count int64
@@ -182,8 +217,10 @@ type cardRow struct {
 
 func (cardRow) TableName() string { return "t_member_card" }
 
-// listPaymentOptions は支払い方法の選択肢を返す。会員は保存カード＋QR/窓口、
-// ゲストは保存カードがないためQR/窓口のみ（cards.Handler.List と同じクエリ条件）。
+// listPaymentOptions は支払い方法の選択肢を返す。会員が保存済みのカードに加え、
+// 常に「新しいカードを登録して支払う」「QRコード決済」「劇場窓口で支払い」を
+// 提示する（通常予約のpayment.htmlと同様、カード未登録でもその場で新規登録して
+// クレジットカード払いを選べるようにするため）。
 func listPaymentOptions(db *gorm.DB, memberID int) ([]PaymentOptionInfo, error) {
 	var options []PaymentOptionInfo
 
@@ -203,6 +240,7 @@ func listPaymentOptions(db *gorm.DB, memberID int) ([]PaymentOptionInfo, error) 
 	}
 
 	options = append(options,
+		PaymentOptionInfo{Label: "新しいクレジットカードを登録して支払う", Method: 1, IsNewCard: true},
 		PaymentOptionInfo{Label: "QRコード決済", Method: 2},
 		PaymentOptionInfo{Label: "劇場窓口で支払い", Method: 3},
 	)

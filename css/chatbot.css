@@ -370,7 +370,7 @@
 
 .chat-input-wrap {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 10px;
   background: var(--c-bg-3);
   border: 1px solid var(--c-border);
@@ -1026,6 +1026,83 @@
   font-size: 11px;
   color: var(--c-text-muted);
   flex-shrink: 0;
+}
+
+/* ── 支払い方法ピッカー：保存済みカード／新規登録／QR／窓口をボタンで即提示 ── */
+.payment-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.payment-picker-btn {
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+  color: var(--c-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.payment-picker-btn:hover:not(:disabled) {
+  border-color: var(--c-red);
+  background: var(--c-red-dim);
+}
+
+.payment-picker-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.payment-new-card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border-em);
+  background: var(--c-bg-3);
+}
+
+.payment-new-card-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+
+.payment-new-card-form .form-input {
+  font-size: 13px;
+}
+
+.payment-new-card-row {
+  display: flex;
+  gap: 10px;
+}
+
+.payment-new-card-row label {
+  flex: 1;
+}
+
+.payment-new-card-note {
+  font-size: 10px;
+  color: var(--c-text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.payment-new-card-error {
+  font-size: 11px;
+  color: var(--c-red);
+  margin: 0;
 }
 
 .rich-confirm-btn {

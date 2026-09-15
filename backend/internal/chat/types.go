@@ -33,18 +33,24 @@ type ScheduleInfo struct {
 	AvailableSeats int    `json:"availableSeats"`
 }
 
-// PaymentOptionInfo は支払い方法の選択肢（会員の保存カード、またはQR/窓口）。
-// CardID が 0 のものはカードではない支払い方法（Method のみ有効）。
+// PaymentOptionInfo は支払い方法の選択肢（会員の保存カード、新規カード登録、QR/窓口）。
+// IsNewCard が true の場合はカードがまだ無く、チャット内でカードを新規登録してから
+// 支払う選択肢（CardID は 0 のまま）。
 type PaymentOptionInfo struct {
-	Label  string `json:"label"`  // 例: "Visa •••• 4242（デフォルト）" / "QRコード決済"
-	Method int    `json:"method"` // 1=カード / 2=QR決済 / 3=窓口支払い
-	CardID int    `json:"cardId,omitempty"`
+	Label     string `json:"label"`  // 例: "Visa •••• 4242（デフォルト）" / "QRコード決済"
+	Method    int    `json:"method"` // 1=カード / 2=QR決済 / 3=窓口支払い
+	CardID    int    `json:"cardId,omitempty"`
+	IsNewCard bool   `json:"isNewCard,omitempty"`
 }
 
 type chatRequest struct {
 	Intent   string        `json:"intent"`
 	Messages []chatMessage `json:"messages"`
 	Slots    Slots         `json:"slots"`
+	// ViewedMovieIds はフロント(localStorage)が持つ「最近閲覧した映画」の movieId 一覧
+	// （新しい順）。intent=recommend のとき、予約履歴とあわせて初回ターンから
+	// おすすめの材料にする。他のintentでは無視してよい。
+	ViewedMovieIds []int `json:"viewedMovieIds,omitempty"`
 }
 
 // UIAction はチャットが決定的なUI（座席ピッカー・予約完了サマリー）を
@@ -56,6 +62,7 @@ type UIAction struct {
 	Schedules       []map[string]any `json:"schedules,omitempty"`
 	Seats           []map[string]any `json:"seats,omitempty"`
 	Prices          []map[string]any `json:"prices,omitempty"`
+	Payments        []map[string]any `json:"payments,omitempty"`
 	ReservationID   int              `json:"reservationId,omitempty"`
 	ReservationCode string           `json:"reservationCode,omitempty"`
 	TotalAmount     int              `json:"totalAmount,omitempty"`
