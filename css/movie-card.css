@@ -1,0 +1,367 @@
+/* 作品カードまわりの共通スタイル */
+
+/* ── 横スクロール行 ───────────────────────────────────────
+   .movie-row-scroll を js/ui.js が .movie-row で包み、
+   左右に .row-nav ボタンを差し込む
+   ────────────────────────────────────────────────────────── */
+
+.movie-row {
+  position: relative;
+}
+
+.movie-row-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-padding-left: 2px;
+  padding-bottom: 10px;
+  /* Firefox のスクロールバーを細く */
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-bg-4) transparent;
+}
+
+.movie-row-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.movie-row-scroll::-webkit-scrollbar-track {
+  background: var(--c-bg-3);
+  border-radius: 2px;
+}
+
+.movie-row-scroll::-webkit-scrollbar-thumb {
+  background: var(--c-bg-4);
+  border-radius: 2px;
+}
+
+.movie-row-scroll .movie-card {
+  /* 1画面におよそ6枚。狭い画面では下のメディアクエリで枚数を減らす */
+  flex: 0 0 calc((100% - 16px * 5) / 6);
+  aspect-ratio: 283 / 400;
+  scroll-snap-align: start;
+}
+
+/* ホバーで少し持ち上げる。カードが切れないよう拡大は控えめにする */
+.movie-row-scroll .movie-card:hover {
+  transform: translateY(-4px);
+}
+
+/* ── 左右の矢印 ───────────────────────────────────────────── */
+
+.row-nav {
+  position: absolute;
+  top: 0;
+  bottom: 10px;                 /* スクロールバーのぶんだけ短くする */
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  z-index: 3;
+  color: var(--c-text);
+  background: rgba(13, 15, 20, 0.72);
+  opacity: 0;
+  transition: opacity 0.2s var(--ease), background 0.2s;
+}
+
+.movie-row:hover .row-nav {
+  opacity: 1;
+}
+
+/* キーボード操作でも見えるように */
+.row-nav:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--c-red);
+  outline-offset: -2px;
+}
+
+.row-nav:hover {
+  background: rgba(13, 15, 20, 0.9);
+}
+
+.row-nav svg {
+  width: 22px;
+  height: 22px;
+}
+
+.row-nav-prev { left: 0;  border-radius: 0 6px 6px 0; }
+.row-nav-next { right: 0; border-radius: 6px 0 0 6px; }
+
+/* 端まで来た矢印・スクロール不要な行では出さない */
+.row-nav.is-hidden {
+  display: none;
+}
+
+/* ── ポスタープレースホルダー ─────────────────────────────── */
+
+.movie-poster-ph {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, var(--c-bg-3) 0%, var(--c-bg-4) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.movie-poster-ph img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.movie-poster-ph svg {
+  width: 36px;
+  height: 36px;
+  color: var(--c-text-muted);
+  opacity: 0.5;
+}
+
+.movie-poster-ph-label {
+  font-size: 10px;
+  color: var(--c-text-muted);
+  letter-spacing: 0.06em;
+}
+
+/* ── お気に入りボタン（カード右上のハート）────────────────── */
+
+.fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(13, 15, 20, 0.6);
+  color: var(--c-text);
+  opacity: 0;
+  transition: opacity 0.2s var(--ease), background 0.2s, color 0.2s, transform 0.15s;
+}
+
+/* 登録済みのハートは常に見せる（行を見渡したときに分かるように） */
+.movie-card:hover .fav-btn,
+.fav-btn:focus-visible,
+.fav-btn.is-on {
+  opacity: 1;
+}
+
+.fav-btn:hover {
+  background: rgba(13, 15, 20, 0.85);
+  transform: scale(1.08);
+}
+
+.fav-btn svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  transition: fill 0.15s, color 0.15s;
+}
+
+.fav-btn.is-on {
+  color: var(--c-red);
+}
+
+.fav-btn.is-on svg {
+  fill: var(--c-red);
+}
+
+/* 作品詳細ページの「お気に入りに追加」ボタン */
+.fav-detail-btn.is-on {
+  border-color: var(--c-red);
+  color: var(--c-red);
+}
+
+/* ── ランキングの順位 ─────────────────────────────────────── */
+
+.movie-card--ranked {
+  overflow: visible;
+}
+
+.movie-card-rank {
+  position: absolute;
+  left: -6px;
+  bottom: -6px;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-size: 80px;
+  line-height: 0.8;
+  font-weight: 800;
+  color: var(--c-bg);
+  /* 背景のポスターに埋もれないよう白フチを付ける */
+  -webkit-text-stroke: 2px var(--c-text);
+  paint-order: stroke fill;
+  pointer-events: none;
+}
+
+/* 1位だけ赤フチにして目立たせる */
+.movie-row-scroll .movie-card--ranked:first-child .movie-card-rank {
+  -webkit-text-stroke-color: var(--c-red);
+}
+
+/* ── ジャンルチップ（作品一覧の絞り込み）──────────────────── */
+
+.genre-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.genre-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--c-text-sub);
+  border: 1px solid var(--c-border-em);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.genre-chip:hover {
+  background: var(--c-bg-4);
+  color: var(--c-text);
+}
+
+.genre-chip.active {
+  background: var(--c-red);
+  border-color: var(--c-red);
+  color: #fff;
+}
+
+.genre-chip-count {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* ── セクション見出しの補足テキスト ───────────────────────── */
+
+.section-note {
+  font-size: 12px;
+  color: var(--c-text-sub);
+  letter-spacing: 0.02em;
+}
+
+/* ── 作品が0件のとき ──────────────────────────────────────── */
+
+.movie-row-empty {
+  padding: 32px 0;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: var(--c-text-muted);
+}
+
+/* グリッドの中では1列だけ占めないよう全幅にする */
+.movies-grid .movie-row-empty,
+.fav-grid .movie-row-empty {
+  grid-column: 1 / -1;
+}
+
+/* 案内文の中のリンク（おすすめ行の「作品一覧から探す →」など） */
+.movie-row-empty-link {
+  color: var(--c-text-sub);
+  border-bottom: 1px solid var(--c-border-em);
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.movie-row-empty-link:hover {
+  color: var(--c-red);
+  border-color: var(--c-red);
+}
+
+/* ── トースト（お気に入りの追加・削除の通知）──────────────── */
+
+.hal-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  z-index: 2000;
+  transform: translate(-50%, 16px);
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text);
+  background: rgba(30, 34, 48, 0.96);
+  border: 1px solid var(--c-border-em);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s var(--ease), transform 0.22s var(--ease);
+}
+
+.hal-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ── マイページのお気に入り一覧 ───────────────────────────── */
+
+.fav-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.fav-grid .movie-card {
+  aspect-ratio: 283 / 400;
+}
+
+/* ── 画面幅ごとの調整 ─────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .movie-row-scroll .movie-card {
+    flex-basis: calc((100% - 16px * 4) / 5);
+  }
+  .fav-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .movie-row-scroll .movie-card {
+    flex-basis: calc((100% - 16px * 3) / 4);
+  }
+}
+
+@media (max-width: 768px) {
+  .movie-row-scroll .movie-card {
+    flex-basis: calc((100% - 12px * 2) / 2.4);   /* 次のカードが少し覗く幅 */
+  }
+  .movie-row-scroll {
+    gap: 12px;
+  }
+  /* 指でスワイプできるので矢印は出さない */
+  .row-nav {
+    display: none;
+  }
+  .fav-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .movie-card-rank {
+    font-size: 80px;
+  }
+  /* タッチ端末はホバーが無いのでハートを常に出す */
+  .fav-btn {
+    opacity: 1;
+  }
+}

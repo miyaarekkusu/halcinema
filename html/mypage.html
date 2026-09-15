@@ -7,6 +7,7 @@
   <script src="../js/config.js"></script>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
+  <link rel="stylesheet" href="../css/movie-card.css">
   <link rel="stylesheet" href="../css/mypage.css">
   <link rel="stylesheet" href="../css/ticket.css">
 </head>
@@ -49,6 +50,7 @@
       <!-- 左サイドバー -->
       <aside class="mypage-sidebar">
         <button class="mypage-tab active" data-panel="ticket">チケット</button>
+        <button class="mypage-tab" data-panel="favorite">お気に入り</button>
         <button class="mypage-tab" data-panel="payment">支払方法</button>
         <button class="mypage-tab" data-panel="settings">設定</button>
         <div class="mypage-sidebar-divider"></div>
@@ -71,6 +73,14 @@
           <div class="ticket-list" id="goods-order-list">
             <p class="zaseki-empty-msg" id="goods-order-empty-msg" style="padding:32px 0;text-align:center;color:var(--c-text-muted);font-size:14px;">ご注文履歴はありません</p>
           </div>
+        </section>
+
+        <!-- ─── お気に入り ─── -->
+        <section class="mypage-panel" id="panel-favorite">
+          <h2 class="mypage-panel-title">お気に入り</h2>
+
+          <div class="fav-grid" id="favorite-grid"></div>
+          <p id="favorite-empty-msg" style="padding:32px 0;text-align:center;color:var(--c-text-muted);font-size:14px;">お気に入りに登録した作品はありません</p>
         </section>
 
         <!-- ─── 支払方法 ─── -->
@@ -375,6 +385,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
+
+  <!-- お気に入りタブ（この順番で読むこと） -->
+  <script src="../js/api.js" defer></script>
+  <script src="../js/ui.js" defer></script>
+  <script src="../js/favorites.js" defer></script>
+  <script src="../js/movie-card.js" defer></script>
+  <script src="../js/mypage-favorites.js" defer></script>
+
   <script>
     // タブ切り替え
     const tabs   = document.querySelectorAll('.mypage-tab');

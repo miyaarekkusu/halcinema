@@ -23,6 +23,7 @@ halcinema/
 │   ├── auth.css      → ログイン・会員登録ページ共通
 │   ├── movies.css    → 作品一覧・作品詳細 共通
 │   ├── mypage.css    → マイページ + ヘッダーマイページボタン共通
+│   ├── movie-card.css → 作品カード共通（横スクロール行・矢印・ハート・順位・ジャンルチップ・トースト）
 │   ├── zaseki.css    → 座席選択ページ専用
 │   ├── payment.css   → 決済ページ専用
 │   ├── ticket.css    → チケット発行ページ専用（未使用・予備）
@@ -30,9 +31,20 @@ halcinema/
 │   └── event.css     → イベント情報ページ専用
 ├── js/
 │   ├── common.js     → 全ページ共通（ハンバーガー・チャットポップアップ自動挿入）
+│   ├── api.js        → API_BASE・fetch・認証ヘッダ・ログイン状態（HalAPI）
+│   ├── ui.js         → トースト・横スクロール行の矢印（HalUI）
+│   ├── favorites.js  → お気に入りの読み書き（HalFav）
+│   ├── movie-card.js → 作品カード生成・ジャンル分割（HalMovie）
+│   ├── ranking.js    → 本日のランキング（HalRanking）※今はダミー座席数
+│   ├── recommend.js  → 予約履歴ベースのおすすめ（HalRecommend）
+│   ├── home.js       → トップページの作品行の組み立て
+│   ├── movies.js     → 作品一覧の絞り込み（上映状況×ジャンル）
+│   ├── mypage-favorites.js → マイページのお気に入りタブ
 │   ├── chatbot.js    → チャットページ専用
 │   ├── zaseki.js     → 座席選択ページ専用
 │   └── goods.js      → グッズ・売店ページ専用
+
+※ 作品カードを使うページは api.js → ui.js → favorites.js → movie-card.js の順に読むこと
 ├── html/             → 全ページのHTMLファイル（index.htmlも含む）
 │   ├── index.html        → トップページ（上映スケジュール）
 │   ├── login.html        → ログインページ
@@ -49,7 +61,7 @@ halcinema/
 │   ├── ai-chatbot.html   → AIチャットボット フルページ（おすすめ映画・AI予約専用、ログイン必須）
 │   └── sample.html       → 新規ページ作成用テンプレート
 ├── data/
-│   └── movies.json   → 映画データ（上映中6本・上映予定5本）
+│   └── movies.json   → 旧・映画データ。**現在は使っていない**（DBへ移行済み。参照しないこと）
 ├── admin/            → 管理者画面（html/login.html からログインして遷移）
 │   ├── admin.css          → 管理者画面共通CSS
 │   ├── admin-common.js    → 認証ガード・ログアウト・サイドバー・QRテスト共通JS
@@ -68,7 +80,8 @@ halcinema/
 ├── images/           → 画像ファイル
 ├── note/             → メモ・設計資料
 │   ├── docker.txt    → Dockerセットアップ手順
-│   └── database.txt  → DB接続・確認・操作手順
+│   ├── database.txt  → DB接続・確認・操作手順
+│   └── home-renewal-plan.md → トップページのレコメンド化の計画・決定事項・残タスク
 ├── schema.sql        → PostgreSQL DDL（DB初期化用）
 ├── docker-compose.yml → DB + API コンテナ起動設定
 ├── .env.example      → 環境変数テンプレート（チーム共有用）
@@ -187,6 +200,7 @@ halcinema/
 | 2026-09-07 | チャットボットをDeepSeek API連携に刷新（backend/internal/chat/ 新設、POST /api/chat）。最初にアシスタント／おすすめ映画／AI予約の3択を選ばせ、意図ごとの固定プロンプト→JSON抽出で処理。AI予約は座席選択・決済までチャット内で完結（座席選択のみDeepSeekを介さず既存の座席ボタンUIと同系統のグリッドで確定）。reservations.Create のトランザクション本体を CreateReservation として切り出しWeb予約と共通化。要 .env に DEEPSEEK_API_KEY 設定（.env.example参照） | Claude Code |
 | 2026-09-01 | schema.sqlにt_SLOT／t_SCHEDULE_CHANGE_LOG／t_NOTIFICATIONを実装。admin/schedule.htmlのトラブル対応UIを変更：予定（枠）をクリックすると詳細＋トラブル報告/解除ができるモーダルを表示する方式に統一し、スクリーン全体を覆う使用不可オーバーレイを廃止して予定の色を赤くするだけの表現に変更 | Claude Code |
 | 2026-09-08 | AIチャット（DeepSeek連携）の検証を再開しブラウザで3択フローを実走テスト。判明した不具合を2件修正：①稼働中DBコンテナがschema.sqlの最新定義（f_guest_name等・t_SLOT/t_ADMIN/t_GOODS_ORDER等7テーブル）に追いついておらずAI予約の決済確定でINSERTエラー→既存データを保持したままALTER TABLE/CREATE TABLE差分マイグレーションで解消。②おすすめ映画カードがcommon.cssの.movie-card（作品一覧のポスターカード用、aspect-ratio:283/400）とクラス名衝突し縦に約1050pxへ引き伸ばされ実質非表示になっていた→chatbot.js/chatbot.cssのクラス名を.chat-movie-card系にリネームして分離。AI予約・おすすめ映画・アシスタント質問の3意図とも動作確認済み | Claude Code |
+| 2026-09-08 | トップページをレコメンド型に刷新。おすすめ（予約履歴ベース）・本日のランキング・お気に入り・ジャンル別行を追加し、作品行を横スクロール化。作品一覧に上映状況×ジャンルの2軸絞り込みを追加。作品カードの生成処理を index.html / movies.html のインラインJSから js/movie-card.js に共通化。計画は note/home-renewal-plan.md | Claude Code |
 | 2026-09-12 | チャットに「新規チャット」「会話履歴」機能を追加。js/chatbot.jsのスレッド保存をlocalStorage上の複数スレッド管理（THREADS_KEY/ACTIVE_KEY、createThread/startNewChat/switchThread/deleteThread/openHistoryPanel）に刷新し、フルページ・ウィジェット双方のヘッダーに新規チャット／履歴アイコンボタンを追加。履歴パネルはスレッド一覧（タイトル・プレビュー・日時・削除）を表示し、クリックで会話を復元できる | Claude Code |
 | 2026-09-14 | AIアシスタント（お問い合わせ専用）とAIチャットボット（おすすめ映画・AI予約専用、ログイン必須、上ナビから）を分離するコア実装。js/chatbot.jsをモード別（assistant/chatbot）のINTENT_SETS・スレッドストアに刷新し、選択肢が1つのモードはピッカーを出さず即会話開始するよう変更。新規html/ai-chatbot.html（js/ai-chatbot-guard.jsで未ログイン時にlogin.html?redirect=ai-chatbot.htmlへ即リダイレクト）を追加し、html/*.html全22ページのナビに「AIチャットボット」リンクを追加。おすすめ映画はbackend/internal/chat/handler.goでmemberID必須化＋過去の予約履歴から集計したジャンル傾向をプロンプトに追加する軽量パーソナライズを実装し、js/chatbot.jsのおすすめカードを作品一覧と同系統のポスターグリッド表示（「AI予約で進める」「詳細・通常予約」ボタン付き）に刷新。AI予約は人数確認→今週のスケジュール（該当日が無ければ一番近い上映日を案内）の順に修正し、queries.goにlistSchedulesForMovie（今週7日間）・nextAvailableDate・memberGenreHistoryを追加。予約確定後に「グッズ・売店で注文する」ボタンを追加し、goods.html側の既存booking-mode（sessionStorage.reservationData）にそのまま接続 | Claude Code |
 | 2026-09-15 | チケットのQRコードを「1予約=1枚」に変更（座席ごとに分割しない）。t_TICKETをf_detail_id（1座席=1枚）からf_reservation_id（1予約=1枚）FKに変更するDBマイグレーションを実施（既存の座席別チケット行は予約単位で1枚に統合、重複は削除）。backend/internal/reservations/handler.goのCreateReservation／GetOneを1予約1チケット発行・取得に修正し、レスポンスにqrCodeを追加。html/mypage.htmlのチケット詳細モーダルは座席ごとのQRブロックの繰り返し表示をやめ、全座席分のラベルをまとめた1枚のQRブロックのみ表示するよう変更。グッズ・売店側のQR（注文単位で1枚、renderGoodsSection）は元々分割されていなかったためそのまま維持（バックエンドの注文保存自体は未実装のため今回は対象外） | Claude Code |

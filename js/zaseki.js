@@ -29,13 +29,13 @@ const SCREEN_CONFIGS = {
   },
 }
 
-// ─── 開発モード（true=制限なし / false=本番カメラ制限あり） ──────────
-const DEV_MODE = true
-
 // URL から screenType を取得してコンフィグを選択（表示情報取得 IIFE より先に実行）
 const _initParams = new URLSearchParams(location.search)
 const _screenType = _initParams.get('screenType') || 'large'
 const cfg = SCREEN_CONFIGS[_screenType] ?? SCREEN_CONFIGS.large
+
+// 開発モード（3Dカメラの制限を外す）。?devcam を付けたときだけ有効
+const DEV_MODE = _initParams.has('devcam')
 
 // ─── 定数 ──────────────────────────────────────────────────────────
 const SPACING_X   = 1.5
