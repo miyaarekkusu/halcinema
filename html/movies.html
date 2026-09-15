@@ -93,9 +93,10 @@
       img.closest('.movie-poster-ph').innerHTML = POSTER_PH
     }
 
-    function posterImgTag(m) {
-      if (!m.posterSlug) return POSTER_PH
-      return '<img src="../images/poster/' + m.posterSlug + '.jpg" alt="' + m.title + '" onerror="onPosterError(this)">'
+    function posterTag(m) {
+      return m.imageUrl
+        ? '<div class="movie-poster-ph"><img src="../' + m.imageUrl + '" alt="' + m.title + '" onerror="onPosterError(this)"></div>'
+        : '<div class="movie-poster-ph">' + POSTER_PH + '</div>'
     }
 
     function comingDateLabel(iso) {

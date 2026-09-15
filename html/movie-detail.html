@@ -235,7 +235,9 @@
         '<section class="section">'
         + '<div class="movie-detail-grid">'
         + '<div><div class="movie-detail-poster">'
-        + detailPosterImgTag(movie)
+        + (movie.imageUrl
+            ? '<img src="../' + movie.imageUrl + '" alt="' + movie.title + '" onerror="onDetailPosterError(this)">'
+            : DETAIL_POSTER_PH)
         + '</div></div>'
         + '<div class="movie-detail-info">'
         + '<div class="movie-detail-badges">' + statusBadge + formatBadges + '</div>'
