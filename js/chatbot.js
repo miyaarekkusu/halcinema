@@ -1215,6 +1215,25 @@
     } catch (e) { return []; }
   }
 
+  // AIチャットボットが「おすすめ映画」で実際に提示した作品を、hal_viewed_movies と
+  // 同じ形（新しい順・重複なし・movieId＋viewedAt）でlocalStorageに記録する。
+  // ホームページのおすすめ（js/recommend.js）がこれを予約実績・閲覧履歴と並ぶ
+  // 3つ目の手がかりとして読む。
+  function recordAiRecommendedMovies(movies) {
+    if (!movies || !movies.length) return;
+    try {
+      var KEY = 'hal_ai_recommended_movies';
+      var list = JSON.parse(localStorage.getItem(KEY) || '[]');
+      movies.forEach(function (m) {
+        if (!m || !m.movieId) return;
+        list = list.filter(function (v) { return v.movieId !== m.movieId; });
+        list.unshift({ movieId: m.movieId, viewedAt: Date.now() });
+      });
+      if (list.length > 15) list = list.slice(0, 15);
+      localStorage.setItem(KEY, JSON.stringify(list));
+    } catch (e) { /* ignore */ }
+  }
+
   function sendToChat(containerId, text) {
     var store = getStore(containerId);
     store.state.messages.push({ role: 'user', content: text });
@@ -1251,6 +1270,7 @@
         }
         if (data.recommendedMovies && data.recommendedMovies.length) {
           recordAndRender(containerId, { role: 'bot', rich: { kind: 'movie_cards', payload: data.recommendedMovies } });
+          recordAiRecommendedMovies(data.recommendedMovies);
         }
         if (data.uiAction) {
           recordAndRender(containerId, { role: 'bot', rich: { kind: data.uiAction.type, payload: data.uiAction } });
