@@ -14,39 +14,7 @@
     if (section) section.hidden = !visible;
   }
 
-  // ── 1. おすすめ（お気に入りベース） ──
-  // 手がかりが無いときは人気順を出さない（下の「本日のランキング」と
-  // 中身が同じ行が並ぶため）。代わりに、お気に入りを使えば出ることが
-  // 分かる案内文を置く。行ごと消すと機能に気づいてもらえないため。
-
-  var RECOMMEND_HINT =
-    'お気に入りに登録すると、そのジャンルに近い作品をここにおすすめします。'
-    + ' <a href="movies.html" class="movie-row-empty-link">作品一覧から探す →</a>';
-
-  function renderRecommend() {
-    var section = el('section-recommend');
-    var list    = el('recommend-list');
-    var reason  = el('recommend-reason');
-
-    function showHint() {
-      reason.textContent = '';
-      list.innerHTML = '<p class="movie-row-empty">' + RECOMMEND_HINT + '</p>';
-      show(section, true);
-    }
-
-    return HalRecommend.forMe(allMovies).then(function (result) {
-      if (!result || result.movies.length === 0) {
-        showHint();
-        return;
-      }
-
-      reason.textContent = result.reason;
-      HalMovie.render(list, result.movies);
-      show(section, true);
-    }).catch(showHint);
-  }
-
-  // ── 2. 本日のランキング ──
+  // ── 本日のランキング ──
 
   function renderRanking() {
     var section = el('section-ranking');
@@ -121,7 +89,7 @@
         renderNowAndComing();
         renderFavorites();
 
-        return Promise.all([renderRanking(), renderRecommend()]);
+        return renderRanking();
       })
       .then(function () {
         HalUI.refreshRowScroll();
@@ -131,14 +99,10 @@
         HalMovie.renderError(el('coming-soon-list'));
       });
 
-    /* カードのハートが押されたら、お気に入り行とおすすめ行を作り直す。
-       おすすめはお気に入りを手がかりにしているので、
-       ハートを押した瞬間に内容が変わるのが正しい。 */
+    /* カードのハートが押されたら、お気に入り行を作り直す。 */
     document.addEventListener('hal:favorites-changed', function () {
       renderFavorites();
-      renderRecommend().then(function () {
-        HalUI.refreshRowScroll();
-      });
+      HalUI.refreshRowScroll();
     });
   }
 

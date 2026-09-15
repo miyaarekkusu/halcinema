@@ -572,6 +572,10 @@
       if (confirm('ログアウトしますか？')) {
         localStorage.removeItem('hal_token');
         localStorage.removeItem('hal_member');
+        // 閲覧履歴（AIチャットボットのおすすめ映画チャットが参考にする）は会員に
+        // 紐づくものなので、別アカウントで再ログインした時に前の人の履歴が
+        // 残らないようログアウト時にクリアする。
+        localStorage.removeItem('hal_viewed_movies');
         sessionStorage.removeItem('latestTicket');
         location.href = 'index.html';
       }
@@ -595,6 +599,7 @@
       item.setAttribute('data-status',   data.status || 'reserved')
       item.setAttribute('data-tickets',  data.tickets && data.tickets.length ? JSON.stringify(data.tickets) : '')
       item.setAttribute('data-foods',    data.foods && data.foods.length ? JSON.stringify(data.foods) : '')
+      item.setAttribute('data-food-order', data.foodOrder ? JSON.stringify(data.foodOrder) : '')
       item.innerHTML =
         '<div class="ticket-poster">' + POSTER_SVG + '</div>'
         + '<div class="ticket-info">'
@@ -661,7 +666,8 @@
         amount:   latest.finalAmount || 0,
         status:   'reserved',
         tickets:  latest.tickets || [],
-        foods:    latest.foods || []
+        foods:    latest.foods || [],
+        foodOrder: latest.foodOrder || null
       }, true)
     }
     addLatestTicket(JSON.parse(sessionStorage.getItem('latestTicket') || 'null'))
@@ -725,9 +731,13 @@
       goodsSectionEl.style.display = ''
       goodsQrEl.innerHTML = ''
 
-      var orderCode = (data.code || data.id || 'HAL-CINEMA') + '-GOODS'
+      // foodOrder は座席予約と同時にt_GOODS_ORDERへ実際に保存された、フード専用の
+      // 本物の注文番号・QRコード。古いsessionStorageデータ等でfoodOrderが無い場合のみ、
+      // 表示だけのフォールバック値を使う（本物の注文としては保存されていない）。
+      var orderCode = (data.foodOrder && data.foodOrder.orderCode) || ((data.code || data.id || 'HAL-CINEMA') + '-GOODS')
+      var qrValue   = (data.foodOrder && data.foodOrder.qrCode) || orderCode
       new QRCode(goodsQrEl, {
-        text        : orderCode,
+        text        : qrValue,
         width       : 130,
         height      : 130,
         colorDark   : '#000000',
@@ -799,6 +809,9 @@
       var foods = []
       try { foods = JSON.parse(item.dataset.foods || '[]') } catch (foodsParseErr) { foods = [] }
 
+      var foodOrder = null
+      try { foodOrder = JSON.parse(item.dataset.foodOrder || 'null') } catch (foodOrderParseErr) { foodOrder = null }
+
       if (tickets.length === 0 && item.dataset.id && token) {
         try {
           var res = await fetch(API_BASE + '/api/me/reservations/' + item.dataset.id, {
@@ -824,7 +837,8 @@
         amount  : item.dataset.amount,
         status  : item.dataset.status,
         tickets : tickets,
-        foods   : foods
+        foods   : foods,
+        foodOrder: foodOrder
       })
     })
 

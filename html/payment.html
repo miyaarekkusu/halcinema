@@ -518,6 +518,31 @@
             return;
           }
 
+          // 座席予約ウィザード中に一緒に選んだフードは、映画のチケットとは別の
+          // 本物の注文（t_GOODS_ORDER、予約に紐付け）として保存し、専用のQRを発行する。
+          // 失敗しても座席予約自体は成立しているので、予約完了フロー自体は止めない。
+          var foodOrder = null;
+          if (ticketData.foods && ticketData.foods.length > 0) {
+            try {
+              var foodOrderRes = await fetch(API_BASE + '/api/goods-orders', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({
+                  items: ticketData.foods.map(function(f) {
+                    return { name: f.name, price: f.price, qty: f.count || 1 };
+                  }),
+                  paymentMethod: payMethodCode,
+                  reservationId: data.reservationId
+                })
+              });
+              if (foodOrderRes.ok) {
+                foodOrder = await foodOrderRes.json();
+              }
+            } catch (foodOrderErr) {
+              console.warn('フード注文の記録に失敗（座席予約は成立済み）:', foodOrderErr);
+            }
+          }
+
           var resData = {
             reservationId:   data.reservationId,
             reservationCode: data.reservationCode,
@@ -532,7 +557,8 @@
             pointsUsed:      pointsUsed,
             paidAt:          new Date().toISOString(),
             tickets:         data.tickets || [],
-            foods:           ticketData.foods || []
+            foods:           ticketData.foods || [],
+            foodOrder:       foodOrder ? { orderCode: foodOrder.orderCode, qrCode: foodOrder.qrCode } : null
           };
           sessionStorage.setItem('reservationData', JSON.stringify(resData));
           sessionStorage.removeItem('halcinema_seats');
