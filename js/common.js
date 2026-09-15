@@ -279,10 +279,16 @@
       var apiBase = window.HAL_API_BASE || 'http://localhost:8080';
       var url     = apiBase + '/api/schedules/' + hold.scheduleId + '/release-hold';
       var payload = JSON.stringify({ seatIds: hold.seatIds || [], holdToken: hold.token });
-      // ページ遷移中でも確実に送るため、可能ならsendBeaconを使う
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }));
-      } else {
+      // ページ遷移中でも確実に送るため、可能ならsendBeaconを使う。
+      // Content-Typeは"text/plain"にする（VercelとFly.ioは別オリジンなので、
+      // application/jsonのような非シンプルなタイプだとブラウザによっては
+      // クロスオリジンのbeacon送信が失敗・無視されることがあるため）。
+      // Goの json.Decoder はContent-Typeを見ずボディをそのままパースするので
+      // サーバー側の受け取り方は変わらない。
+      // sendBeaconはキューイングに失敗すると false を返す（ペイロードが大きすぎる等）。
+      // その場合は fetch(keepalive) にフォールバックする。
+      var queued = navigator.sendBeacon && navigator.sendBeacon(url, new Blob([payload], { type: 'text/plain' }));
+      if (!queued) {
         fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true })
           .catch(function () { /* 失敗しても期限切れで自動解放される */ });
       }
