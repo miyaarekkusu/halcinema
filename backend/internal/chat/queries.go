@@ -12,21 +12,28 @@ import (
 // 各パッケージが同じテーブルに対する軽量なGORMモデルをそれぞれ持つ）。
 
 type movieRow struct {
-	MovieID    int    `gorm:"column:f_movie_id"`
-	Title      string `gorm:"column:f_title"`
-	Genre      string `gorm:"column:f_genre"`
-	Duration   *int   `gorm:"column:f_duration"`
-	Rating     string `gorm:"column:f_rating"`
-	Synopsis   string `gorm:"column:f_synopsis"`
-	PosterSlug string `gorm:"column:f_poster_slug"`
-	IsShowing  int    `gorm:"column:f_is_showing"`
+	MovieID   int    `gorm:"column:f_movie_id"`
+	Title     string `gorm:"column:f_title"`
+	Genre     string `gorm:"column:f_genre"`
+	Duration  *int   `gorm:"column:f_duration"`
+	Rating    string `gorm:"column:f_rating"`
+	Synopsis  string `gorm:"column:f_synopsis"`
+	ImageURL  string `gorm:"column:f_image_url"`
+	IsShowing int    `gorm:"column:f_is_showing"`
 }
 
 func (movieRow) TableName() string { return "t_movie" }
 
+// listShowingMovies は movies.Handler.List と同じJOIN構成（t_movie + t_movie_image）で
+// メイン画像URLも一緒に取得する（AIおすすめ映画カードに実際のポスターを表示するため）。
 func listShowingMovies(db *gorm.DB) ([]MovieInfo, error) {
 	var rows []movieRow
-	if err := db.Where("f_is_showing = 1").Order("f_movie_id").Find(&rows).Error; err != nil {
+	if err := db.Model(&movieRow{}).
+		Select("t_movie.*, mi.f_image_url").
+		Joins("LEFT JOIN t_movie_image mi ON mi.f_image_id = t_movie.f_image_id").
+		Where("t_movie.f_is_showing = 1").
+		Order("t_movie.f_movie_id").
+		Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	movies := make([]MovieInfo, len(rows))
@@ -36,13 +43,13 @@ func listShowingMovies(db *gorm.DB) ([]MovieInfo, error) {
 			duration = *r.Duration
 		}
 		movies[i] = MovieInfo{
-			MovieID:    r.MovieID,
-			Title:      r.Title,
-			Genre:      r.Genre,
-			Duration:   duration,
-			Rating:     r.Rating,
-			Synopsis:   r.Synopsis,
-			PosterSlug: r.PosterSlug,
+			MovieID:  r.MovieID,
+			Title:    r.Title,
+			Genre:    r.Genre,
+			Duration: duration,
+			Rating:   r.Rating,
+			Synopsis: r.Synopsis,
+			ImageURL: r.ImageURL,
 		}
 	}
 	return movies, nil

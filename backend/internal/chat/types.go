@@ -15,13 +15,13 @@ type Slots struct {
 
 // MovieInfo はDeepSeekへのコンテキスト注入・recommend応答の両方で使う映画情報。
 type MovieInfo struct {
-	MovieID    int    `json:"movieId"`
-	Title      string `json:"title"`
-	Genre      string `json:"genre"`
-	Duration   int    `json:"duration"`
-	Rating     string `json:"rating"`
-	Synopsis   string `json:"synopsis"`
-	PosterSlug string `json:"posterSlug,omitempty"`
+	MovieID  int    `json:"movieId"`
+	Title    string `json:"title"`
+	Genre    string `json:"genre"`
+	Duration int    `json:"duration"`
+	Rating   string `json:"rating"`
+	Synopsis string `json:"synopsis"`
+	ImageURL string `json:"imageUrl,omitempty"`
 }
 
 // ScheduleInfo はAI予約で上映回選択の材料としてDeepSeekへ渡す情報。

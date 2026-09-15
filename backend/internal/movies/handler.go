@@ -93,11 +93,6 @@ func movieJSON(m Movie) map[string]any {
 		formats = strings.Split(m.Formats, ",")
 	}
 
-	var posterSlug any
-	if m.PosterSlug != nil {
-		posterSlug = *m.PosterSlug
-	}
-
 	return map[string]any{
 		"movieId":     m.MovieID,
 		"title":       m.Title,
@@ -110,7 +105,6 @@ func movieJSON(m Movie) map[string]any {
 		"cast":        m.CastInfo,
 		"synopsis":    m.Synopsis,
 		"formats":     formats,
-		"posterSlug":  posterSlug,
 		"isShowing":   m.IsShowing,
 		"imageUrl":    m.ImageURL,
 		"trailerId":   m.TrailerID,

@@ -799,9 +799,9 @@
 
       var poster = document.createElement('div');
       poster.className = 'chat-recommend-poster';
-      if (m.posterSlug) {
+      if (m.imageUrl) {
         var img = document.createElement('img');
-        img.src = '../images/poster/' + m.posterSlug + '.jpg';
+        img.src = '../' + m.imageUrl;
         img.alt = m.title || '';
         img.addEventListener('error', function () { poster.innerHTML = POSTER_PLACEHOLDER_SVG; });
         poster.appendChild(img);
