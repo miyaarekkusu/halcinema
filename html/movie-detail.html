@@ -21,6 +21,7 @@
         <a href="goods.html">グッズ・物販</a>
         <a href="event.html">イベント情報</a>
         <a href="theater.html">劇場情報</a>
+        <a href="ai-chatbot.html">AIチャットボット</a>
       </nav>
       <div class="header-actions">
         <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
@@ -85,6 +86,11 @@
 
     function onDetailPosterError(img) {
       img.closest('.movie-detail-poster').innerHTML = DETAIL_POSTER_PH
+    }
+
+    function detailPosterImgTag(movie) {
+      if (!movie.posterSlug) return DETAIL_POSTER_PH
+      return '<img src="../images/poster/' + movie.posterSlug + '.jpg" alt="' + movie.title + '" onerror="onDetailPosterError(this)">'
     }
 
     var API_BASE = 'http://localhost:8080'
@@ -257,6 +263,13 @@
               + '<p class="trailer-label">予告編は公開次第掲載します</p>')
         + '</section>'
         + scheduleSection
+
+      var trailerBoxEl = document.querySelector('.trailer-box:not(.playing)')
+      if (trailerBoxEl) {
+        trailerBoxEl.addEventListener('click', function() {
+          alert('予告編動画を再生します')
+        })
+      }
 
       if (hasSchedule) {
         buildDates()

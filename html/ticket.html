@@ -58,10 +58,19 @@
     .summary-row {
       display: flex; gap: 12px; font-size: 14px;
     }
+    .summary-row[hidden] { display: none; }
     .summary-label { color: var(--c-text-muted); width: 80px; flex-shrink: 0; }
     .summary-value { color: var(--c-text); font-weight: 500; }
     .summary-divider { border: none; border-top: 1px solid var(--c-border); margin: 4px 0; }
     .summary-id { font-size: 12px; color: var(--c-text-muted); text-align: center; margin-top: 4px; }
+
+    /* グッズのみの注文（映画予約なし）の商品明細行：作品/日時などの固定80px幅ラベルとは異なり
+       商品名は長さが不定なため、ラベル側を可変幅にして折り返しを自然にする */
+    .goods-item-row {
+      display: flex; justify-content: space-between; gap: 12px; font-size: 14px;
+    }
+    .goods-item-row .summary-label { width: auto; color: var(--c-text); font-weight: 500; }
+    .goods-item-row .summary-value { flex-shrink: 0; color: var(--c-text-sub); font-weight: 400; }
 
     /* ボタン */
     .complete-actions { display: flex; flex-direction: column; gap: 12px; }
@@ -79,6 +88,7 @@
         <a href="goods.html">グッズ・物販</a>
         <a href="event.html">イベント情報</a>
         <a href="theater.html">劇場情報</a>
+        <a href="ai-chatbot.html">AIチャットボット</a>
       </nav>
       <div class="header-actions">
         <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
@@ -123,17 +133,21 @@
 
       <!-- 予約サマリー -->
       <div class="complete-summary" id="summary-card">
-        <div class="summary-row">
+        <div class="summary-row" id="row-title">
           <span class="summary-label">作品</span>
           <span class="summary-value" id="s-title">—</span>
         </div>
-        <div class="summary-row">
+        <div class="summary-row" id="row-datetime">
           <span class="summary-label">日時</span>
           <span class="summary-value" id="s-datetime">—</span>
         </div>
-        <div class="summary-row">
+        <div class="summary-row" id="row-seats">
           <span class="summary-label">座席</span>
           <span class="summary-value" id="s-seats">—</span>
+        </div>
+        <div id="goods-items-block" hidden>
+          <div id="goods-items-list"></div>
+          <hr class="summary-divider">
         </div>
         <div class="summary-row">
           <span class="summary-label">お支払金額</span>
@@ -175,43 +189,73 @@
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
   <script>
-    var reservation = JSON.parse(sessionStorage.getItem('reservationData') || '{}')
+    var goodsOrder = JSON.parse(sessionStorage.getItem('latestGoodsOrder') || 'null')
 
-    var fullTitle  = reservation.movieTitle || '—'
-    var titleMatch = fullTitle.match(/^(.+?)（(.+?)版）$/)
-    var movieTitle  = titleMatch ? titleMatch[1] : fullTitle
-    var movieFormat = titleMatch ? '（' + titleMatch[2] + '版）' : ''
+    if (goodsOrder) {
+      // goods.html の単体訪問モードからの注文（映画予約なし）。
+      // 同じ「チケット発行」画面をそのまま使い、フード・グッズのみの注文内容を表示する。
+      document.querySelector('.complete-title').textContent = 'ご注文が完了しました'
+      document.querySelector('.complete-sub').innerHTML =
+        '商品はマイページの注文履歴からご確認いただけます。<br>お受け取り時はQRコードをご提示ください。'
 
-    document.getElementById('s-title').textContent    = movieTitle + movieFormat
-    document.getElementById('s-datetime').textContent = reservation.screeningInfo || '—'
-    document.getElementById('s-seats').textContent    = reservation.seats ? reservation.seats.join('・') : '—'
-    document.getElementById('s-amount').textContent   = (reservation.finalAmount !== undefined
-      ? reservation.finalAmount : reservation.totalAmount || 0).toLocaleString() + ' 円（税込）'
+      document.getElementById('row-title').hidden    = true
+      document.getElementById('row-datetime').hidden = true
+      document.getElementById('row-seats').hidden    = true
 
-    var codeLabel = reservation.reservationCode
-      ? '予約番号: ' + reservation.reservationCode
-      : reservation.reservationId
-        ? '予約ID: ' + reservation.reservationId
-        : '—'
-    document.getElementById('s-id').textContent = codeLabel
+      var itemsBlock = document.getElementById('goods-items-block')
+      var itemsList  = document.getElementById('goods-items-list')
+      itemsBlock.hidden = false
+      itemsList.innerHTML = (goodsOrder.items || []).map(function (i) {
+        return '<div class="goods-item-row">'
+          + '<span class="summary-label">' + i.name + '</span>'
+          + '<span class="summary-value">×' + i.qty + '　¥' + (i.price * i.qty).toLocaleString() + '</span>'
+          + '</div>'
+      }).join('')
 
-    // マイページ用にlatestTicketを保存
-    var titleMatch2 = fullTitle.match(/^(.+?)（(.+?)版）$/)
-    sessionStorage.setItem('latestTicket', JSON.stringify({
-      reservationId   : reservation.reservationId,
-      reservationCode : reservation.reservationCode,
-      movieTitle      : titleMatch2 ? titleMatch2[1] : fullTitle,
-      movieFormat     : titleMatch2 ? titleMatch2[2] + '版' : '',
-      screenInfo      : reservation.screenInfo,
-      screeningInfo   : reservation.screeningInfo,
-      seats           : reservation.seats,
-      ticketCount     : reservation.ticketCount,
-      paymentMethod   : reservation.paymentMethod,
-      finalAmount     : reservation.finalAmount !== undefined ? reservation.finalAmount : reservation.totalAmount,
-      issuedAt        : reservation.paidAt,
-      status          : 'reserved',
-      tickets         : reservation.tickets || []
-    }))
+      document.getElementById('s-amount').textContent = (goodsOrder.finalAmount !== undefined
+        ? goodsOrder.finalAmount : goodsOrder.totalAmount || 0).toLocaleString() + ' 円（税込）'
+      document.getElementById('s-id').textContent = '注文番号: ' + (goodsOrder.orderCode || '—')
+
+    } else {
+      var reservation = JSON.parse(sessionStorage.getItem('reservationData') || '{}')
+
+      var fullTitle  = reservation.movieTitle || '—'
+      var titleMatch = fullTitle.match(/^(.+?)（(.+?)版）$/)
+      var movieTitle  = titleMatch ? titleMatch[1] : fullTitle
+      var movieFormat = titleMatch ? '（' + titleMatch[2] + '版）' : ''
+
+      document.getElementById('s-title').textContent    = movieTitle + movieFormat
+      document.getElementById('s-datetime').textContent = reservation.screeningInfo || '—'
+      document.getElementById('s-seats').textContent    = reservation.seats ? reservation.seats.join('・') : '—'
+      document.getElementById('s-amount').textContent   = (reservation.finalAmount !== undefined
+        ? reservation.finalAmount : reservation.totalAmount || 0).toLocaleString() + ' 円（税込）'
+
+      var codeLabel = reservation.reservationCode
+        ? '予約番号: ' + reservation.reservationCode
+        : reservation.reservationId
+          ? '予約ID: ' + reservation.reservationId
+          : '—'
+      document.getElementById('s-id').textContent = codeLabel
+
+      // マイページ用にlatestTicketを保存
+      var titleMatch2 = fullTitle.match(/^(.+?)（(.+?)版）$/)
+      sessionStorage.setItem('latestTicket', JSON.stringify({
+        reservationId   : reservation.reservationId,
+        reservationCode : reservation.reservationCode,
+        movieTitle      : titleMatch2 ? titleMatch2[1] : fullTitle,
+        movieFormat     : titleMatch2 ? titleMatch2[2] + '版' : '',
+        screenInfo      : reservation.screenInfo,
+        screeningInfo   : reservation.screeningInfo,
+        seats           : reservation.seats,
+        ticketCount     : reservation.ticketCount,
+        paymentMethod   : reservation.paymentMethod,
+        finalAmount     : reservation.finalAmount !== undefined ? reservation.finalAmount : reservation.totalAmount,
+        issuedAt        : reservation.paidAt,
+        status          : 'reserved',
+        tickets         : reservation.tickets || [],
+        foods           : reservation.foods || []
+      }))
+    }
   </script>
 
 </body>

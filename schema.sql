@@ -46,6 +46,7 @@ CREATE TABLE t_MOVIE (
     f_cast_info     VARCHAR(300),
     f_synopsis      TEXT,
     f_formats       VARCHAR(100),
+    f_poster_slug   VARCHAR(100),
     f_is_showing    SMALLINT     NOT NULL DEFAULT 1
         CHECK (f_is_showing IN (0, 1)),
     f_trailer_id    VARCHAR(20)
@@ -82,12 +83,32 @@ CREATE TABLE t_SEAT (
 CREATE INDEX idx_seat_screen_id ON t_SEAT (f_screen_id);
 
 -- ============================================================
+--  4b. 上映枠テーブル  t_SLOT
+--  ※ 枠方式の中核。スクリーン×日付ごとに固定の枠を用意し、そこへ映画を割り当てる
+-- ============================================================
+CREATE TABLE t_SLOT (
+    f_slot_id       SERIAL    PRIMARY KEY,
+    f_screen_id     INTEGER   NOT NULL REFERENCES t_SCREEN (f_screen_id),
+    f_show_date     DATE      NOT NULL,
+    f_slot_order    SMALLINT  NOT NULL,
+    f_start_time    TIME      NOT NULL,
+    f_duration_min  SMALLINT  NOT NULL,
+    f_slot_type     SMALLINT  NOT NULL DEFAULT 0
+        CHECK (f_slot_type IN (0, 1)),
+
+    CONSTRAINT uq_slot UNIQUE (f_screen_id, f_show_date, f_slot_order)
+);
+
+CREATE INDEX idx_slot_screen_date ON t_SLOT (f_screen_id, f_show_date);
+
+-- ============================================================
 --  5. 上映スケジュールテーブル  t_SCHEDULE
 -- ============================================================
 CREATE TABLE t_SCHEDULE (
     f_schedule_id  SERIAL   PRIMARY KEY,
     f_movie_id     INTEGER  NOT NULL REFERENCES t_MOVIE  (f_movie_id),
     f_screen_id    INTEGER  NOT NULL REFERENCES t_SCREEN (f_screen_id),
+    f_slot_id      INTEGER           REFERENCES t_SLOT   (f_slot_id),
     f_show_date    DATE     NOT NULL,
     f_start_time   TIME     NOT NULL,
     f_status       SMALLINT NOT NULL DEFAULT 0
@@ -128,6 +149,7 @@ CREATE INDEX idx_screen_price_schedule ON t_SCREEN_PRICE (f_schedule_id);
 CREATE TABLE t_RESERVATION (
     f_reservation_id      SERIAL       PRIMARY KEY,
     f_member_id           INTEGER               REFERENCES t_MEMBER   (f_member_id),
+    f_guest_name          VARCHAR(100),
     f_schedule_id         INTEGER      NOT NULL  REFERENCES t_SCHEDULE (f_schedule_id),
     f_reserved_at         TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     f_reservation_code    VARCHAR(20)  NOT NULL,
@@ -164,18 +186,20 @@ CREATE INDEX idx_detail_seat_id        ON t_RESERVATION_DETAIL (f_seat_id);
 
 -- ============================================================
 --  10. チケットテーブル  t_TICKET
+--  ※ 1予約 = 1チケット = 1QRコード（座席数に関わらず分割しない）。
+--    入場時は同伴者分まとめて1枚のQRを提示する運用。
 -- ============================================================
 CREATE TABLE t_TICKET (
-    f_ticket_id     SERIAL        PRIMARY KEY,
-    f_detail_id     INTEGER       NOT NULL REFERENCES t_RESERVATION_DETAIL (f_detail_id),
-    f_qr_code       VARCHAR(500)  NOT NULL,
-    f_ticket_status SMALLINT      NOT NULL  DEFAULT 0
+    f_ticket_id       SERIAL        PRIMARY KEY,
+    f_reservation_id  INTEGER       NOT NULL REFERENCES t_RESERVATION (f_reservation_id),
+    f_qr_code         VARCHAR(500)  NOT NULL,
+    f_ticket_status   SMALLINT      NOT NULL  DEFAULT 0
         CHECK (f_ticket_status IN (0, 1, 2, 3)),
-    f_issued_at     TIMESTAMP,
-    f_used_at       TIMESTAMP,
+    f_issued_at       TIMESTAMP,
+    f_used_at         TIMESTAMP,
 
-    CONSTRAINT uq_ticket_detail  UNIQUE (f_detail_id),
-    CONSTRAINT uq_ticket_qr_code UNIQUE (f_qr_code)
+    CONSTRAINT uq_ticket_reservation UNIQUE (f_reservation_id),
+    CONSTRAINT uq_ticket_qr_code     UNIQUE (f_qr_code)
 );
 
 CREATE INDEX idx_ticket_status ON t_TICKET (f_ticket_status);
@@ -228,15 +252,17 @@ ALTER TABLE t_MOVIE ADD COLUMN f_image_id INTEGER REFERENCES t_MOVIE_IMAGE (f_im
 --  14. グッズ・商品テーブル  t_GOODS
 -- ============================================================
 CREATE TABLE t_GOODS (
-    f_goods_id    SERIAL        PRIMARY KEY,
-    f_goods_name  VARCHAR(200)  NOT NULL,
-    f_goods_type  VARCHAR(50)   NOT NULL DEFAULT '一般'
+    f_goods_id             SERIAL        PRIMARY KEY,
+    f_goods_name           VARCHAR(200)  NOT NULL,
+    f_goods_type           VARCHAR(50)   NOT NULL DEFAULT '一般'
         CHECK (f_goods_type IN ('フード', 'ドリンク', 'グッズ', '一般')),
-    f_price       INTEGER       NOT NULL,
-    f_stock       INTEGER       NOT NULL DEFAULT 0,
-    f_is_active   SMALLINT      NOT NULL DEFAULT 1
+    f_price                INTEGER       NOT NULL,
+    f_stock                INTEGER       NOT NULL DEFAULT 0,
+    f_stock_unit           VARCHAR(10)   NOT NULL DEFAULT '個',
+    f_stock_alert_threshold INTEGER      NOT NULL DEFAULT 10,
+    f_is_active            SMALLINT      NOT NULL DEFAULT 1
         CHECK (f_is_active IN (0, 1)),
-    f_created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
+    f_created_at           TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_goods_type      ON t_GOODS (f_goods_type);
@@ -278,6 +304,123 @@ CREATE TABLE t_MEMBER_CARD (
 );
 
 CREATE INDEX idx_member_card_member_id ON t_MEMBER_CARD (f_member_id);
+
+-- ============================================================
+--  17. 管理者テーブル  t_ADMIN
+-- ============================================================
+CREATE TABLE t_ADMIN (
+    f_admin_id    SERIAL        PRIMARY KEY,
+    f_admin_code  VARCHAR(50)   NOT NULL,
+    f_admin_name  VARCHAR(50)   NOT NULL,
+    f_password    VARCHAR(255)  NOT NULL,
+    f_role        VARCHAR(20)   NOT NULL DEFAULT 'staff',
+    f_created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT uq_admin_code UNIQUE (f_admin_code)
+);
+
+-- ============================================================
+--  18. 振替履歴テーブル  t_SCHEDULE_CHANGE_LOG
+--  ※ 枠・時刻・スクリーン変更／中止の履歴（機材故障・人的ミス・劇場都合等）
+-- ============================================================
+CREATE TABLE t_SCHEDULE_CHANGE_LOG (
+    f_change_id        SERIAL      PRIMARY KEY,
+    f_schedule_id      INTEGER     NOT NULL REFERENCES t_SCHEDULE (f_schedule_id),
+    f_change_type      SMALLINT    NOT NULL
+        CHECK (f_change_type IN (1, 2, 3, 4)),
+    f_from_slot_id     INTEGER              REFERENCES t_SLOT (f_slot_id),
+    f_to_slot_id       INTEGER              REFERENCES t_SLOT (f_slot_id),
+    f_from_start_time  TIME,
+    f_to_start_time    TIME,
+    f_reason           VARCHAR(255),
+    f_changed_by       INTEGER              REFERENCES t_ADMIN (f_admin_id),
+    f_changed_at       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_change_log_schedule ON t_SCHEDULE_CHANGE_LOG (f_schedule_id);
+
+-- ============================================================
+--  19. 通知テーブル  t_NOTIFICATION
+--  ※ 振替・時刻/スクリーン変更・中止を予約者へ通知する
+-- ============================================================
+CREATE TABLE t_NOTIFICATION (
+    f_notification_id  SERIAL      PRIMARY KEY,
+    f_member_id        INTEGER              REFERENCES t_MEMBER      (f_member_id),
+    f_reservation_id   INTEGER     NOT NULL REFERENCES t_RESERVATION (f_reservation_id),
+    f_type             SMALLINT    NOT NULL
+        CHECK (f_type IN (1, 2, 3, 4)),
+    f_message          VARCHAR(500) NOT NULL,
+    f_is_read          SMALLINT    NOT NULL DEFAULT 0
+        CHECK (f_is_read IN (0, 1)),
+    f_created_at       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_notification_reservation ON t_NOTIFICATION (f_reservation_id);
+CREATE INDEX idx_notification_member      ON t_NOTIFICATION (f_member_id);
+
+-- ============================================================
+--  20. フード・グッズ注文テーブル  t_GOODS_ORDER
+--  ※ 事前注文（予約とセット決済）・POS店頭販売・オンライン単体注文の3つを扱う
+--     f_order_type: 1=事前注文（f_reservation_idあり） / 2=POS店頭販売（f_reservation_id NULL） /
+--                   3=オンライン単体注文（会員がgoods.htmlから予約なしで直接注文、f_member_idあり）
+-- ============================================================
+CREATE TABLE t_GOODS_ORDER (
+    f_order_id        SERIAL       PRIMARY KEY,
+    f_reservation_id  INTEGER               REFERENCES t_RESERVATION (f_reservation_id),
+    f_member_id       INTEGER               REFERENCES t_MEMBER (f_member_id),
+    f_order_type      SMALLINT     NOT NULL
+        CHECK (f_order_type IN (1, 2, 3)),
+    f_order_code      VARCHAR(20)  NOT NULL,
+    f_total_amount    INTEGER      NOT NULL,
+    f_payment_method  SMALLINT     NOT NULL DEFAULT 1
+        CHECK (f_payment_method IN (1, 2, 3)),
+    f_order_status    SMALLINT     NOT NULL DEFAULT 0
+        CHECK (f_order_status IN (0, 1, 2, 3)),
+    f_qr_code         VARCHAR(500),
+    f_ordered_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    f_delivered_at    TIMESTAMP,
+    f_staff_id        INTEGER               REFERENCES t_ADMIN (f_admin_id),
+
+    CONSTRAINT uq_goods_order_code    UNIQUE (f_order_code),
+    CONSTRAINT uq_goods_order_qr_code UNIQUE (f_qr_code)
+);
+
+CREATE INDEX idx_goods_order_reservation ON t_GOODS_ORDER (f_reservation_id);
+CREATE INDEX idx_goods_order_member      ON t_GOODS_ORDER (f_member_id);
+CREATE INDEX idx_goods_order_status      ON t_GOODS_ORDER (f_order_status);
+
+-- ============================================================
+--  21. フード・グッズ注文明細テーブル  t_GOODS_ORDER_DETAIL
+--  ※ f_goods_id は固定カタログ商品に紐づく場合のみ設定（現状t_GOODSは未使用のため常にNULL）。
+--     goods.htmlのウィザードはフレーバー/サイズ等を組み合わせた商品名を動的生成するため、
+--     f_item_name に注文時点の表示名をスナップショットとして保持する。
+-- ============================================================
+CREATE TABLE t_GOODS_ORDER_DETAIL (
+    f_detail_id   SERIAL        PRIMARY KEY,
+    f_order_id    INTEGER       NOT NULL REFERENCES t_GOODS_ORDER (f_order_id),
+    f_goods_id    INTEGER                REFERENCES t_GOODS        (f_goods_id),
+    f_item_name   VARCHAR(200)  NOT NULL,
+    f_quantity    INTEGER       NOT NULL,
+    f_unit_price  INTEGER       NOT NULL
+);
+
+CREATE INDEX idx_goods_order_detail_order ON t_GOODS_ORDER_DETAIL (f_order_id);
+
+-- ============================================================
+--  22. スクリーン障害テーブル  t_SCREEN_INCIDENT
+--  ※ f_resolved_at が NULL の行がある = そのスクリーンは現在使用不可
+-- ============================================================
+CREATE TABLE t_SCREEN_INCIDENT (
+    f_incident_id    SERIAL       PRIMARY KEY,
+    f_screen_id      INTEGER      NOT NULL REFERENCES t_SCREEN (f_screen_id),
+    f_incident_type  VARCHAR(50)  NOT NULL,
+    f_occurred_at    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    f_resolved_at    TIMESTAMP,
+    f_reported_by    INTEGER               REFERENCES t_ADMIN (f_admin_id),
+    f_resolved_by    INTEGER               REFERENCES t_ADMIN (f_admin_id)
+);
+
+CREATE INDEX idx_screen_incident_screen ON t_SCREEN_INCIDENT (f_screen_id);
 
 -- ============================================================
 --  初期データ（上映ステータスマスタ）
@@ -356,6 +499,7 @@ END$$;
 -- ============================================================
 --  シードデータ（映画）
 --  ※ もともと data/movies.json にあった映画データをDBに移行したもの
+--  ※ images/poster/ 配下の画像ファイル名（拡張子抜き）を f_poster_slug に対応させる
 -- ============================================================
 INSERT INTO t_MOVIE
     (f_title, f_title_en, f_genre, f_duration, f_rating, f_release_date,
@@ -486,6 +630,9 @@ DECLARE
     m4   INT;
     m5   INT;
     m6   INT;
+    m7   INT;
+    m8   INT;
+    m9   INT;
 BEGIN
     SELECT f_screen_id INTO sc1 FROM t_screen WHERE f_screen_name = 'SC1';
     SELECT f_screen_id INTO sc2 FROM t_screen WHERE f_screen_name = 'SC2';
@@ -494,9 +641,12 @@ BEGIN
     SELECT f_movie_id  INTO m1  FROM t_movie WHERE f_title = 'ゴジラ-1.0';
     SELECT f_movie_id  INTO m2  FROM t_movie WHERE f_title = '名探偵コナン 黒鉄の魚影';
     SELECT f_movie_id  INTO m3  FROM t_movie WHERE f_title = 'THE FIRST SLAM DUNK';
-    SELECT f_movie_id  INTO m4  FROM t_movie WHERE f_title = '君たちはどう生きるか';
-    SELECT f_movie_id  INTO m5  FROM t_movie WHERE f_title = 'プラダを着た悪魔２';
-    SELECT f_movie_id  INTO m6  FROM t_movie WHERE f_title = 'マイケル';
+    SELECT f_movie_id  INTO m4  FROM t_movie WHERE f_title = 'スパイダーマン:アクロス';
+    SELECT f_movie_id  INTO m5  FROM t_movie WHERE f_title = '怪物';
+    SELECT f_movie_id  INTO m6  FROM t_movie WHERE f_title = 'インディ・ジョーンズ5';
+    SELECT f_movie_id  INTO m7  FROM t_movie WHERE f_title = 'ちいかわ セイレーン編';
+    SELECT f_movie_id  INTO m8  FROM t_movie WHERE f_title = '魔女の宅急便 4K';
+    SELECT f_movie_id  INTO m9  FROM t_movie WHERE f_title = 'プレジデンツ・ケーキ';
 
     FOR day_offset IN 0..13 LOOP
         d := CURRENT_DATE + day_offset;
@@ -517,5 +667,12 @@ BEGIN
         PERFORM insert_schedule_seed(m5, sc4, d, '15:00');
         PERFORM insert_schedule_seed(m6, sc4, d, '13:00');
         PERFORM insert_schedule_seed(m6, sc4, d, '18:00');
+        PERFORM insert_schedule_seed(m7, sc3, d, '09:00');
+        PERFORM insert_schedule_seed(m7, sc3, d, '13:00');
+        PERFORM insert_schedule_seed(m7, sc3, d, '17:30');
+        PERFORM insert_schedule_seed(m8, sc2, d, '10:30');
+        PERFORM insert_schedule_seed(m8, sc2, d, '15:30');
+        PERFORM insert_schedule_seed(m9, sc4, d, '09:30');
+        PERFORM insert_schedule_seed(m9, sc4, d, '16:30');
     END LOOP;
 END$$;

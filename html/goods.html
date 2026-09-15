@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/mypage.css">
+  <link rel="stylesheet" href="../css/voice-guide.css">
+  <link rel="stylesheet" href="../css/step-progress.css">
   <link rel="stylesheet" href="../css/goods.css">
 </head>
 
@@ -24,6 +26,7 @@
         <a href="goods.html" class="active">グッズ・物販</a>
         <a href="event.html">イベント情報</a>
         <a href="theater.html">劇場情報</a>
+        <a href="ai-chatbot.html">AIチャットボット</a>
       </nav>
 
       <div class="header-actions">
@@ -43,161 +46,346 @@
     </div>
   </header>
 
-  <!-- Main -->
+  <!-- ステップヘッダー + 音声案内（座席予約ウィザード中のみ表示） -->
+  <div class="fs-step-header wizard-only">
+    <div class="fs-step-header-inner">
+      <div class="step-title-wrap">
+        <span class="step-num">3</span>
+        <span class="step-title">フード・グッズ</span>
+      </div>
+      <div class="voice-guide" id="voice-guide" data-audio="../voice/03_food.wav">
+        <p class="voice-guide-text">ご一緒にポップコーンやお飲み物はいかがですか？私はポップコーンのキャラメル味がおすすめです！<br>必要のない方はそのまま「次へ」進んでください。</p>
+        <button class="voice-guide-btn" id="voice-guide-btn" aria-label="音声案内">
+          <img src="../images/volum_on.png" id="voice-guide-icon" alt="音声">
+        </button>
+      </div>
+    </div>
+  </div>
+
   <main class="page-main">
+    <div class="page-wrapper">
 
-    <!-- パンくず（単体ページのみ） -->
-    <nav class="breadcrumb standalone-only">
-      <a href="index.html">TOP</a>
-      <span class="breadcrumb-sep"></span>
-      <span>グッズ・売店</span>
-    </nav>
+      <!-- パンくず・見出し（単体訪問のみ） -->
+      <nav class="breadcrumb standalone-only">
+        <a href="index.html">TOP</a>
+        <span class="breadcrumb-sep"></span>
+        <span>グッズ・売店</span>
+      </nav>
+      <h1 class="page-title standalone-only">GOODS <span>& SHOP</span></h1>
+      <p class="page-subtitle standalone-only">映画関連グッズや売店商品をご紹介します</p>
 
-    <h1 class="page-title standalone-only">GOODS <span>& SHOP</span></h1>
-    <p class="page-subtitle standalone-only">映画関連グッズや売店商品をご紹介します</p>
-
-    <!-- ステップバー（予約フローのみ） -->
-    <div class="gs-steps booking-only">
-      <div class="gs-step done">
-        <span class="gs-step-num">1</span>
-        <span>座席選択</span>
+      <!-- カテゴリタブ -->
+      <div class="category-tabs">
+        <button class="category-tab active" data-tab="food">🍿 フード</button>
+        <button class="category-tab" data-tab="goods">🎁 グッズ</button>
       </div>
-      <div class="gs-step-line done"></div>
-      <div class="gs-step active">
-        <span class="gs-step-num">2</span>
-        <span>グッズ選択</span>
-      </div>
-      <div class="gs-step-line"></div>
-      <div class="gs-step">
-        <span class="gs-step-num">3</span>
-        <span>決済</span>
-      </div>
-      <div class="gs-step-line"></div>
-      <div class="gs-step">
-        <span class="gs-step-num">4</span>
-        <span>チケット発行</span>
-      </div>
-    </div>
 
-    <!-- 予約情報バー（予約フローのみ） -->
-    <div class="gs-booking-bar booking-only" id="gs-booking-bar"></div>
+      <div class="food-grid-layout">
 
-    <div class="goods-layout">
+        <!-- 左：商品グリッド -->
+        <div class="food-panel">
 
-      <!-- サイドバー（絞り込みのみ） -->
-      <aside class="goods-sidebar">
+          <!-- ── フードタブ ── -->
+          <div class="tab-panel active" id="tab-food">
 
-        <div class="sidebar-section">
-          <p class="sidebar-section-label">カテゴリ</p>
-          <div class="sidebar-category">
-            <button class="category-btn active" data-cat="goods">グッズ</button>
-            <button class="category-btn" data-cat="shop">売店</button>
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <p class="sidebar-section-label">検索</p>
-          <input type="text" id="searchInput" class="sidebar-search" placeholder="キーワードで探す…">
-        </div>
-
-        <div class="sidebar-section">
-          <p class="sidebar-section-label">絞り込み</p>
-          <div class="sidebar-filters">
-            <div class="filter-group" id="size-filter-group">
-              <label for="sizeFilter">サイズ</label>
-              <select id="sizeFilter">
-                <option value="all">すべて</option>
-                <option value="A3">A3</option>
-                <option value="A4">A4</option>
-                <option value="M">M</option>
-              </select>
+            <p class="panel-section-label">🎬 セット商品</p>
+            <div class="food-items-grid">
+              <div class="food-card" data-wz="set" data-set="standard">
+                <div class="food-card__img"><img src="../images/standardset.png" alt="スタンダードセット"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">スタンダードセット</span>
+                  <span class="food-card__en">Standard Set</span>
+                  <span class="food-card__sub">Popcorn M + Drink M</span>
+                  <span class="food-card__discount">100円OFF</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="set" data-set="premium">
+                <div class="food-card__img"><img src="../images/premiumset.png" alt="プレミアムセット"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">プレミアムセット</span>
+                  <span class="food-card__en">Premium Set</span>
+                  <span class="food-card__sub">Popcorn L + Drink L</span>
+                  <span class="food-card__discount">150円OFF</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="set" data-set="pair">
+                <div class="food-card__img"><img src="../images/pairset.jpeg" alt="ペアセット"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ペアセット</span>
+                  <span class="food-card__en">Pair Set</span>
+                  <span class="food-card__sub">Popcorn L + Drink M × 2</span>
+                  <span class="food-card__discount">200円OFF</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
             </div>
-            <div class="filter-group">
-              <label for="sortPrice">価格</label>
-              <select id="sortPrice">
-                <option value="none">指定なし</option>
-                <option value="asc">安い順</option>
-                <option value="desc">高い順</option>
-              </select>
+
+            <p class="panel-section-label" style="margin-top:20px">🍿 ポップコーン</p>
+            <div class="food-items-grid">
+              <div class="food-card" data-wz="popcorn" data-size="s">
+                <div class="food-card__img"><img src="../images/popcorn_salt_S.jpeg" alt="ポップコーン S"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ポップコーン S</span>
+                  <span class="food-card__en">Popcorn S</span>
+                  <span class="food-card__sub">約300g · 500〜580円</span>
+                  <button class="wz-open-btn">味を選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="popcorn" data-size="m">
+                <div class="food-card__img"><img src="../images/popcorn_salt_M.jpeg" alt="ポップコーン M"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ポップコーン M</span>
+                  <span class="food-card__en">Popcorn M</span>
+                  <span class="food-card__sub">約450g · 600〜680円</span>
+                  <button class="wz-open-btn">味を選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="popcorn" data-size="l">
+                <div class="food-card__img"><img src="../images/popcorn_salt_L.jpeg" alt="ポップコーン L"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ポップコーン L</span>
+                  <span class="food-card__en">Popcorn L</span>
+                  <span class="food-card__sub">約600g · 650〜730円</span>
+                  <button class="wz-open-btn">味を選ぶ ▸</button>
+                </div>
+              </div>
             </div>
+
+            <p class="panel-section-label" style="margin-top:20px">🥤 ドリンク</p>
+            <div class="food-items-grid">
+              <div class="food-card" data-wz="drink" data-size="s">
+                <div class="food-card__img"><img src="../images/drink_S.png" alt="ドリンク S"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ドリンク S</span>
+                  <span class="food-card__en">Drink S</span>
+                  <span class="food-card__sub">約400ml · 280〜380円</span>
+                  <button class="wz-open-btn">種類を選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="drink" data-size="m">
+                <div class="food-card__img"><img src="../images/drink_M.png" alt="ドリンク M"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ドリンク M</span>
+                  <span class="food-card__en">Drink M</span>
+                  <span class="food-card__sub">約550ml · 350〜460円</span>
+                  <button class="wz-open-btn">種類を選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="drink" data-size="l">
+                <div class="food-card__img"><img src="../images/drink_L.png" alt="ドリンク L"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ドリンク L</span>
+                  <span class="food-card__en">Drink L</span>
+                  <span class="food-card__sub">約700ml · 420〜470円</span>
+                  <button class="wz-open-btn">種類を選ぶ ▸</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="panel-section-label" style="margin-top:20px">🍔 その他フード</p>
+            <div class="food-items-grid">
+              <div class="food-card" data-wz="simple" data-item="hotdog">
+                <div class="food-card__img"><img src="../images/hotdog_plain.png" alt="ホットドッグ"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ホットドッグ</span>
+                  <span class="food-card__en">Hot Dog</span>
+                  <span class="food-card__sub">1本 · 350〜480円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="simple" data-item="nachos">
+                <div class="food-card__img"><img src="../images/nachos_s_cheese.png" alt="ナチョス"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">ナチョス</span>
+                  <span class="food-card__en">Nachos</span>
+                  <span class="food-card__sub">S/L · 400〜600円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="fries">
+                <div class="food-card__img"><img src="../images/potato_salt.png" alt="フライドポテト"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">フライドポテト</span>
+                  <span class="food-card__en">French Fries</span>
+                  <span class="food-card__sub">330〜450円〜</span>
+                  <button class="wz-open-btn">種類・味を選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="simple" data-item="ice">
+                <div class="food-card__img"><img src="../images/softcream_vanilla.png" alt="アイスクリーム"></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">アイスクリーム</span>
+                  <span class="food-card__en">Ice Cream</span>
+                  <span class="food-card__sub">1カップ · 350〜420円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /#tab-food -->
+
+          <!-- ── グッズタブ ── -->
+          <div class="tab-panel" id="tab-goods">
+            <div class="food-items-grid">
+              <div class="food-card" data-wz="simple" data-item="tshirt">
+                <div class="food-card__img"><span class="ph-icon">👕</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">HAL限定Tシャツ</span>
+                  <span class="food-card__sub">S/M/L/XL · 2,800円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="simple" data-item="tumbler">
+                <div class="food-card__img"><span class="ph-icon">🥛</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">HALタンブラー</span>
+                  <span class="food-card__sub">2色展開 · 1,800円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="simple" data-item="badge">
+                <div class="food-card__img"><span class="ph-icon">🎖️</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">缶バッジセット</span>
+                  <span class="food-card__sub">3デザイン · 800〜900円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="simple" data-item="poster">
+                <div class="food-card__img"><span class="ph-icon">🖼️</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">映画ポスター A3</span>
+                  <span class="food-card__sub">縦型/横型 · 1,200円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="simple" data-item="keychain">
+                <div class="food-card__img"><span class="ph-icon">🔑</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">キーチェーン</span>
+                  <span class="food-card__sub">3種 · 600円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+              <div class="food-card" data-wz="simple" data-item="blanket">
+                <div class="food-card__img"><span class="ph-icon">🧣</span></div>
+                <div class="food-card__body">
+                  <span class="food-card__name">映画ブランケット</span>
+                  <span class="food-card__sub">3色 · 2,200円</span>
+                  <button class="wz-open-btn">選ぶ ▸</button>
+                </div>
+              </div>
+            </div>
+          </div><!-- /#tab-goods -->
+
+        </div><!-- /.food-panel -->
+
+        <!-- 右：カート・注文サイドバー -->
+        <aside class="food-sidebar">
+          <div class="sidebar-card">
+
+            <div class="sidebar-section wizard-only">
+              <p class="sidebar-label">上映情報</p>
+              <div class="movie-info">
+                <div class="movie-poster"><div class="movie-poster__placeholder"></div></div>
+                <div class="movie-meta">
+                  <h3 class="movie-title" id="sb-movie-title">—</h3>
+                  <p class="movie-time"  id="sb-movie-time">—</p>
+                  <p class="movie-duration" id="sb-screen-detail">—</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="sidebar-section booking-only">
+              <p class="sidebar-label">ご予約情報</p>
+              <div class="movie-info">
+                <div class="movie-poster"><div class="movie-poster__placeholder"></div></div>
+                <div class="movie-meta">
+                  <h3 class="movie-title" id="sb-booking-title">—</h3>
+                  <p class="movie-time"  id="sb-booking-time">—</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="sidebar-section wizard-or-booking-only">
+              <p class="sidebar-label">チケット</p>
+              <ul class="selected-list" id="js-sidebar-tickets"></ul>
+            </div>
+
+            <div class="sidebar-section cart-section">
+              <p class="sidebar-label">フード・グッズ <span class="cart-count" id="js-cart-count">0点</span></p>
+              <ul class="cart-list" id="js-cart-list">
+                <li class="cart-empty">未選択</li>
+              </ul>
+            </div>
+
+            <div class="price-total">
+              <span class="price-amount" id="js-total-price">0</span>
+              <span class="price-unit">円（税込）</span>
+            </div>
+
+            <div class="sidebar-actions">
+              <button class="btn btn--back" onclick="history.back()">戻る</button>
+              <button class="btn btn--next" id="btn-next">次へ</button>
+            </div>
+
           </div>
-        </div>
+        </aside>
 
-      </aside>
-
-      <!-- メインコンテンツ -->
-      <div class="goods-main">
-        <div class="goods-main-header">
-          <h2 id="category-title" class="goods-category-title">グッズ <span>GOODS</span></h2>
-          <span id="item-count" class="goods-item-count"></span>
-          <!-- カートトグルボタン（両モード共通） -->
-          <button class="cart-toggle-btn" id="cart-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-            </svg>
-            カート
-            <span class="cart-badge" id="cart-badge">0</span>
-          </button>
-        </div>
-        <div class="goods-grid" id="goods-grid"></div>
-      </div>
-
+      </div><!-- /.food-grid-layout -->
     </div>
-
-    <!-- ページネーション（単体ページのみ） -->
-    <div class="goods-pagination standalone-only">
-      <button class="btn btn-secondary" id="btn-prev">戻る</button>
-      <button class="btn btn-primary" id="btn-next">次へ</button>
-    </div>
-
   </main>
 
-  <!-- Footer -->
+  <!-- カスタムアラートモーダル -->
+  <div class="custom-alert" id="custom-alert" hidden>
+    <div class="custom-alert__overlay" id="custom-alert-overlay"></div>
+    <div class="custom-alert__card">
+      <p class="custom-alert__logo">HAL <span>CINEMA</span></p>
+      <p class="custom-alert__msg" id="custom-alert-msg"></p>
+      <button class="custom-alert__btn" id="custom-alert-ok">OK</button>
+    </div>
+  </div>
+
+  <!-- ウィザードポップアップ（共通・単一） -->
+  <div class="wizard-popup" id="wizard-popup" role="dialog" aria-modal="true" hidden>
+    <div class="wizard-overlay" id="wizard-overlay"></div>
+    <div class="wizard-card">
+      <div class="wizard-header">
+        <div class="wizard-logo">HAL <span>CINEMA</span></div>
+        <h2 class="wizard-title" id="wz-title">—</h2>
+        <button class="wizard-close" id="wizard-close" aria-label="閉じる">×</button>
+      </div>
+      <div class="wz-steps" id="wz-steps"></div>
+      <div class="wz-body" id="wz-body"></div>
+      <div class="wizard-footer">
+        <button class="wz-btn wz-btn--back" id="wz-back">戻る</button>
+        <button class="wz-btn wz-btn--next" id="wz-next">次へ</button>
+      </div>
+    </div>
+  </div>
+
   <footer class="site-footer">
     <div class="footer-inner">
       <div>
         <p class="footer-logo">HAL <span>CINEMA</span></p>
-        <p class="footer-desc">
-          HALシネマは全8スクリーン・1,500席を誇る<br>
-          名古屋最大級のシネマコンプレックスです。
-        </p>
+        <p class="footer-desc">HALシネマは全8スクリーン・1,500席を誇る<br>名古屋最大級のシネマコンプレックスです。</p>
       </div>
       <nav class="footer-links">
         <a href="index.html">トップ</a>
         <a href="#">お問い合わせ</a>
         <a href="#">Q&amp;A</a>
-        <a href="#">個人情報保護方針</a>
+        <a href="privacy.html">個人情報保護方針</a>
       </nav>
       <p class="footer-copy">© 2026 HAL CINEMA. All rights reserved.</p>
     </div>
   </footer>
 
-  <!-- カートパネル（両モード共通） -->
-  <div class="cart-overlay" id="cart-overlay"></div>
-  <aside class="cart-panel" id="cart-panel">
-    <div class="cart-panel-header">
-      <h3 class="cart-panel-title">カート</h3>
-      <button class="cart-close" id="cart-close">✕</button>
-    </div>
-    <div class="cart-items" id="cart-items"></div>
-    <div class="cart-panel-footer">
-      <div class="cart-total-row">
-        <span>合計</span>
-        <span id="cart-total">¥0</span>
-      </div>
-      <!-- 単体ページ -->
-      <button class="btn btn-primary standalone-only" id="cart-checkout" style="width:100%">注文へ進む</button>
-      <!-- 予約フロー -->
-      <div class="booking-cart-actions booking-only">
-        <button class="btn btn-primary" id="proceed-btn" style="width:100%">決済へ進む</button>
-        <button class="btn btn-ghost btn-sm" id="skip-btn" style="width:100%">スキップして決済へ</button>
-      </div>
-    </div>
-  </aside>
-
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
+  <script src="../js/voice-guide.js" defer></script>
+  <script src="../js/step-progress.js" defer></script>
   <script src="../js/goods.js" defer></script>
 
 </body>

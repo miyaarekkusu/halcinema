@@ -45,7 +45,8 @@ halcinema/
 │   ├── ticket.html       → 予約完了ページ
 │   ├── goods.html        → グッズ・売店ページ
 │   ├── event.html        → イベント情報ページ
-│   ├── chatbot.html      → チャットボットフルページ
+│   ├── chatbot.html      → AIアシスタント フルページ（お問い合わせ専用）
+│   ├── ai-chatbot.html   → AIチャットボット フルページ（おすすめ映画・AI予約専用、ログイン必須）
 │   └── sample.html       → 新規ページ作成用テンプレート
 ├── data/
 │   └── movies.json   → 映画データ（上映中6本・上映予定5本）
@@ -58,8 +59,7 @@ halcinema/
 │   ├── goods.html         → グッズ販売
 │   ├── gate.html          → 入場ゲート
 │   ├── backyard.html      → バックヤード
-│   ├── settings.html      → 設定
-│   └── logs.html          → ログ
+│   └── settings.html      → 設定
 ├── backend/          → Go APIサーバー（2次開発〜）
 │   ├── cmd/api/main.go        → エントリーポイント
 │   ├── internal/config/db.go → DB接続設定
@@ -77,6 +77,7 @@ halcinema/
 
 ## 注意
 
+- **頼んでいないことをやらない**。指示された範囲だけ作業する（余計な修正・リファクタ・追加機能はNG）。
 - push前に必ず `git pull` する。他の人の更新を取得するから必ずやってね。
 - 画像は `images/` フォルダに入れる
 - ファイル名・フォルダ名に**日本語・スペース禁止**（例：`映画詳細.html` はNG → `movie-detail.html` にする）
@@ -180,6 +181,17 @@ halcinema/
 | 2026-07-10 | 管理者画面を admin/ フォルダとして新規作成（ダッシュボード＋7項目ページ）、html/login.html から管理者ID/パスワードでログイン→admin/へ遷移する仕組みを実装 | Claude Code |
 | 2026-07-10 | login.html に開発用テストログインボタンを追加。フード/グッズ/ゲートに詳細サブタブ（受付・受理中注文・在庫・POS・履歴／予約状態確認・通過管理・座席変更）を実装し、QR読み取りポップアップを全画面モーダルに変更 | Claude Code |
 | 2026-07-10 | 管理者画面の絵文字をすべて削除。今後の追加予定（QR実演＋発券プリンタ連携、チャットボット音声予約、DB要すり合わせ事項、ポイント拡張）を note/修正追加予定メモ.txt に追記 | Claude Code |
+| 2026-09-01 | 管理者画面のログページ（admin/logs.html）を削除、全ページのサイドバーからリンクを除去。t_GOODS に在庫単位・残りわずかしきい値カラムを追加（DATABASE.md参照） | Claude Code |
+| 2026-09-01 | 管理者画面のDB設計を追加：t_ADMIN、t_GOODS_ORDER／t_GOODS_ORDER_DETAIL、t_SCREEN_INCIDENT新設、t_RESERVATIONにf_guest_name追加（詳細はDATABASE.md参照） | Claude Code |
+| 2026-09-01 | ゲスト予約の氏名対応：html/payment.htmlに未ログイン時のみ表示される氏名入力欄を追加、backend/internal/reservations/handler.goでf_guest_nameを受け取り保存するよう対応 | Claude Code |
+| 2026-09-07 | チャットボットをDeepSeek API連携に刷新（backend/internal/chat/ 新設、POST /api/chat）。最初にアシスタント／おすすめ映画／AI予約の3択を選ばせ、意図ごとの固定プロンプト→JSON抽出で処理。AI予約は座席選択・決済までチャット内で完結（座席選択のみDeepSeekを介さず既存の座席ボタンUIと同系統のグリッドで確定）。reservations.Create のトランザクション本体を CreateReservation として切り出しWeb予約と共通化。要 .env に DEEPSEEK_API_KEY 設定（.env.example参照） | Claude Code |
+| 2026-09-01 | schema.sqlにt_SLOT／t_SCHEDULE_CHANGE_LOG／t_NOTIFICATIONを実装。admin/schedule.htmlのトラブル対応UIを変更：予定（枠）をクリックすると詳細＋トラブル報告/解除ができるモーダルを表示する方式に統一し、スクリーン全体を覆う使用不可オーバーレイを廃止して予定の色を赤くするだけの表現に変更 | Claude Code |
+| 2026-09-08 | AIチャット（DeepSeek連携）の検証を再開しブラウザで3択フローを実走テスト。判明した不具合を2件修正：①稼働中DBコンテナがschema.sqlの最新定義（f_guest_name等・t_SLOT/t_ADMIN/t_GOODS_ORDER等7テーブル）に追いついておらずAI予約の決済確定でINSERTエラー→既存データを保持したままALTER TABLE/CREATE TABLE差分マイグレーションで解消。②おすすめ映画カードがcommon.cssの.movie-card（作品一覧のポスターカード用、aspect-ratio:283/400）とクラス名衝突し縦に約1050pxへ引き伸ばされ実質非表示になっていた→chatbot.js/chatbot.cssのクラス名を.chat-movie-card系にリネームして分離。AI予約・おすすめ映画・アシスタント質問の3意図とも動作確認済み | Claude Code |
+| 2026-09-12 | チャットに「新規チャット」「会話履歴」機能を追加。js/chatbot.jsのスレッド保存をlocalStorage上の複数スレッド管理（THREADS_KEY/ACTIVE_KEY、createThread/startNewChat/switchThread/deleteThread/openHistoryPanel）に刷新し、フルページ・ウィジェット双方のヘッダーに新規チャット／履歴アイコンボタンを追加。履歴パネルはスレッド一覧（タイトル・プレビュー・日時・削除）を表示し、クリックで会話を復元できる | Claude Code |
+| 2026-09-14 | AIアシスタント（お問い合わせ専用）とAIチャットボット（おすすめ映画・AI予約専用、ログイン必須、上ナビから）を分離するコア実装。js/chatbot.jsをモード別（assistant/chatbot）のINTENT_SETS・スレッドストアに刷新し、選択肢が1つのモードはピッカーを出さず即会話開始するよう変更。新規html/ai-chatbot.html（js/ai-chatbot-guard.jsで未ログイン時にlogin.html?redirect=ai-chatbot.htmlへ即リダイレクト）を追加し、html/*.html全22ページのナビに「AIチャットボット」リンクを追加。おすすめ映画はbackend/internal/chat/handler.goでmemberID必須化＋過去の予約履歴から集計したジャンル傾向をプロンプトに追加する軽量パーソナライズを実装し、js/chatbot.jsのおすすめカードを作品一覧と同系統のポスターグリッド表示（「AI予約で進める」「詳細・通常予約」ボタン付き）に刷新。AI予約は人数確認→今週のスケジュール（該当日が無ければ一番近い上映日を案内）の順に修正し、queries.goにlistSchedulesForMovie（今週7日間）・nextAvailableDate・memberGenreHistoryを追加。予約確定後に「グッズ・売店で注文する」ボタンを追加し、goods.html側の既存booking-mode（sessionStorage.reservationData）にそのまま接続 | Claude Code |
+| 2026-09-15 | チケットのQRコードを「1予約=1枚」に変更（座席ごとに分割しない）。t_TICKETをf_detail_id（1座席=1枚）からf_reservation_id（1予約=1枚）FKに変更するDBマイグレーションを実施（既存の座席別チケット行は予約単位で1枚に統合、重複は削除）。backend/internal/reservations/handler.goのCreateReservation／GetOneを1予約1チケット発行・取得に修正し、レスポンスにqrCodeを追加。html/mypage.htmlのチケット詳細モーダルは座席ごとのQRブロックの繰り返し表示をやめ、全座席分のラベルをまとめた1枚のQRブロックのみ表示するよう変更。グッズ・売店側のQR（注文単位で1枚、renderGoodsSection）は元々分割されていなかったためそのまま維持（バックエンドの注文保存自体は未実装のため今回は対象外） | Claude Code |
+| 2026-09-15 | バラバラだった3つのグッズ・売店実装（常設のhtml/goods.html、座席予約フローStep3のhtml/food-select.html、孤立コードのhtml/goods-select.html）をhtml/goods.html 1本に統一。作り込みレベルが高かったfood-select.html側（実写風カード・セット割引・フレーバー/サイズ選択ウィザード）を正としてjs/goods.js・css/goods.css・html/goods.htmlを全面刷新し、座席予約ウィザード中（sessionStorage.halcinema_seats）／AIチャットボット予約後（sessionStorage.reservationData）／単体訪問の3モードをbody.mode-*クラスで切り替え。html/ticket-select.htmlの遷移先をfood-select.html→goods.htmlに変更、html/food-select.html・css/food-select.css・html/goods-select.html・js/goods-select.jsは削除 | Claude Code |
+| 2026-09-15 | goods.htmlの単体訪問モード「注文する」（準備中アラートのみだった）にバックエンド本実装を追加し、映画予約の決済と同じ流れ（payment.html）→フードのみのチケット発行画面に統一。t_GOODS_ORDERにf_member_id・f_payment_method・f_qr_code列を追加しf_order_typeに3（オンライン単体注文）を新設、t_GOODS_ORDER_DETAILはf_goods_idを任意化しf_item_name（注文時点の商品名スナップショット）を追加——goods.htmlのウィザードがフレーバー/サイズを組み合わせた商品名を動的生成し固定カタログのt_GOODSに対応しないため。backend/internal/goodsorder新設（POST /api/goods-orders、GET /api/me/goods-orders、GET /api/me/goods-orders/{id}、いずれもJWT必須）。js/goods.jsのstandalone「注文する」は未ログイン時にlogin.html?redirect=goods.htmlへ誘導、ログイン時はgoodsCartを保存しpayment.html（映画予約と共通）へ。payment.htmlにisGoodsOnlyFlow分岐を追加し新APIで注文保存→sessionStorage.latestGoodsOrderに保存。html/ticket.htmlはgoodsOrder有無で分岐し、映画情報行を隠して商品明細＋注文番号のみの「チケット発行」画面として表示（.summary-row{display:flex}がhidden属性を上書きしていたのを.summary-row[hidden]で修正、商品名の折り返し崩れ用にgoods-item-rowクラスを追加）。html/mypage.htmlに「ご注文履歴（グッズ・売店）」セクションと専用QR詳細モーダルを追加 | Claude Code |
 
 ## 作成済みページ一覧
 
@@ -188,7 +200,8 @@ halcinema/
 | `index.html`          | トップ         | ✅ 完成 |
 | `html/login.html`     | ログイン       | ✅ 完成 |
 | `html/register.html`  | 会員登録       | ✅ 完成 |
-| `html/chatbot.html`   | チャットボット | ✅ 完成 |
+| `html/chatbot.html`   | AIアシスタント（お問い合わせ専用） | ✅ 完成 |
+| `html/ai-chatbot.html` | AIチャットボット（おすすめ映画・AI予約、ログイン必須） | ✅ 完成 |
 | `html/zaseki.html`    | 座席選択       | ✅ 完成 |
 | `html/movie-detail.html` | 作品詳細    | ✅ 完成 |
 | `html/mypage.html`    | マイページ       | ✅ 完成 |

@@ -21,6 +21,7 @@
         <a href="goods.html">グッズ・物販</a>
         <a href="event.html">イベント情報</a>
         <a href="theater.html">劇場情報</a>
+        <a href="ai-chatbot.html">AIチャットボット</a>
       </nav>
       <div class="header-actions">
         <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
@@ -75,6 +76,14 @@
                 <span>割引額</span>
                 <span class="payment-discount-amount" id="discount-display">- 0 円</span>
               </div>
+            </div>
+          </div>
+
+          <!-- お客様情報（未ログイン＝ゲスト予約時のみ表示） -->
+          <div id="guest-name-section" style="display:none;">
+            <div class="form-group">
+              <label class="form-label" for="guest-name">お名前（発券・入場確認に使用します）</label>
+              <input class="form-input" type="text" id="guest-name" placeholder="山田 太郎" autocomplete="name">
             </div>
           </div>
 
@@ -200,10 +209,20 @@
   var reservation = JSON.parse(sessionStorage.getItem('reservationData')  || '{}');
   var goodsCart   = JSON.parse(sessionStorage.getItem('goodsCart')         || '[]');
 
+  var API_BASE     = 'http://localhost:8080';
   var isTicketFlow = !!ticketData;
+  // goods.html の単体訪問モード（グッズのみ、映画予約なし）からの注文。
+  // AIチャットボット予約後のグッズ購入（reservation.movieTitleあり）とはここで区別する。
+  var isGoodsOnlyFlow = !isTicketFlow && !reservation.movieTitle && goodsCart.length > 0;
   var baseAmount   = 0;
   var pointsUsed   = 0;
   var POINT_BALANCE = 1450;
+
+  // ── ゲスト予約：未ログインならお名前入力欄を表示 ──────────
+  var isLoggedIn = !!localStorage.getItem('hal_token');
+  if (isTicketFlow && !isLoggedIn) {
+    document.getElementById('guest-name-section').style.display = '';
+  }
 
   // ── ステップバー生成 ──────────────────────────────────────
   var TICKET_STEPS = [
@@ -246,7 +265,13 @@
 
   // ── 金額計算 ──────────────────────────────────────────────
   if (isTicketFlow) {
-    baseAmount = ticketData.totalPrice || 0;
+    // ticketData.totalPrice は券種選択時点（フード選択より前）の座席チケット代金のみのため、
+    // フード・グッズ選択で追加された分をここで合算する
+    var seatTicketAmount = ticketData.totalPrice || 0;
+    var foodSubtotal = (ticketData.foods || []).reduce(function(s, f) {
+      return s + f.price * (f.count || 1);
+    }, 0);
+    baseAmount = seatTicketAmount + foodSubtotal;
   } else {
     var ticketAmount  = reservation.totalAmount || 0;
     var goodsSubtotal = goodsCart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
@@ -390,6 +415,15 @@
   // ── 次へボタン ────────────────────────────────────────────
   document.getElementById('next-btn').addEventListener('click', async function() {
     var method = document.querySelector('input[name="method"]:checked').value;
+    var guestName = '';
+
+    if (isTicketFlow && !isLoggedIn) {
+      guestName = document.getElementById('guest-name').value.trim();
+      if (!guestName) {
+        alert('お名前を入力してください。');
+        return;
+      }
+    }
 
     if (method === 'card') {
       var num  = document.getElementById('card-number').value.replace(/\s/g, '');
@@ -410,7 +444,6 @@
     var payMethodCode  = { card: 1, paypay: 2, paypal: 2, cash: 3 }[method] || 1;
 
     if (isTicketFlow) {
-      var API_BASE   = 'http://localhost:8080';
       var scheduleId = ticketData.scheduleId || null;
       var seatIdList = (ticketData.seatIds || []).map(function(s){ return s.seatId; }).filter(Boolean);
 
@@ -431,7 +464,8 @@
           var reservationBody = JSON.stringify({
             scheduleId:    scheduleId,
             seats:         seatsPayload,
-            paymentMethod: payMethodCode
+            paymentMethod: payMethodCode,
+            guestName:     guestName
           });
 
           var token = localStorage.getItem('hal_token');
@@ -448,6 +482,22 @@
           if (res.status === 401 && token) {
             localStorage.removeItem('hal_token');
             localStorage.removeItem('hal_member');
+            if (!guestName) {
+              guestName = window.prompt('ログイン状態が無効になっていました。ゲスト予約として続けるため、お名前を入力してください。') || '';
+              guestName = guestName.trim();
+              if (!guestName) {
+                alert('お名前が入力されなかったため、予約を中止しました。');
+                nextBtn.disabled = false;
+                nextBtn.textContent = '次へ';
+                return;
+              }
+              reservationBody = JSON.stringify({
+                scheduleId:    scheduleId,
+                seats:         seatsPayload,
+                paymentMethod: payMethodCode,
+                guestName:     guestName
+              });
+            }
             res = await fetch(API_BASE + '/api/reservations', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -478,7 +528,8 @@
             finalAmount:     finalAmount,
             pointsUsed:      pointsUsed,
             paidAt:          new Date().toISOString(),
-            tickets:         data.tickets || []
+            tickets:         data.tickets || [],
+            foods:           ticketData.foods || []
           };
           sessionStorage.setItem('reservationData', JSON.stringify(resData));
           sessionStorage.removeItem('halcinema_seats');
@@ -509,6 +560,63 @@
       sessionStorage.setItem('reservationData', JSON.stringify(fbData));
       sessionStorage.removeItem('halcinema_seats');
       location.href = 'ticket.html';
+
+    } else if (isGoodsOnlyFlow) {
+      var token = localStorage.getItem('hal_token');
+      if (!token) {
+        alert('ご注文にはログインが必要です。');
+        location.href = 'login.html?redirect=goods.html';
+        nextBtn.disabled = false;
+        nextBtn.textContent = '次へ';
+        return;
+      }
+
+      try {
+        var orderRes = await fetch(API_BASE + '/api/goods-orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({
+            items: goodsCart.map(function(i) { return { name: i.name, price: i.price, qty: i.qty }; }),
+            paymentMethod: payMethodCode
+          })
+        });
+        var orderData = await orderRes.json();
+
+        if (orderRes.status === 401) {
+          localStorage.removeItem('hal_token');
+          localStorage.removeItem('hal_member');
+          alert('ログイン状態が無効になっていました。再度ログインしてください。');
+          location.href = 'login.html?redirect=goods.html';
+          nextBtn.disabled = false;
+          nextBtn.textContent = '次へ';
+          return;
+        }
+        if (!orderRes.ok) {
+          alert('注文に失敗しました: ' + (orderData.error || '不明なエラー'));
+          nextBtn.disabled = false;
+          nextBtn.textContent = '次へ';
+          return;
+        }
+
+        sessionStorage.setItem('latestGoodsOrder', JSON.stringify({
+          orderId:      orderData.orderId,
+          orderCode:    orderData.orderCode,
+          qrCode:       orderData.qrCode,
+          items:        goodsCart,
+          totalAmount:  orderData.totalAmount,
+          finalAmount:  finalAmount,
+          pointsUsed:   pointsUsed,
+          paymentMethod: method,
+          orderedAt:    orderData.orderedAt
+        }));
+        sessionStorage.removeItem('goodsCart');
+        location.href = 'ticket.html';
+      } catch (e) {
+        alert('通信エラーが発生しました。もう一度お試しください。');
+        nextBtn.disabled = false;
+        nextBtn.textContent = '次へ';
+      }
+      return;
 
     } else {
       reservation.paymentMethod = method;

@@ -21,6 +21,7 @@
         <a href="goods.html">グッズ・物販</a>
         <a href="event.html">イベント情報</a>
         <a href="theater.html">劇場情報</a>
+        <a href="ai-chatbot.html">AIチャットボット</a>
       </nav>
       <div class="header-actions">
         <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
@@ -113,7 +114,7 @@
         : '<a href="movie-detail.html?id=' + m.movieId + '" class="btn btn-secondary btn-sm">詳細を見る</a>'
       var meta     = isNow ? year + ' · ' + m.duration + '分' : comingDateLabel(m.releaseDate)
       return '<div class="movie-grid-item card movie-card" data-status="' + status + '">'
-        + posterTag(m)
+        + '<div class="movie-poster-ph">' + posterImgTag(m) + '</div>'
         + badge
         + '<div class="movie-card-overlay">'
         + '<p class="movie-card-title">' + m.title + '</p>'
