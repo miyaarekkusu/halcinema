@@ -6,7 +6,7 @@
   var STEPS = [
     { label: '座席選択',     href: 'zaseki.html' },
     { label: '券種選択',     href: 'ticket-select.html' },
-    { label: 'フード・グッズ', href: 'food-select.html' },
+    { label: 'フード・グッズ', href: 'goods.html' },
     { label: '注文確認',     href: 'order-confirm.html' },
     { label: '決済',         href: 'payment.html' },
     { label: '完了',         href: 'complete.html' },
@@ -19,6 +19,10 @@
     if (path.indexOf(s.href.replace('.html', '')) !== -1) current = i;
   });
   if (current === -1) return; // 対象外ページは何もしない
+
+  // goods.html はグッズ・物販の単体ページ／AIチャットボット予約後の注文でも使われるため、
+  // 座席予約ウィザード中（halcinema_seats がある時）だけ進捗バーを表示する
+  if (STEPS[current].href === 'goods.html' && !sessionStorage.getItem('halcinema_seats')) return;
 
   // バー要素生成
   var wrap = document.createElement('div');

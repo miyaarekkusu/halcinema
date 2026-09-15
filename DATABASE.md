@@ -175,7 +175,7 @@ token, _ := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 | 7 | 上映料金 | t_SCREEN_PRICE | 上映回×料金区分→金額 |
 | 8 | 予約 | t_RESERVATION | 予約ヘッダ。ゲスト予約は f_member_id=NULL、f_guest_nameに氏名を保持 |
 | 9 | 予約明細 | t_RESERVATION_DETAIL | 座席1つ分の明細 |
-| 10 | チケット | t_TICKET | 発券されたQRチケット |
+| 10 | チケット | t_TICKET | 発券されたQRチケット（1予約=1枚） |
 | 11 | 座席在庫 | t_SEAT_STOCK | 上映回ごとの座席空き状態（二重予約防止の要） |
 | 12 | 上映ステータスマスタ | t_SCHEDULE_STATUS | 0=上映予定 / 1=上映中 / 2=上映終了 |
 | 13 | 映画画像 | t_MOVIE_IMAGE | poster/banner/still/thumbnail。movie_id で映画に紐付け |
@@ -337,10 +337,12 @@ UNIQUE制約: `(f_reservation_id, f_seat_id)`（同予約での同一座席の�
 
 ### t_TICKET（チケット）
 
+1予約 = 1チケット = 1QRコード。座席数（同伴者数）に関わらず分割せず、入場時はまとめて1枚のQRを提示する。
+
 | カラム | 型 | 制約 | 説明 |
 |--------|----|------|------|
 | f_ticket_id | SERIAL | PK | チケットID |
-| f_detail_id | INTEGER | NOT NULL, UNIQUE, FK→t_RESERVATION_DETAIL | 対応明細（1明細=1チケット） |
+| f_reservation_id | INTEGER | NOT NULL, UNIQUE, FK→t_RESERVATION | 対応予約（1予約=1チケット） |
 | f_qr_code | VARCHAR(500) | NOT NULL, UNIQUE | 入場用QRコード（UUID v4等） |
 | f_ticket_status | SMALLINT | NOT NULL, DEFAULT 0, CHECK(0,1,2,3) | 0:未発券 / 1:発券済 / 2:入場済 / 3:無効 |
 | f_issued_at | TIMESTAMP | NULL可 | 発券日時 |
@@ -565,16 +567,19 @@ f_stock > f_stock_alert_threshold  → 十分
 
 ### t_GOODS_ORDER（フード・グッズ注文）
 
-事前注文（座席予約とセットで1回の決済）とPOS店頭販売（管理者画面での直接会計）を`f_order_type`で区別して同じテーブルで管理する。
+事前注文（座席予約とセットで1回の決済）・POS店頭販売（管理者画面での直接会計）・オンライン単体注文（goods.htmlの単体訪問モードから会員が予約なしで直接注文）の3種類を`f_order_type`で区別して同じテーブルで管理する。
 
 | カラム | 型 | 制約 | 説明 |
 |--------|----|------|------|
 | f_order_id | SERIAL | PK | 注文ID |
-| f_reservation_id | INTEGER | NULL可, FK→t_RESERVATION | 事前注文の場合のみ紐付く予約。POS店頭販売はNULL |
-| f_order_type | SMALLINT | NOT NULL, CHECK(1,2) | 1:事前注文（予約紐付） / 2:POS店頭販売 |
+| f_reservation_id | INTEGER | NULL可, FK→t_RESERVATION | 事前注文の場合のみ紐付く予約。POS店頭販売・オンライン単体注文はNULL |
+| f_member_id | INTEGER | NULL可, FK→t_MEMBER | オンライン単体注文（f_order_type=3）の注文者。他のtypeでは未設定 |
+| f_order_type | SMALLINT | NOT NULL, CHECK(1,2,3) | 1:事前注文（予約紐付） / 2:POS店頭販売 / 3:オンライン単体注文 |
 | f_order_code | VARCHAR(20) | NOT NULL, UNIQUE | 注文番号（画面表示：F-xxxxxx / G-xxxxxx） |
 | f_total_amount | INTEGER | NOT NULL | 合計金額（税込・円） |
+| f_payment_method | SMALLINT | NOT NULL, DEFAULT 1, CHECK(1,2,3) | 支払方法（t_RESERVATION.f_payment_methodと同じ区分：1クレジットカード/2電子マネー系/3現金） |
 | f_order_status | SMALLINT | NOT NULL, DEFAULT 0, CHECK(0,1,2,3) | 0:受付・調理/準備中 / 1:準備完了 / 2:受け渡し済み / 3:キャンセル |
+| f_qr_code | VARCHAR(500) | NULL可, UNIQUE | 受け取り用QRコード（t_TICKET.f_qr_codeと同じ考え方、UUID） |
 | f_ordered_at | TIMESTAMP | NOT NULL, DEFAULT NOW | 注文受付日時 |
 | f_delivered_at | TIMESTAMP | NULL可 | 受け渡し日時 |
 | f_staff_id | INTEGER | NULL可, FK→t_ADMIN | 対応した担当者 |
@@ -589,11 +594,14 @@ POS店頭販売は会計と同時に受け渡しが完了するため、登録�
 |--------|----|------|------|
 | f_detail_id | SERIAL | PK | 明細ID |
 | f_order_id | INTEGER | NOT NULL, FK→t_GOODS_ORDER | 注文ヘッダ |
-| f_goods_id | INTEGER | NOT NULL, FK→t_GOODS | 商品 |
+| f_goods_id | INTEGER | NULL可, FK→t_GOODS | 固定カタログ商品に紐づく場合のみ設定。現状t_GOODSは未使用のため常にNULL |
+| f_item_name | VARCHAR(200) | NOT NULL | 注文時点の商品名スナップショット |
 | f_quantity | INTEGER | NOT NULL | 数量 |
 | f_unit_price | INTEGER | NOT NULL | 注文確定時の単価スナップショット（税込・円） |
 
 `t_RESERVATION_DETAIL.f_ticket_price`と同じ考え方で、後から`t_GOODS.f_price`が変わっても過去の注文履歴に影響しない。
+
+goods.html（グッズ・売店ページ）の商品ウィザードはフレーバー・サイズ等を組み合わせた商品名（例：「ポップコーン M キャラメル」）を動的生成するハードコードカタログで、固定商品マスタのt_GOODSにSKU単位で対応していない。そのため`f_goods_id`は任意化し、`f_item_name`に注文時点の表示名をスナップショットとして保持する方式にしている（backend/internal/goodsorder参照）。
 
 ---
 

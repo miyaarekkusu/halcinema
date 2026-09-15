@@ -185,18 +185,20 @@ CREATE INDEX idx_detail_seat_id        ON t_RESERVATION_DETAIL (f_seat_id);
 
 -- ============================================================
 --  10. チケットテーブル  t_TICKET
+--  ※ 1予約 = 1チケット = 1QRコード（座席数に関わらず分割しない）。
+--    入場時は同伴者分まとめて1枚のQRを提示する運用。
 -- ============================================================
 CREATE TABLE t_TICKET (
-    f_ticket_id     SERIAL        PRIMARY KEY,
-    f_detail_id     INTEGER       NOT NULL REFERENCES t_RESERVATION_DETAIL (f_detail_id),
-    f_qr_code       VARCHAR(500)  NOT NULL,
-    f_ticket_status SMALLINT      NOT NULL  DEFAULT 0
+    f_ticket_id       SERIAL        PRIMARY KEY,
+    f_reservation_id  INTEGER       NOT NULL REFERENCES t_RESERVATION (f_reservation_id),
+    f_qr_code         VARCHAR(500)  NOT NULL,
+    f_ticket_status   SMALLINT      NOT NULL  DEFAULT 0
         CHECK (f_ticket_status IN (0, 1, 2, 3)),
-    f_issued_at     TIMESTAMP,
-    f_used_at       TIMESTAMP,
+    f_issued_at       TIMESTAMP,
+    f_used_at         TIMESTAMP,
 
-    CONSTRAINT uq_ticket_detail  UNIQUE (f_detail_id),
-    CONSTRAINT uq_ticket_qr_code UNIQUE (f_qr_code)
+    CONSTRAINT uq_ticket_reservation UNIQUE (f_reservation_id),
+    CONSTRAINT uq_ticket_qr_code     UNIQUE (f_qr_code)
 );
 
 CREATE INDEX idx_ticket_status ON t_TICKET (f_ticket_status);
@@ -357,37 +359,48 @@ CREATE INDEX idx_notification_member      ON t_NOTIFICATION (f_member_id);
 
 -- ============================================================
 --  20. フード・グッズ注文テーブル  t_GOODS_ORDER
---  ※ 事前注文（予約とセット決済）・POS店頭販売の両方を扱う
---     f_order_type: 1=事前注文（f_reservation_idあり） / 2=POS店頭販売（f_reservation_id NULL）
+--  ※ 事前注文（予約とセット決済）・POS店頭販売・オンライン単体注文の3つを扱う
+--     f_order_type: 1=事前注文（f_reservation_idあり） / 2=POS店頭販売（f_reservation_id NULL） /
+--                   3=オンライン単体注文（会員がgoods.htmlから予約なしで直接注文、f_member_idあり）
 -- ============================================================
 CREATE TABLE t_GOODS_ORDER (
     f_order_id        SERIAL       PRIMARY KEY,
     f_reservation_id  INTEGER               REFERENCES t_RESERVATION (f_reservation_id),
+    f_member_id       INTEGER               REFERENCES t_MEMBER (f_member_id),
     f_order_type      SMALLINT     NOT NULL
-        CHECK (f_order_type IN (1, 2)),
+        CHECK (f_order_type IN (1, 2, 3)),
     f_order_code      VARCHAR(20)  NOT NULL,
     f_total_amount    INTEGER      NOT NULL,
+    f_payment_method  SMALLINT     NOT NULL DEFAULT 1
+        CHECK (f_payment_method IN (1, 2, 3)),
     f_order_status    SMALLINT     NOT NULL DEFAULT 0
         CHECK (f_order_status IN (0, 1, 2, 3)),
+    f_qr_code         VARCHAR(500),
     f_ordered_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     f_delivered_at    TIMESTAMP,
     f_staff_id        INTEGER               REFERENCES t_ADMIN (f_admin_id),
 
-    CONSTRAINT uq_goods_order_code UNIQUE (f_order_code)
+    CONSTRAINT uq_goods_order_code    UNIQUE (f_order_code),
+    CONSTRAINT uq_goods_order_qr_code UNIQUE (f_qr_code)
 );
 
 CREATE INDEX idx_goods_order_reservation ON t_GOODS_ORDER (f_reservation_id);
+CREATE INDEX idx_goods_order_member      ON t_GOODS_ORDER (f_member_id);
 CREATE INDEX idx_goods_order_status      ON t_GOODS_ORDER (f_order_status);
 
 -- ============================================================
 --  21. フード・グッズ注文明細テーブル  t_GOODS_ORDER_DETAIL
+--  ※ f_goods_id は固定カタログ商品に紐づく場合のみ設定（現状t_GOODSは未使用のため常にNULL）。
+--     goods.htmlのウィザードはフレーバー/サイズ等を組み合わせた商品名を動的生成するため、
+--     f_item_name に注文時点の表示名をスナップショットとして保持する。
 -- ============================================================
 CREATE TABLE t_GOODS_ORDER_DETAIL (
-    f_detail_id   SERIAL   PRIMARY KEY,
-    f_order_id    INTEGER  NOT NULL REFERENCES t_GOODS_ORDER (f_order_id),
-    f_goods_id    INTEGER  NOT NULL REFERENCES t_GOODS        (f_goods_id),
-    f_quantity    INTEGER  NOT NULL,
-    f_unit_price  INTEGER  NOT NULL
+    f_detail_id   SERIAL        PRIMARY KEY,
+    f_order_id    INTEGER       NOT NULL REFERENCES t_GOODS_ORDER (f_order_id),
+    f_goods_id    INTEGER                REFERENCES t_GOODS        (f_goods_id),
+    f_item_name   VARCHAR(200)  NOT NULL,
+    f_quantity    INTEGER       NOT NULL,
+    f_unit_price  INTEGER       NOT NULL
 );
 
 CREATE INDEX idx_goods_order_detail_order ON t_GOODS_ORDER_DETAIL (f_order_id);

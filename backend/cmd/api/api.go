@@ -12,6 +12,7 @@ import (
 	"github.com/miyaarekkusu/halcinema/backend/internal/auth"
 	"github.com/miyaarekkusu/halcinema/backend/internal/cards"
 	"github.com/miyaarekkusu/halcinema/backend/internal/chat"
+	"github.com/miyaarekkusu/halcinema/backend/internal/goodsorder"
 	"github.com/miyaarekkusu/halcinema/backend/internal/movies"
 	"github.com/miyaarekkusu/halcinema/backend/internal/reservations"
 	"github.com/miyaarekkusu/halcinema/backend/internal/schedules"
@@ -44,6 +45,9 @@ func (app *application) mount() http.Handler {
 	authHandler := auth.NewHandler(app.db)
 	r.Post("/api/auth/register", authHandler.Register)
 	r.Post("/api/auth/login", authHandler.Login)
+	r.With(jwtMiddleware).Get("/api/me", authHandler.GetMe)
+	r.With(jwtMiddleware).Patch("/api/me", authHandler.UpdateMe)
+	r.With(jwtMiddleware).Patch("/api/me/password", authHandler.ChangePassword)
 
 	movieHandler := movies.NewHandler(app.db)
 	r.Get("/api/movies", movieHandler.List)
@@ -69,6 +73,11 @@ func (app *application) mount() http.Handler {
 
 	chatHandler := chat.NewHandler(app.db)
 	r.With(optionalJWTMiddleware).Post("/api/chat", chatHandler.Converse)
+
+	goodsOrderHandler := goodsorder.NewHandler(app.db)
+	r.With(jwtMiddleware).Post("/api/goods-orders", goodsOrderHandler.Create)
+	r.With(jwtMiddleware).Get("/api/me/goods-orders", goodsOrderHandler.ListMine)
+	r.With(jwtMiddleware).Get("/api/me/goods-orders/{id}", goodsOrderHandler.GetOne)
 
 	return r
 }

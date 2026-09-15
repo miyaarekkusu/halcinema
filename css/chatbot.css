@@ -757,19 +757,39 @@
 }
 
 /* ── 座席ピッカー ─────────────────────────────────────────── */
+.seat-grid-count-hint {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-text-sub);
+  margin: 0 0 8px;
+}
+
+.seat-grid-count-hint.is-complete {
+  color: #4caf87;
+}
+
 .seat-grid-price-note {
   font-size: 11px;
   color: var(--c-text-muted);
   margin: 0 0 10px;
 }
 
+/* 座席数が多い上映回でも、ブロック内で完結したスクロール領域として
+   全座席にアクセスできるようにする（親の吹き出し欄を巻き込まない）。
+   ポップアップ版はさらに縮小して、なるべく一望できる範囲を広げる。 */
 .seat-grid {
   display: flex;
   flex-direction: column;
   gap: 4px;
   margin-bottom: 10px;
-  overflow-x: auto;
+  max-height: 280px;
+  overflow: auto;
+  padding-right: 2px;
 }
+
+.seat-grid::-webkit-scrollbar       { width: 4px; height: 4px; }
+.seat-grid::-webkit-scrollbar-track { background: transparent; }
+.seat-grid::-webkit-scrollbar-thumb { background: var(--c-bg-4); border-radius: 2px; }
 
 .seat-grid-row {
   display: flex;
@@ -798,6 +818,29 @@
   transition: background 0.15s, transform 0.1s;
 }
 
+/* ポップアップウィジェットは幅・高さが限られるため、ボタンとギャップを
+   縮小してより多くの座席を一度に見渡せるようにする */
+.widget-messages .seat-grid {
+  gap: 3px;
+  max-height: 200px;
+}
+
+.widget-messages .seat-grid-row {
+  gap: 3px;
+}
+
+.widget-messages .seat-grid-row-label {
+  width: 12px;
+  font-size: 9px;
+}
+
+.widget-messages .seat-grid-btn {
+  width: 18px;
+  height: 18px;
+  font-size: 8px;
+  border-radius: 3px;
+}
+
 .seat-grid-btn:hover:not(:disabled) {
   transform: scale(1.12);
 }
@@ -811,6 +854,178 @@
   background: #353845;
   color: var(--c-text-muted);
   cursor: not-allowed;
+}
+
+/* 列番号ヘッダー行（通常予約の2D座席マップと同じスクリーン方向の目印） */
+.seat-grid-header {
+  margin-bottom: 2px;
+}
+
+.seat-grid-col-num {
+  width: 24px;
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--c-text-muted);
+  text-align: center;
+}
+
+.widget-messages .seat-grid-col-num {
+  width: 18px;
+  font-size: 8px;
+}
+
+/* ── 選択中の座席パネル（通常予約 zaseki.html の選択中座席パネルと同じ構成）
+   座席グリッドの下に、今どの席が選ばれているかをタグで一覧表示する。
+   タグをクリックすると選択解除できる（グリッド側のクリックと同じ操作）。 ── */
+.seat-grid-selected-panel {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--c-bg-3);
+  border: 1px solid var(--c-border);
+}
+
+.seat-grid-selected-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: var(--c-text-sub);
+}
+
+.seat-grid-selected-label {
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.seat-grid-selected-badge {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--c-red);
+  line-height: 1;
+}
+
+.seat-grid-selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 24px;
+}
+
+.seat-grid-selected-tag {
+  display: inline-flex;
+  align-items: center;
+  background: var(--c-red-dim);
+  border: 1px solid rgba(232,33,43,0.3);
+  border-radius: 5px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--c-red);
+  cursor: pointer;
+}
+
+.seat-grid-selected-tag:hover {
+  background: rgba(232,33,43,0.25);
+}
+
+.seat-grid-empty-msg {
+  font-size: 11px;
+  color: var(--c-text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── 日にちピッカー：今週の上映日をボタンで即提示 ─────────────────── */
+.date-picker-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.date-picker-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+  color: var(--c-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.date-picker-btn:hover:not(:disabled) {
+  border-color: var(--c-red);
+  background: var(--c-red-dim);
+}
+
+.date-picker-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 上映回ピッカー：選んだ日にちの上映時間をボタンで即提示 ───────── */
+.schedule-picker-empty {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin: 0 0 10px;
+}
+
+.schedule-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.schedule-picker-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+  color: var(--c-text);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.schedule-picker-btn:hover:not(:disabled) {
+  border-color: var(--c-red);
+  background: var(--c-red-dim);
+}
+
+.schedule-picker-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.schedule-picker-time {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--c-red);
+  min-width: 44px;
+  flex-shrink: 0;
+}
+
+.schedule-picker-screen {
+  font-size: 12px;
+  color: var(--c-text-sub);
+}
+
+.schedule-picker-seats {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--c-text-muted);
+  flex-shrink: 0;
 }
 
 .rich-confirm-btn {
@@ -836,35 +1051,98 @@
   cursor: not-allowed;
 }
 
-/* ── おすすめ映画カード ───────────────────────────────────── */
-.chat-rich-movie_cards {
+/* ── おすすめ映画カード（上映スケジュール同様のポスターグリッド） ───── */
+.chat-recommend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 14px;
+}
+
+.widget-messages .chat-recommend-grid {
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.chat-recommend-card {
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--c-bg-3);
+}
+
+.chat-recommend-poster {
+  aspect-ratio: 283 / 400;
+  width: 100%;
+  background: linear-gradient(160deg, var(--c-bg-3) 0%, var(--c-bg-4) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
-.chat-movie-card {
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: var(--c-bg-4);
+.chat-recommend-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-.chat-movie-card-title {
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-
-.chat-movie-card-meta {
-  font-size: 11px;
+.chat-recommend-poster svg {
+  width: 26px;
+  height: 26px;
   color: var(--c-text-muted);
-  margin-bottom: 4px;
+  opacity: 0.5;
 }
 
-.chat-movie-card-synopsis {
+.chat-recommend-poster-label {
+  font-size: 9px;
+  color: var(--c-text-muted);
+  letter-spacing: 0.06em;
+}
+
+.chat-recommend-info {
+  padding: 8px 8px 0;
+}
+
+.chat-recommend-title {
   font-size: 12px;
-  color: var(--c-text-sub);
-  line-height: 1.5;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.chat-recommend-meta {
+  font-size: 10px;
+  color: var(--c-text-muted);
+}
+
+.chat-recommend-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+  margin-top: auto;
+}
+
+.chat-recommend-actions .btn {
+  width: 100%;
+  text-align: center;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+/* ── 予約確定後：グッズ・売店への導線 ───────────────────────── */
+.chat-goods-btn {
+  margin-top: 10px;
+  width: 100%;
+  text-align: center;
 }
 
 /* ── 予約完了サマリー ─────────────────────────────────────── */

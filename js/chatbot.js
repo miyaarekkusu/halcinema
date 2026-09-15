@@ -12,29 +12,61 @@
 
 (function () {
 
-  var API_BASE = 'http://localhost:8080';
-  var THREADS_KEY = 'halcinema_chat_threads';
-  var ACTIVE_KEY  = 'halcinema_chat_active_id';
+  var API_BASE = window.HAL_API_BASE;
+  var THREADS_KEY_PREFIX = 'halcinema_chat_threads_';
+  var ACTIVE_KEY_PREFIX  = 'halcinema_chat_active_id_';
 
-  var INTENTS = [
-    { id: 'assistant', label: 'アシスタントに質問する', trigger: 'アシスタントに質問したいです' },
-    { id: 'recommend', label: 'おすすめ映画を聞く',     trigger: 'おすすめの映画を教えてください' },
-    { id: 'reserve',   label: 'AIで予約する',           trigger: 'AIで予約をしたいです' }
-  ];
+  /* ──────────────────────────────────────────────────────────
+     モード（意図の選択肢セット）
+     ・assistant: お問い合わせ専用（1択のみ＝ピッカーを出さず即会話開始）。
+       ポップアップウィジェットは常にこのモード。
+     ・chatbot: おすすめ映画／AI予約（2択）。html/ai-chatbot.html の
+       フルページのみ、<body data-chat-mode="chatbot"> で切り替える。
+     未指定のフルページ（chatbot.html 等）はデフォルトで assistant。
+     ────────────────────────────────────────────────────────── */
+  var INTENT_SETS = {
+    assistant: [
+      { id: 'assistant', label: 'アシスタントに質問する', trigger: 'アシスタントに質問したいです' }
+    ],
+    chatbot: [
+      { id: 'recommend', label: 'おすすめ映画を聞く', trigger: 'おすすめの映画を教えてください' },
+      { id: 'reserve',   label: 'AIで予約する',       trigger: 'AIで予約をしたいです' }
+    ]
+  };
+  var ALL_INTENTS = INTENT_SETS.assistant.concat(INTENT_SETS.chatbot);
+
+  function getChatMode(containerId) {
+    if (containerId === 'chat-messages-widget') return 'assistant';
+    var mode = document.body && document.body.dataset ? document.body.dataset.chatMode : null;
+    return (mode && INTENT_SETS[mode]) ? mode : 'assistant';
+  }
+
+  function getIntents(containerId) {
+    return INTENT_SETS[getChatMode(containerId)] || INTENT_SETS.assistant;
+  }
 
   var GREETINGS = {
     'chat-messages-full':   'こんにちは！HALシネマのアシスタントです。\n上映スケジュール・予約・劇場案内など、なんでもお気軽にご質問ください。',
     'chat-messages-widget': '何かお手伝いできることはありますか？'
   };
+  var GREETINGS_CHATBOT_FULL = 'こんにちは！HALシネマのAIチャットボットです。\nおすすめ映画・AI予約をお手伝いします。お気軽にご相談ください。';
+
+  function greetingFor(containerId) {
+    if (containerId === 'chat-messages-full' && getChatMode(containerId) === 'chatbot') {
+      return GREETINGS_CHATBOT_FULL;
+    }
+    return GREETINGS[containerId] || '';
+  }
 
   /* ──────────────────────────────────────────────────────────
      会話スレッド管理
-     localStorage に複数スレッド（新規チャットごとの会話）を保持し、
-     「新規チャット」「履歴から呼び出し」を可能にする。
-     state = 現在アクティブなスレッド（intent/messages/slots/log）。
+     モードごとに独立した localStorage プールへ複数スレッド（新規チャット
+     ごとの会話）を保持し、「新規チャット」「履歴から呼び出し」を可能にする。
+     store = { threadsKey, activeKey, threads, activeId, state }
+     state = そのモードで現在アクティブなスレッド（intent/messages/slots/log）。
      ────────────────────────────────────────────────────────── */
   function emptySlots() {
-    return { movieId: 0, scheduleId: 0, seatCount: 0, seatIds: [], paymentMethod: 0, cardId: 0 };
+    return { movieId: 0, showDate: '', scheduleId: 0, seatCount: 0, seatIds: [], paymentMethod: 0, cardId: 0 };
   }
 
   function generateThreadId() {
@@ -46,43 +78,55 @@
     return { id: generateThreadId(), intent: null, messages: [], slots: emptySlots(), log: [], createdAt: now, updatedAt: now };
   }
 
-  function loadAllThreads() {
+  function loadAllThreads(threadsKey) {
     try {
-      var raw = localStorage.getItem(THREADS_KEY);
+      var raw = localStorage.getItem(threadsKey);
       var arr = raw ? JSON.parse(raw) : [];
       return Array.isArray(arr) ? arr : [];
     } catch (e) { return []; }
   }
 
-  function saveAllThreads() {
-    try { localStorage.setItem(THREADS_KEY, JSON.stringify(threads)); } catch (e) { /* ignore */ }
+  function saveAllThreads(store) {
+    try { localStorage.setItem(store.threadsKey, JSON.stringify(store.threads)); } catch (e) { /* ignore */ }
   }
 
-  function persistActiveId() {
-    try { localStorage.setItem(ACTIVE_KEY, activeId); } catch (e) { /* ignore */ }
+  function persistActiveId(store) {
+    try { localStorage.setItem(store.activeKey, store.activeId); } catch (e) { /* ignore */ }
   }
 
-  var threads  = loadAllThreads();
-  var activeId = null;
-  try { activeId = localStorage.getItem(ACTIVE_KEY); } catch (e) { /* ignore */ }
+  var stores = {};
+  Object.keys(INTENT_SETS).forEach(function (mode) {
+    var threadsKey = THREADS_KEY_PREFIX + mode;
+    var activeKey  = ACTIVE_KEY_PREFIX + mode;
+    var threads = loadAllThreads(threadsKey);
+    var activeId = null;
+    try { activeId = localStorage.getItem(activeKey); } catch (e) { /* ignore */ }
 
-  var state = null;
-  for (var _i = 0; _i < threads.length; _i++) {
-    if (threads[_i].id === activeId) { state = threads[_i]; break; }
-  }
-  if (!state) {
-    state = createThread();
-    threads.push(state);
-    activeId = state.id;
-  }
-  persistActiveId();
+    var state = null;
+    for (var i = 0; i < threads.length; i++) {
+      if (threads[i].id === activeId) { state = threads[i]; break; }
+    }
+    if (!state) {
+      state = createThread();
+      threads.push(state);
+      activeId = state.id;
+    }
 
-  function saveState() {
-    state.updatedAt = Date.now();
+    var store = { threadsKey: threadsKey, activeKey: activeKey, threads: threads, activeId: activeId, state: state };
+    persistActiveId(store);
+    stores[mode] = store;
+  });
+
+  function getStore(containerId) {
+    return stores[getChatMode(containerId)];
+  }
+
+  function saveState(store) {
+    store.state.updatedAt = Date.now();
     var idx = -1;
-    for (var i = 0; i < threads.length; i++) { if (threads[i].id === state.id) { idx = i; break; } }
-    if (idx === -1) threads.push(state); else threads[idx] = state;
-    saveAllThreads();
+    for (var i = 0; i < store.threads.length; i++) { if (store.threads[i].id === store.state.id) { idx = i; break; } }
+    if (idx === -1) store.threads.push(store.state); else store.threads[idx] = store.state;
+    saveAllThreads(store);
   }
 
   function resetContainerDom(containerId) {
@@ -91,8 +135,8 @@
   }
 
   function threadTitle(t) {
-    for (var i = 0; i < INTENTS.length; i++) {
-      if (INTENTS[i].id === t.intent) return INTENTS[i].label;
+    for (var i = 0; i < ALL_INTENTS.length; i++) {
+      if (ALL_INTENTS[i].id === t.intent) return ALL_INTENTS[i].label;
     }
     return '新規チャット';
   }
@@ -103,9 +147,11 @@
       var entry = log[i];
       if (entry.text) return entry.text.slice(0, 42);
       if (entry.rich) {
-        if (entry.rich.kind === 'seat_picker')           return '座席を選択してください';
-        if (entry.rich.kind === 'movie_cards')           return 'おすすめ映画をご紹介しました';
-        if (entry.rich.kind === 'reservation_confirmed') return 'ご予約が完了しました';
+        if (entry.rich.kind === 'date_picker')             return '日にちを選択してください';
+        if (entry.rich.kind === 'schedule_picker')        return '上映回を選択してください';
+        if (entry.rich.kind === 'seat_picker')            return '座席を選択してください';
+        if (entry.rich.kind === 'movie_cards')            return 'おすすめ映画をご紹介しました';
+        if (entry.rich.kind === 'reservation_confirmed')  return 'ご予約が完了しました';
       }
     }
     return 'まだメッセージがありません';
@@ -121,37 +167,40 @@
 
   function startNewChat(containerId) {
     closeHistoryPanel(containerId);
-    state = createThread();
-    activeId = state.id;
-    persistActiveId();
+    var store = getStore(containerId);
+    store.state = createThread();
+    store.activeId = store.state.id;
+    persistActiveId(store);
     resetContainerDom(containerId);
-    addMessage(containerId, 'bot', GREETINGS[containerId] || '');
+    addMessage(containerId, 'bot', greetingFor(containerId));
     showIntentPicker(containerId);
   }
 
   function switchThread(containerId, id) {
-    if (id === state.id) { closeHistoryPanel(containerId); return; }
+    var store = getStore(containerId);
+    if (id === store.state.id) { closeHistoryPanel(containerId); return; }
     var found = null;
-    for (var i = 0; i < threads.length; i++) { if (threads[i].id === id) { found = threads[i]; break; } }
+    for (var i = 0; i < store.threads.length; i++) { if (store.threads[i].id === id) { found = store.threads[i]; break; } }
     if (!found) return;
 
     closeHistoryPanel(containerId);
-    state = found;
-    activeId = id;
-    persistActiveId();
+    store.state = found;
+    store.activeId = id;
+    persistActiveId(store);
     resetContainerDom(containerId);
-    addMessage(containerId, 'bot', GREETINGS[containerId] || '');
-    if (state.intent && state.log && state.log.length) {
-      state.log.forEach(function (entry) { renderLogEntry(containerId, entry); });
+    addMessage(containerId, 'bot', greetingFor(containerId));
+    if (store.state.intent && store.state.log && store.state.log.length) {
+      store.state.log.forEach(function (entry) { renderLogEntry(containerId, entry); });
     } else {
       showIntentPicker(containerId);
     }
   }
 
   function deleteThread(containerId, id) {
-    threads = threads.filter(function (t) { return t.id !== id; });
-    saveAllThreads();
-    if (id === state.id) {
+    var store = getStore(containerId);
+    store.threads = store.threads.filter(function (t) { return t.id !== id; });
+    saveAllThreads(store);
+    if (id === store.state.id) {
       startNewChat(containerId);
     } else {
       openHistoryPanel(containerId);
@@ -165,6 +214,7 @@
 
   function openHistoryPanel(containerId) {
     closeHistoryPanel(containerId);
+    var store = getStore(containerId);
     var parent = containerId === 'chat-messages-full'
       ? document.querySelector('.chatbot-page')
       : document.getElementById('widget-panel');
@@ -199,7 +249,7 @@
     var list = document.createElement('div');
     list.className = 'chat-history-list';
 
-    var sorted = threads
+    var sorted = store.threads
       .filter(function (t) { return t.log && t.log.length; })
       .slice()
       .sort(function (a, b) { return b.updatedAt - a.updatedAt; });
@@ -212,7 +262,7 @@
     } else {
       sorted.forEach(function (t) {
         var item = document.createElement('div');
-        item.className = 'chat-history-item' + (t.id === state.id ? ' is-active' : '');
+        item.className = 'chat-history-item' + (t.id === store.state.id ? ' is-active' : '');
 
         var main = document.createElement('button');
         main.type = 'button';
@@ -384,9 +434,10 @@
      直接書き換えられるよう、常に同じオブジェクト参照を保持する。
      ────────────────────────────────────────────────────────── */
   function recordAndRender(containerId, entry) {
-    state.log = state.log || [];
-    state.log.push(entry);
-    saveState();
+    var store = getStore(containerId);
+    store.state.log = store.state.log || [];
+    store.state.log.push(entry);
+    saveState(store);
     renderLogEntry(containerId, entry);
   }
 
@@ -409,10 +460,14 @@
     block.className = 'chat-rich-block chat-rich-' + rich.kind;
     if (rich.answered) block.classList.add('is-answered');
 
-    if (rich.kind === 'seat_picker') {
+    if (rich.kind === 'date_picker') {
+      buildDatePickerBlock(block, containerId, rich);
+    } else if (rich.kind === 'schedule_picker') {
+      buildSchedulePickerBlock(block, containerId, rich);
+    } else if (rich.kind === 'seat_picker') {
       buildSeatPickerBlock(block, containerId, rich);
     } else if (rich.kind === 'movie_cards') {
-      buildMovieCardsBlock(block, rich.payload);
+      buildMovieCardsBlock(block, rich.payload, containerId);
     } else if (rich.kind === 'reservation_confirmed') {
       buildReservationSummaryBlock(block, rich.payload);
     } else {
@@ -427,9 +482,138 @@
     }
   }
 
+  /* ── 上映回ピッカー：今週(7日間)のスケジュールをその場でボタン表示 ──
+     DeepSeekの文章生成を待たず、バックエンドが決定的に返すリストを
+     そのままボタン化する。1クリックで scheduleId が確定し、次のターンで
+     座席ピッカー（buildSeatPickerBlock）に進む。 */
+  function formatScheduleDate(dateStr) {
+    var parts = (dateStr || '').split('-');
+    if (parts.length !== 3) return dateStr || '';
+    var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    var wd = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
+    return Number(parts[1]) + '/' + Number(parts[2]) + '(' + wd + ')';
+  }
+
+  /* ── 日にちピッカー：今週(7日間)のうち上映がある日をその場でボタン表示 ──
+     ここで日にちを1つ選んでから、その日の上映時間一覧（buildSchedulePickerBlock）
+     に進む2段階フロー。 */
+  function buildDatePickerBlock(block, containerId, rich) {
+    var store = getStore(containerId);
+    var payload = rich.payload || {};
+    var dates = payload.dates || [];
+
+    if (!dates.length) {
+      var empty = document.createElement('p');
+      empty.className = 'schedule-picker-empty';
+      empty.textContent = '今週の上映日はありません。';
+      block.appendChild(empty);
+      return;
+    }
+
+    var list = document.createElement('div');
+    list.className = 'date-picker-list';
+
+    dates.forEach(function (d) {
+      var dateLabel = formatScheduleDate(d.date);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'date-picker-btn';
+      btn.disabled = !!rich.answered;
+      btn.textContent = dateLabel;
+
+      if (!rich.answered) {
+        btn.addEventListener('click', function () {
+          list.querySelectorAll('.date-picker-btn').forEach(function (b) { b.disabled = true; });
+          block.classList.add('is-answered');
+          rich.answered = true;
+
+          store.state.slots.showDate = d.date;
+          saveState(store);
+
+          var text = dateLabel + 'を予約したいです。';
+          recordAndRender(containerId, { role: 'user', text: text });
+          sendToChat(containerId, text);
+        });
+      }
+
+      list.appendChild(btn);
+    });
+
+    block.appendChild(list);
+  }
+
+  function buildSchedulePickerBlock(block, containerId, rich) {
+    var store = getStore(containerId);
+    var payload = rich.payload || {};
+    var schedules = payload.schedules || [];
+
+    if (!schedules.length) {
+      var empty = document.createElement('p');
+      empty.className = 'schedule-picker-empty';
+      empty.textContent = 'この日の上映回はありません。';
+      block.appendChild(empty);
+      return;
+    }
+
+    var list = document.createElement('div');
+    list.className = 'schedule-picker-list';
+
+    schedules.forEach(function (s) {
+      var dateLabel = formatScheduleDate(s.showDate);
+      var timeLabel = (s.startTime || '').slice(0, 5);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'schedule-picker-btn';
+      btn.disabled = !!rich.answered;
+      btn.innerHTML =
+        '<span class="schedule-picker-time">' + escapeHtml(timeLabel) + '</span>'
+        + '<span class="schedule-picker-screen">' + escapeHtml(s.screenName || '') + '</span>'
+        + '<span class="schedule-picker-seats">残り' + s.availableSeats + '席</span>';
+
+      if (!rich.answered) {
+        btn.addEventListener('click', function () {
+          list.querySelectorAll('.schedule-picker-btn').forEach(function (b) { b.disabled = true; });
+          block.classList.add('is-answered');
+          rich.answered = true;
+
+          store.state.slots.scheduleId = s.scheduleId;
+          saveState(store);
+
+          var text = dateLabel + ' ' + timeLabel + '（' + (s.screenName || '') + '）で予約します。';
+          recordAndRender(containerId, { role: 'user', text: text });
+          sendToChat(containerId, text);
+        });
+      }
+
+      list.appendChild(btn);
+    });
+
+    block.appendChild(list);
+  }
+
+  // 通常予約(zaseki.html)の2D座席選択と同じ見た目・情報構成（列番号ヘッダー＋
+  // 座席グリッド＋「選択中の座席」タグ一覧を下に表示）をチャット内で再現する。
   function buildSeatPickerBlock(block, containerId, rich) {
+    var store = getStore(containerId);
     var payload = rich.payload || {};
     var seats = payload.seats || [];
+    var requiredCount = (store.state.slots && store.state.slots.seatCount > 0) ? store.state.slots.seatCount : 1;
+
+    var countHint = document.createElement('p');
+    countHint.className = 'seat-grid-count-hint';
+    block.appendChild(countHint);
+
+    function updateCountHint(current) {
+      if (rich.answered) {
+        countHint.textContent = '';
+        return;
+      }
+      countHint.textContent = requiredCount + '席選択してください（' + current + ' / ' + requiredCount + '）';
+      countHint.classList.toggle('is-complete', current === requiredCount);
+    }
+    updateCountHint(0);
 
     if (payload.prices && payload.prices.length) {
       var priceNote = document.createElement('p');
@@ -442,15 +626,75 @@
 
     var rowsMap = {};
     var order = [];
+    var maxCols = 0;
     seats.forEach(function (s) {
       if (!rowsMap[s.rowLabel]) { rowsMap[s.rowLabel] = []; order.push(s.rowLabel); }
       rowsMap[s.rowLabel].push(s);
+      if (s.seatNumber > maxCols) maxCols = s.seatNumber;
     });
 
     var grid = document.createElement('div');
     grid.className = 'seat-grid';
 
+    // 列番号ヘッダー行（通常予約の2Dマップと同じスクリーン方向の目印）
+    var headerRow = document.createElement('div');
+    headerRow.className = 'seat-grid-row seat-grid-header';
+    var headerSpacer = document.createElement('span');
+    headerSpacer.className = 'seat-grid-row-label';
+    headerRow.appendChild(headerSpacer);
+    for (var c = 1; c <= maxCols; c++) {
+      var colNum = document.createElement('span');
+      colNum.className = 'seat-grid-col-num';
+      colNum.textContent = c;
+      headerRow.appendChild(colNum);
+    }
+    grid.appendChild(headerRow);
+
     var selected = {};
+
+    // ── 下部「選択中の座席」パネル（zaseki.html の選択中座席パネルと同じ構成）──
+    var selectedPanel = document.createElement('div');
+    selectedPanel.className = 'seat-grid-selected-panel';
+    selectedPanel.innerHTML =
+      '<div class="seat-grid-selected-header">'
+      + '<span class="seat-grid-selected-label">選択中の座席</span>'
+      + '<span class="seat-grid-selected-badge">0</span>席'
+      + '</div>'
+      + '<div class="seat-grid-selected-tags"></div>';
+    var selectedBadge = selectedPanel.querySelector('.seat-grid-selected-badge');
+    var selectedTags  = selectedPanel.querySelector('.seat-grid-selected-tags');
+
+    function deselectSeat(seat) {
+      delete selected[seat.seatId];
+      var btnEl = grid.querySelector('.seat-grid-btn[data-seat-id="' + seat.seatId + '"]');
+      if (btnEl) btnEl.classList.remove('selected');
+      var count = Object.keys(selected).length;
+      updateCountHint(count);
+      renderSelectedTags();
+      if (confirmBtn) confirmBtn.disabled = count !== requiredCount;
+    }
+
+    function renderSelectedTags() {
+      var chosen = Object.keys(selected).map(function (id) { return selected[id]; });
+      selectedBadge.textContent = chosen.length;
+
+      if (!chosen.length) {
+        selectedTags.innerHTML = '<p class="seat-grid-empty-msg">座席をクリックして選択してください</p>';
+        return;
+      }
+      selectedTags.innerHTML = '';
+      chosen
+        .sort(function (a, b) { return a.rowLabel === b.rowLabel ? a.seatNumber - b.seatNumber : a.rowLabel.localeCompare(b.rowLabel); })
+        .forEach(function (seat) {
+          var tag = document.createElement('span');
+          tag.className = 'seat-grid-selected-tag';
+          tag.textContent = seat.rowLabel + seat.seatNumber;
+          if (!rich.answered) {
+            tag.addEventListener('click', function () { deselectSeat(seat); });
+          }
+          selectedTags.appendChild(tag);
+        });
+    }
 
     order.forEach(function (rowLabel) {
       var rowEl = document.createElement('div');
@@ -469,6 +713,7 @@
           btn.type = 'button';
           btn.className = 'seat-grid-btn';
           btn.textContent = seat.seatNumber;
+          btn.dataset.seatId = seat.seatId;
 
           if (rich.answered || seat.status !== 0) {
             btn.disabled = true;
@@ -476,13 +721,16 @@
           } else {
             btn.addEventListener('click', function () {
               if (selected[seat.seatId]) {
-                delete selected[seat.seatId];
-                btn.classList.remove('selected');
-              } else {
-                selected[seat.seatId] = seat;
-                btn.classList.add('selected');
+                deselectSeat(seat);
+                return;
               }
-              confirmBtn.disabled = Object.keys(selected).length === 0;
+              if (Object.keys(selected).length >= requiredCount) return;
+              selected[seat.seatId] = seat;
+              btn.classList.add('selected');
+              var count = Object.keys(selected).length;
+              updateCountHint(count);
+              renderSelectedTags();
+              confirmBtn.disabled = count !== requiredCount;
             });
           }
           rowEl.appendChild(btn);
@@ -492,6 +740,8 @@
     });
 
     block.appendChild(grid);
+    block.appendChild(selectedPanel);
+    renderSelectedTags();
 
     if (rich.answered) return;
 
@@ -508,14 +758,15 @@
       grid.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
       block.classList.add('is-answered');
       rich.answered = true;
-      saveState();
+      saveState(store);
 
       var labels = chosen
         .sort(function (a, b) { return a.seatNumber - b.seatNumber; })
         .map(function (s) { return s.rowLabel + s.seatNumber; });
 
-      state.slots.seatIds = chosen.map(function (s) { return s.seatId; });
-      saveState();
+      store.state.slots.seatIds = chosen.map(function (s) { return s.seatId; });
+      saveState(store);
+      renderSelectedTags();
 
       var text = '座席 ' + labels.join('、') + ' を選択しました。';
       recordAndRender(containerId, { role: 'user', text: text });
@@ -524,7 +775,19 @@
     block.appendChild(confirmBtn);
   }
 
-  function buildMovieCardsBlock(block, movies) {
+  /* ── おすすめ映画：上映スケジュール同様のポスターカードをグリッド表示 ──
+     common.css の .card/.movie-card はホバー時だけ表示される
+     オーバーレイ＋固定アスペクト比＋overflow:hiddenの構成で、常時表示の
+     アクションボタン2つを収めるのに向かないため、chatbot.css側に
+     専用のカードスタイルを持つ（見た目のトーンは合わせる）。 */
+  var POSTER_PLACEHOLDER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
+    + '<rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></svg>'
+    + '<span class="chat-recommend-poster-label">POSTER</span>';
+
+  function buildMovieCardsBlock(block, movies, containerId) {
+    var grid = document.createElement('div');
+    grid.className = 'chat-recommend-grid';
+
     (movies || []).forEach(function (m) {
       var meta = [];
       if (m.genre) meta.push(m.genre);
@@ -532,13 +795,69 @@
       if (m.rating) meta.push(m.rating);
 
       var card = document.createElement('div');
-      card.className = 'chat-movie-card';
-      card.innerHTML =
-        '<p class="chat-movie-card-title">' + escapeHtml(m.title || '') + '</p>'
-        + (meta.length ? '<p class="chat-movie-card-meta">' + escapeHtml(meta.join(' ・ ')) + '</p>' : '')
-        + (m.synopsis ? '<p class="chat-movie-card-synopsis">' + escapeHtml(m.synopsis) + '</p>' : '');
-      block.appendChild(card);
+      card.className = 'chat-recommend-card';
+
+      var poster = document.createElement('div');
+      poster.className = 'chat-recommend-poster';
+      if (m.posterSlug) {
+        var img = document.createElement('img');
+        img.src = '../images/poster/' + m.posterSlug + '.jpg';
+        img.alt = m.title || '';
+        img.addEventListener('error', function () { poster.innerHTML = POSTER_PLACEHOLDER_SVG; });
+        poster.appendChild(img);
+      } else {
+        poster.innerHTML = POSTER_PLACEHOLDER_SVG;
+      }
+      card.appendChild(poster);
+
+      var info = document.createElement('div');
+      info.className = 'chat-recommend-info';
+      info.innerHTML =
+        '<p class="chat-recommend-title">' + escapeHtml(m.title || '') + '</p>'
+        + (meta.length ? '<p class="chat-recommend-meta">' + escapeHtml(meta.join(' ・ ')) + '</p>' : '');
+      card.appendChild(info);
+
+      var actions = document.createElement('div');
+      actions.className = 'chat-recommend-actions';
+
+      var reserveBtn = document.createElement('button');
+      reserveBtn.type = 'button';
+      reserveBtn.className = 'btn btn-primary btn-sm';
+      reserveBtn.textContent = 'AI予約で進める';
+      reserveBtn.addEventListener('click', function () { startReserveForMovie(containerId, m); });
+      actions.appendChild(reserveBtn);
+
+      var detailLink = document.createElement('a');
+      detailLink.className = 'btn btn-ghost btn-sm';
+      detailLink.href = 'movie-detail.html?id=' + m.movieId;
+      detailLink.textContent = '詳細・通常予約';
+      actions.appendChild(detailLink);
+
+      card.appendChild(actions);
+      grid.appendChild(card);
     });
+
+    block.appendChild(grid);
+  }
+
+  // おすすめカードの「AI予約で進める」から、そのままAI予約(reserve)の
+  // 新規スレッドを開始する。movieId をあらかじめ埋めておくので、次の
+  // やり取りでは「何名様ですか？」から始まる。
+  function startReserveForMovie(containerId, movie) {
+    var store = getStore(containerId);
+    store.state = createThread();
+    store.state.intent = 'reserve';
+    store.state.slots.movieId = movie.movieId;
+    store.activeId = store.state.id;
+    persistActiveId(store);
+    saveState(store);
+
+    resetContainerDom(containerId);
+    addMessage(containerId, 'bot', greetingFor(containerId));
+
+    var text = '「' + movie.title + '」を予約したいです。';
+    recordAndRender(containerId, { role: 'user', text: text });
+    sendToChat(containerId, text);
   }
 
   function buildReservationSummaryBlock(block, payload) {
@@ -565,6 +884,33 @@
       + '</dl>'
       + '<p class="reservation-summary-note">チケットのQRコードはマイページでご確認いただけます。</p>';
     block.appendChild(card);
+
+    if (payload.movieTitle) {
+      var goodsBtn = document.createElement('button');
+      goodsBtn.type = 'button';
+      goodsBtn.className = 'btn btn-ghost btn-sm chat-goods-btn';
+      goodsBtn.textContent = '🍿 グッズ・売店で注文する';
+      goodsBtn.addEventListener('click', function () { goToGoodsForReservation(payload); });
+      card.appendChild(goodsBtn);
+    }
+  }
+
+  // 予約確定後、その予約に紐づけてグッズ・売店ページへ遷移する。
+  // goods.html は sessionStorage.reservationData の有無で booking-mode に
+  // 自動的に切り替わる（js/goods.js 既存の仕組みをそのまま利用、変更不要）。
+  function goToGoodsForReservation(payload) {
+    var tickets = payload.tickets || [];
+    var seats = tickets.map(function (t) { return t.rowLabel + t.seatNumber; });
+    var data = {
+      reservationId:   payload.reservationId,
+      reservationCode: payload.reservationCode,
+      movieTitle:      payload.movieTitle || '',
+      screeningInfo:   ((payload.showDate || '') + ' ' + (payload.startTime || '').slice(0, 5)).trim(),
+      seats:           seats,
+      totalAmount:     payload.totalAmount || 0
+    };
+    try { sessionStorage.setItem('reservationData', JSON.stringify(data)); } catch (e) { /* ignore */ }
+    location.href = 'goods.html';
   }
 
   function showRestartOption(containerId) {
@@ -586,15 +932,20 @@
   }
 
   /* ──────────────────────────────────────────────────────────
-     意図選択（3択クイックリプライ）
+     意図選択（クイックリプライ）
+     選択肢が1つしかないモード（アシスタント）ではピッカーを出さず、
+     自由入力を待つだけにする（submitUserText 側で自動的に意図確定）。
      ────────────────────────────────────────────────────────── */
   function showIntentPicker(containerId) {
+    var intents = getIntents(containerId);
+    if (intents.length <= 1) return;
+
     var container = document.getElementById(containerId);
     if (!container) return;
 
     var wrap = document.createElement('div');
     wrap.className = 'quick-replies';
-    INTENTS.forEach(function (intent) {
+    intents.forEach(function (intent) {
       var btn = document.createElement('button');
       btn.className = 'quick-reply-btn';
       btn.textContent = intent.label;
@@ -609,11 +960,12 @@
   }
 
   function chooseIntent(containerId, intent) {
-    state.intent   = intent.id;
-    state.messages = [];
-    state.slots    = emptySlots();
-    state.log      = [];
-    saveState();
+    var store = getStore(containerId);
+    store.state.intent   = intent.id;
+    store.state.messages = [];
+    store.state.slots    = emptySlots();
+    store.state.log      = [];
+    saveState(store);
 
     recordAndRender(containerId, { role: 'user', text: intent.trigger });
     sendToChat(containerId, intent.trigger);
@@ -623,8 +975,9 @@
      /api/chat 呼び出し
      ────────────────────────────────────────────────────────── */
   function sendToChat(containerId, text) {
-    state.messages.push({ role: 'user', content: text });
-    saveState();
+    var store = getStore(containerId);
+    store.state.messages.push({ role: 'user', content: text });
+    saveState(store);
     showTyping(containerId);
 
     var headers = { 'Content-Type': 'application/json' };
@@ -634,7 +987,7 @@
     fetch(API_BASE + '/api/chat', {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify({ intent: state.intent, messages: state.messages, slots: state.slots })
+      body: JSON.stringify({ intent: store.state.intent, messages: store.state.messages, slots: store.state.slots })
     })
       .then(function (res) {
         if (!res.ok) throw new Error('http ' + res.status);
@@ -643,9 +996,9 @@
       .then(function (data) {
         hideTyping(containerId);
 
-        state.messages = data.messages || state.messages;
-        state.slots    = data.slots || state.slots;
-        saveState();
+        store.state.messages = data.messages || store.state.messages;
+        store.state.slots    = data.slots || store.state.slots;
+        saveState(store);
 
         if (data.reply) {
           recordAndRender(containerId, { role: 'bot', text: data.reply });
@@ -655,6 +1008,9 @@
         }
         if (data.uiAction) {
           recordAndRender(containerId, { role: 'bot', rich: { kind: data.uiAction.type, payload: data.uiAction } });
+          if (data.uiAction.type === 'reservation_confirmed') {
+            publishConfirmedTicket(data.uiAction);
+          }
         }
       })
       .catch(function () {
@@ -663,14 +1019,46 @@
       });
   }
 
+  /* ──────────────────────────────────────────────────────────
+     AI予約完了の即時反映
+     ticket.html が予約完了時にマイページ用へ保存する sessionStorage
+     'latestTicket' と同じ形へ変換して保存し（マイページ側の読み込み
+     ロジックをそのまま流用できる）、さらに halcinema:ticketAdded
+     イベントを飛ばす。マイページを開いたままAI予約を完了した場合、
+     ページ再読み込みなしでチケット一覧に即反映される。
+     ────────────────────────────────────────────────────────── */
+  function publishConfirmedTicket(uiAction) {
+    var tickets = uiAction.tickets || [];
+    var latest = {
+      reservationId:   uiAction.reservationId,
+      reservationCode: uiAction.reservationCode,
+      movieTitle:      uiAction.movieTitle || '',
+      movieFormat:     '',
+      screenInfo:      uiAction.screenName || '',
+      screeningInfo:   ((uiAction.showDate || '') + ' ' + (uiAction.startTime || '').slice(0, 5)).trim(),
+      seats:           tickets.map(function (t) { return t.rowLabel + t.seatNumber; }),
+      ticketCount:     tickets.length,
+      finalAmount:     uiAction.totalAmount,
+      issuedAt:        new Date().toISOString(),
+      status:          'reserved',
+      tickets:         tickets,
+      foods:           []
+    };
+    try { sessionStorage.setItem('latestTicket', JSON.stringify(latest)); } catch (e) { /* ignore */ }
+    window.dispatchEvent(new CustomEvent('halcinema:ticketAdded', { detail: latest }));
+  }
+
   function submitUserText(containerId, text) {
-    if (!state.intent) {
-      // 意図未選択のまま自由入力された場合はアシスタント扱いにする
-      state.intent   = 'assistant';
-      state.messages = [];
-      state.slots    = emptySlots();
-      state.log      = [];
-      saveState();
+    var store = getStore(containerId);
+    if (!store.state.intent) {
+      // 意図未選択のまま自由入力された場合は、そのモードの先頭の意図を既定にする
+      // （assistantモードは選択肢が1つしかないため常にそれになる）
+      var fallback = getIntents(containerId)[0];
+      store.state.intent   = fallback.id;
+      store.state.messages = [];
+      store.state.slots    = emptySlots();
+      store.state.log      = [];
+      saveState(store);
       var container = document.getElementById(containerId);
       var qr = container && container.querySelector('.quick-replies');
       if (qr) qr.remove();
@@ -714,8 +1102,9 @@
     var staticQr = container.querySelector('.quick-replies');
     if (staticQr) staticQr.remove();
 
-    if (state.intent && state.log && state.log.length) {
-      state.log.forEach(function (entry) { renderLogEntry(containerId, entry); });
+    var store = getStore(containerId);
+    if (store.state.intent && store.state.log && store.state.log.length) {
+      store.state.log.forEach(function (entry) { renderLogEntry(containerId, entry); });
     } else {
       showIntentPicker(containerId);
     }

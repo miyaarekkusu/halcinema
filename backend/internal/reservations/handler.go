@@ -41,12 +41,13 @@ type ReservationDetail struct {
 
 func (ReservationDetail) TableName() string { return "t_reservation_detail" }
 
+// Ticket は1予約=1枚（座席数に関わらず分割しない）。
 type Ticket struct {
-	TicketID     int       `gorm:"column:f_ticket_id;primaryKey;autoIncrement"`
-	DetailID     int       `gorm:"column:f_detail_id"`
-	QRCode       string    `gorm:"column:f_qr_code"`
-	TicketStatus int       `gorm:"column:f_ticket_status"`
-	IssuedAt     time.Time `gorm:"column:f_issued_at"`
+	TicketID      int       `gorm:"column:f_ticket_id;primaryKey;autoIncrement"`
+	ReservationID int       `gorm:"column:f_reservation_id"`
+	QRCode        string    `gorm:"column:f_qr_code"`
+	TicketStatus  int       `gorm:"column:f_ticket_status"`
+	IssuedAt      time.Time `gorm:"column:f_issued_at"`
 }
 
 func (Ticket) TableName() string { return "t_ticket" }
@@ -108,6 +109,7 @@ type CreateReservationResult struct {
 	ReservationCode string
 	TotalAmount     int
 	ReservedAt      time.Time
+	QRCode          string // 予約1件につき1枚のチケットQR（座席数に関わらず共通）
 	Tickets         []map[string]any
 }
 
@@ -190,6 +192,18 @@ func CreateReservation(db *gorm.DB, input CreateReservationInput) (*CreateReserv
 		result.ReservationID = resv.ReservationID
 		result.ReservedAt = resv.ReservedAt
 
+		// チケット（QRコード）は座席数に関わらず予約1件につき1枚だけ発行する。
+		ticket := Ticket{
+			ReservationID: result.ReservationID,
+			QRCode:        uuid.New().String(),
+			TicketStatus:  1,
+			IssuedAt:      time.Now(),
+		}
+		if err := tx.Create(&ticket).Error; err != nil {
+			return err
+		}
+		result.QRCode = ticket.QRCode
+
 		for _, s := range input.Seats {
 			catID := s.PriceCategoryID
 			if catID == 0 {
@@ -209,16 +223,6 @@ func CreateReservation(db *gorm.DB, input CreateReservationInput) (*CreateReserv
 				TicketPrice:     price,
 			}
 			if err := tx.Create(&detail).Error; err != nil {
-				return err
-			}
-
-			ticket := Ticket{
-				DetailID:     detail.DetailID,
-				QRCode:       uuid.New().String(),
-				TicketStatus: 1,
-				IssuedAt:     time.Now(),
-			}
-			if err := tx.Create(&ticket).Error; err != nil {
 				return err
 			}
 
@@ -305,6 +309,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		"reservationCode": result.ReservationCode,
 		"totalAmount":     result.TotalAmount,
 		"reservedAt":      result.ReservedAt.Format(time.RFC3339),
+		"qrCode":          result.QRCode,
 		"tickets":         result.Tickets,
 	})
 }
@@ -318,8 +323,9 @@ type ticketDetailRow struct {
 	TicketPrice  int    `gorm:"column:f_ticket_price"`
 }
 
-// GetOne は予約1件分の詳細（座席ごとのチケット・QRコード一覧）を返す。
-// マイページで複数座席予約時に複数チケットを表示するために使う。
+// GetOne は予約1件分の詳細を返す。チケット（QRコード）は予約1件につき1枚だが、
+// 座席自体は複数ありうるため、座席ラベル表示のためにtickets配列は座席ごとの行を
+// 返す（各行のqrCode/statusは全て同じ、共通の1枚分の値）。
 func (h *Handler) GetOne(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
@@ -345,13 +351,17 @@ func (h *Handler) GetOne(w http.ResponseWriter, r *http.Request) {
 		       t.f_qr_code, t.f_ticket_status, d.f_ticket_price
 		FROM t_reservation_detail d
 		JOIN t_seat s   ON s.f_seat_id = d.f_seat_id
-		JOIN t_ticket t ON t.f_detail_id = d.f_detail_id
+		JOIN t_ticket t ON t.f_reservation_id = d.f_reservation_id
 		WHERE d.f_reservation_id = ?
 		ORDER BY s.f_row_label, s.f_seat_number
 	`, id).Scan(&rows)
 
 	tickets := make([]map[string]any, len(rows))
+	var qrCode string
 	for i, row := range rows {
+		if i == 0 {
+			qrCode = row.QRCode
+		}
 		tickets[i] = map[string]any{
 			"seatId":     row.SeatID,
 			"rowLabel":   row.RowLabel,
@@ -367,6 +377,7 @@ func (h *Handler) GetOne(w http.ResponseWriter, r *http.Request) {
 		"reservationId":   resv.ReservationID,
 		"reservationCode": resv.ReservationCode,
 		"totalAmount":     resv.TotalAmount,
+		"qrCode":          qrCode,
 		"tickets":         tickets,
 	})
 }

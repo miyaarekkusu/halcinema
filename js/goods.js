@@ -1,261 +1,563 @@
-// ── モード検出 ─────────────────────────────────────────────────
-const IS_BOOKING = !!sessionStorage.getItem('reservationData');
-if (IS_BOOKING) document.body.classList.add('booking-mode');
+/* ============================================================
+   HAL CINEMA — goods.js
+   グッズ・売店ページ（統一版）
+   food-select.html（座席予約ウィザードStep3）の実装をベースに、
+   3つの利用シーンすべてに対応する：
+   ① wizard  : sessionStorage.halcinema_seats あり
+                → 座席予約ウィザードの一部（次へ→order-confirm.html）
+   ② booking : sessionStorage.reservationData あり
+                → AIチャットボット予約後の注文（決済へ進む→payment.html直行）
+   ③ standalone : どちらもなし
+                → ナビ「グッズ・物販」からの単体訪問
+   ============================================================ */
+(function () {
 
-// ── 商品データ ─────────────────────────────────────────────────
-const allItems = [
-  // GOODS
-  { id: 1,  category: 'goods', name: '赤ずきん ポスター',              price: 1200, desc: '映画「赤ずきん」の公式ポスターです。',       size: 'A3',  img: '../images/event1.png' },
-  { id: 2,  category: 'goods', name: '赤ずきん クリアファイル',        price: 600,  desc: 'キャラクターデザインのクリアファイル。',     size: 'A4',  img: '../images/event2.png' },
-  { id: 3,  category: 'goods', name: '赤ずきん 缶バッジセット',        price: 800,  desc: '限定デザインの缶バッジ3個セット。',         size: null,  img: '../images/event1.png' },
-  { id: 4,  category: 'goods', name: 'アリー ポスター',                price: 1200, desc: '映画「アリー」の公式ビジュアルポスター。', size: 'A3',  img: '../images/event2.png' },
-  { id: 5,  category: 'goods', name: 'アリー アクリルスタンド',        price: 1500, desc: 'キャラクターのアクリルスタンド。',           size: null,  img: '../images/event1.png' },
-  { id: 6,  category: 'goods', name: 'アリー キーホルダー',            price: 700,  desc: '映画ロゴ入りのキーホルダー。',             size: null,  img: '../images/event2.png' },
-  { id: 7,  category: 'goods', name: 'アリー ポスター（B版）',        price: 1200, desc: '映画「アリー」の公式ビジュアルポスター。', size: 'A4',  img: '../images/event2.png' },
-  { id: 8,  category: 'goods', name: 'アリー アクリルスタンド（大）', price: 2000, desc: 'キャラクターの大型アクリルスタンド。',     size: null,  img: '../images/event1.png' },
-  // SHOP
-  { id: 9,  category: 'shop', name: 'ポップコーン（塩）',     price: 500, desc: '定番の塩味ポップコーン。',     sizes: ['S（小）', 'M（中）', 'L（大）'], img: '../images/1.png' },
-  { id: 10, category: 'shop', name: 'キャラメルポップコーン', price: 600, desc: '甘くて人気のキャラメル味。',   sizes: ['S（小）', 'M（中）', 'L（大）'], img: '../images/1.png' },
-  { id: 11, category: 'shop', name: 'ソフトドリンク',         price: 350, desc: 'コーラ・メロンソーダなど。',   sizes: ['S', 'M', 'L'],                   img: '../images/2.png' },
-  { id: 12, category: 'shop', name: 'ナチョス',               price: 450, desc: 'チーズソース付きナチョス。',   sizes: ['S（小）', 'L（大）'],             img: '../images/1.png' },
-  { id: 13, category: 'shop', name: 'ホットドッグ',           price: 400, desc: '映画といえばホットドッグ。',   sizes: ['1本', '2本セット'],               img: '../images/2.png' },
-];
+  var seatData        = JSON.parse(sessionStorage.getItem('halcinema_seats') || 'null');
+  var reservationData = JSON.parse(sessionStorage.getItem('reservationData') || 'null');
+  var MODE = seatData ? 'wizard' : (reservationData ? 'booking' : 'standalone');
+  document.body.classList.add('mode-' + MODE);
 
-const TITLES = {
-  goods: 'グッズ <span>GOODS</span>',
-  shop:  '売店 <span>SHOP</span>',
-};
+  var NEXT_BTN_LABEL = { wizard: '次へ', booking: '決済へ進む', standalone: '注文する' };
+  var nextBtnEl = document.getElementById('btn-next');
+  if (nextBtnEl) nextBtnEl.textContent = NEXT_BTN_LABEL[MODE];
 
-// ── 状態 ───────────────────────────────────────────────────────
-let cart = {};           // { [id]: { item, qty } }
-let currentCategory = 'goods';
+  // ── 商品データ（フード・グッズ） ──────────────────────────────
+  var PC_FLAVORS = [
+    { id:'caramel', label:'キャラメル',            img:'../images/1x1_caramel.png',     priceAdd:{ s:0,  m:0,  l:0  } },
+    { id:'salt',    label:'塩',                    img:'../images/1x1_salt.png',         priceAdd:{ s:0,  m:0,  l:0  } },
+    { id:'mix',     label:'ミックス',              img:'../images/1x1_mix.png',          priceAdd:{ s:20, m:20, l:20 } },
+    { id:'yabaton', label:'HAL限定 矢場とん味',    img:'../images/1x1_yabaton.png',      priceAdd:{ s:80, m:80, l:80 }, badge:'HAL限定' },
+    { id:'sauce',   label:'HAL限定 名古屋ソース味',img:'../images/1x1_nagoya_sauce.png', priceAdd:{ s:80, m:80, l:80 }, badge:'HAL限定' },
+  ];
 
-// ── DOM ────────────────────────────────────────────────────────
-const grid            = document.getElementById('goods-grid');
-const searchInput     = document.getElementById('searchInput');
-const sizeFilter      = document.getElementById('sizeFilter');
-const sortPrice       = document.getElementById('sortPrice');
-const itemCount       = document.getElementById('item-count');
-const catTitle        = document.getElementById('category-title');
-const sizeFilterGroup = document.getElementById('size-filter-group');
-const cartPanel       = document.getElementById('cart-panel');
-const cartOverlay     = document.getElementById('cart-overlay');
-const cartItemsEl     = document.getElementById('cart-items');
-const cartTotalEl     = document.getElementById('cart-total');
-const cartBadge       = document.getElementById('cart-badge');
+  var PC_BASE = { s:500, m:600, l:650 };
 
-// ── 予約情報バー（予約フローのみ） ───────────────────────────
-if (IS_BOOKING) {
-  const r   = JSON.parse(sessionStorage.getItem('reservationData') || '{}');
-  const bar = document.getElementById('gs-booking-bar');
-  if (bar && r.movieTitle) {
-    bar.innerHTML =
-      '<span class="gs-booking-item">' + r.movieTitle + '</span>' +
-      (r.screeningInfo ? '<span class="gs-booking-sep">｜</span><span class="gs-booking-item">' + r.screeningInfo + '</span>' : '') +
-      (r.seats ? '<span class="gs-booking-sep">｜</span><span class="gs-booking-item">座席：' + r.seats.join('・') + '</span>' : '') +
-      '<span class="gs-booking-sep">｜</span><span class="gs-booking-item gs-booking-price">チケット ¥' + (r.totalAmount || 0).toLocaleString() + '</span>';
-  }
-}
+  var DRINKS = [
+    { id:'cola',        label:'コカ・コーラ',             img:'../images/logo_cokecola.jpg',      price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'cola-zero',   label:'コカ・コーラ ゼロ',        img:'../images/logo_cokecolaZero.jpg',  price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'ginger',      label:'ジンジャーエール',          img:'../images/logo_canadadry.jpg',     price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'sprite',      label:'スプライト',               img:'../images/logo_sprite.jpg',         price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'fanta-melon', label:'ファンタ メロン',           img:'../images/logo_fantaMelon.jpg',    price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'fanta-grape', label:'ファンタ グレープ',         img:'../images/logo_fantaGrape.png',    price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'calpis',      label:'カルピス',                 img:'../images/logo_calpis.jpg',         price:{ s:320, m:400, l:450 }, hasIce:true  },
+    { id:'oolong',      label:'烏龍茶',                   img:'../images/logo_kirameki.jpg',       price:{ s:280, m:350, l:420 }, hasIce:true  },
+    { id:'soken',       label:'爽健美茶',                 img:'../images/logo_soken.jpg',          price:{ s:280, m:350, l:420 }, hasIce:true  },
+    { id:'kaden',       label:'紅茶花伝',                 img:'../images/logo_kaden.jpg',          price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'apple',       label:'アップルジュース',          img:'../images/logo_apple.jpg',         price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'lemon',       label:'レモネード',               img:'../images/logo_lemonade.png',      price:{ s:320, m:400, l:470 }, hasIce:true  },
+    { id:'orange',      label:'オレンジジュース',          img:'../images/logo_orange.jpeg',       price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'sports',      label:'アクエリアス',               img:'../images/logo_aquarius.jpeg',     price:{ s:300, m:380, l:450 }, hasIce:true  },
+    { id:'coffee',      label:'コーヒー',                 img:'../images/logo_costa.jpg',          price:{ s:320, m:400, l:460 }, hasTemp:true  },
+    { id:'latte',       label:'カフェラテ',               img:'../images/logo_costa.jpg',          price:{ s:340, m:420, l:470 }, hasTemp:true  },
+    { id:'matcha',      label:'抹茶ラテ',                 img:'../images/logo_matchalatte.png',   price:{ s:350, m:430, l:470 }, hasTemp:true  },
+    { id:'miso',       label:'HAL限定 みそソーダ',    img:'../images/logo_misosoda.png',    price:{ s:380, m:460, l:470 }, hasIce:true, badge:'HAL限定' },
+    { id:'hal-energy', label:'HALエナジー',            img:'../images/logo_HALenergy.png',   price:{ s:380, m:460, l:470 }, hasIce:true, badge:'HAL限定' },
+  ];
 
-// ── カート描画（右スライドパネル・両モード共通） ──────────────
-function renderCart() {
-  const entries = Object.values(cart);
-  const total   = entries.reduce((s, { item, qty }) => s + item.price * qty, 0);
-  const count   = entries.reduce((s, { item, qty }) => s + qty, 0);
+  var SETS = [
+    { id:'standard', name:'スタンダードセット', desc:'ポップコーン M + ドリンク M', icon:'🎬', discount:100, pcSize:'m', drinkSlots:[{ size:'m' }] },
+    { id:'premium',  name:'プレミアムセット',   desc:'ポップコーン L + ドリンク L', icon:'⭐', discount:150, pcSize:'l', drinkSlots:[{ size:'l' }] },
+    { id:'pair',     name:'ペアセット',         desc:'ポップコーン L + ドリンク M × 2', icon:'💑', discount:200, pcSize:'l', drinkSlots:[{ size:'m' }, { size:'m' }] },
+  ];
 
-  // 予約フローは合計にチケット代を加算
-  let displayTotal = total;
-  if (IS_BOOKING) {
-    const r = JSON.parse(sessionStorage.getItem('reservationData') || '{}');
-    displayTotal = total + (r.totalAmount || 0);
-  }
+  var FRIES_TYPES = [
+    { id:'shoestring', label:'シューストリングカット', en:'Shoestring Cut', sub:'細切り・サクサク食感', img:'../images/potato_plain.png',  price:330 },
+    { id:'crinkle',    label:'クリンクルカット',       en:'Crinkle Cut',    sub:'波形カット・もちもち',  img:'../images/potato_crnkle.png', price:360 },
+    { id:'wedge',      label:'ウェッジカット',          en:'Wedge Cut',      sub:'厚切り・ホクホク',      img:'../images/potato_wedge.png',  price:390 },
+    { id:'hash',       label:'ハッシュドポテト',        en:'Hash Browns',    sub:'2枚入り',              img:'../images/potato_hash.png',   price:340 },
+    { id:'long',       label:'ロングポテト',            en:'Long Potato',    sub:'1本・約30cm',           img:'../images/potato_loge.png',   price:450 },
+  ];
 
-  cartTotalEl.textContent = '¥' + displayTotal.toLocaleString();
-  cartBadge.textContent   = count;
-  cartBadge.classList.toggle('has-items', count > 0);
+  var FRIES_FLAVORS = [
+    { id:'plain',     label:'プレーン',     en:'Plain',         priceAdd:0  },
+    { id:'salt',      label:'塩',           en:'Salt',          priceAdd:0  },
+    { id:'consomme',  label:'コンソメ',      en:'Consommé',      priceAdd:0  },
+    { id:'ketchup',   label:'ケチャップ',    en:'Ketchup',       priceAdd:0  },
+    { id:'mentaiko',  label:'明太子',        en:'Spicy Cod Roe', priceAdd:30 },
+    { id:'miso',      label:'みそ',          en:'Miso',          priceAdd:30, badge:'HAL限定' },
+  ];
 
-  if (entries.length === 0) {
-    cartItemsEl.innerHTML = '<p class="cart-empty">カートは空です</p>';
-    return;
-  }
+  var SIMPLE_OPTIONS = {
+    hotdog:  { title:'🌭 ホットドッグ',     items:[ { id:'hd-plain',  label:'プレーン',           sub:'マスタード＆ケチャップ',  price:350, img:'../images/hotdog_plain.png'  }, { id:'hd-cheese', label:'チーズホットドッグ', sub:'チェダーチーズソース',    price:420, img:'../images/hotdog_cheese.png' }, { id:'hd-spicy',  label:'スパイシー',          sub:'ハラペーニョ＆チリ',      price:420, img:'../images/hotdog_spicy.png'  }, { id:'hd-hal',    label:'どて煮ドッグ',        sub:'名古屋名物どて煮ソース',  price:480, img:'../images/hotdog_dote.png',   badge:'HAL限定' } ] },
+    nachos:  { title:'🧀 ナチョス',         items:[ { id:'na-s-cheese', label:'S チーズ', sub:'チーズソース', price:400, img:'../images/nachos_s_cheese.png' }, { id:'na-l-cheese', label:'L チーズ', sub:'チーズソース', price:550, img:'../images/nachos_ｌ_cheese.png' }, { id:'na-s-salsa', label:'S サルサ', sub:'サルサソース', price:400, img:'../images/nachos_s_salsa.png' }, { id:'na-l-salsa', label:'L サルサ', sub:'サルサソース', price:550, img:'../images/nachos_l_salsa.png' }, { id:'na-s-miso', label:'S 赤味噌', sub:'HAL限定', price:450, img:'../images/nachos_s_miso.png', badge:'HAL限定' }, { id:'na-l-miso', label:'L 赤味噌', sub:'HAL限定', price:600, img:'../images/nachos_l_miso.png', badge:'HAL限定' } ] },
+    fries:   { title:'🍟 フライドポテト',   items:[ { id:'fr-s-salt', label:'S 塩', sub:'', price:280, img:'../images/potato_salt.png' }, { id:'fr-m-salt', label:'M 塩', sub:'', price:380, img:'../images/potato_salt.png' }, { id:'fr-s-cheese', label:'S チーズ', sub:'', price:320 }, { id:'fr-m-cheese', label:'M チーズ', sub:'', price:420 } ] },
+    ice:     { title:'🍦 アイスクリーム',   items:[ { id:'ic-vanilla', label:'バニラ', sub:'Vanilla', price:350, img:'../images/softcream_vanilla.png' }, { id:'ic-choco', label:'チョコレート', sub:'Chocolate', price:350, img:'../images/softcream_chocolate.png' }, { id:'ic-matcha', label:'抹茶', sub:'Matcha', price:380, img:'../images/softcream_matcha.png' }, { id:'ic-mix', label:'ミックス', sub:'Mix (2 flavors)', price:390, img:'../images/softcream_mix.png' }, { id:'ic-ogura', label:'小倉バニラ', sub:'Ogura × Vanilla', price:420, img:'../images/softcream_azuki.png', badge:'HAL限定' } ] },
+    tshirt:  { title:'👕 HAL限定Tシャツ',   items:[ { id:'ts-s', label:'S サイズ', sub:'', price:2800 }, { id:'ts-m', label:'M サイズ', sub:'', price:2800 }, { id:'ts-l', label:'L サイズ', sub:'', price:2800 }, { id:'ts-xl', label:'XL サイズ', sub:'', price:2800 } ] },
+    tumbler: { title:'🥛 HALオリジナルタンブラー', items:[ { id:'tum-black', label:'ブラック', sub:'', price:1800 }, { id:'tum-red', label:'レッド', sub:'', price:1800 } ] },
+    badge:   { title:'🎖️ 缶バッジセット',   items:[ { id:'bdg-a', label:'Aセット（シネマデザイン）', sub:'', price:800 }, { id:'bdg-b', label:'Bセット（HALロゴデザイン）', sub:'', price:800 }, { id:'bdg-c', label:'Cセット（上映作品デザイン）', sub:'', price:900 } ] },
+    poster:  { title:'🖼️ 映画ポスター A3',  items:[ { id:'pos-a', label:'縦型・スタンダード', sub:'', price:1200 }, { id:'pos-b', label:'横型・パノラマ版', sub:'', price:1200 } ] },
+    keychain:{ title:'🔑 キーチェーン',      items:[ { id:'key-a', label:'映写機デザイン', sub:'', price:600 }, { id:'key-b', label:'HALロゴデザイン', sub:'', price:600 }, { id:'key-c', label:'ポップコーンデザイン', sub:'', price:600 } ] },
+    blanket: { title:'🧣 映画ブランケット',  items:[ { id:'blk-navy', label:'ネイビー', sub:'', price:2200 }, { id:'blk-gray', label:'グレー', sub:'', price:2200 }, { id:'blk-black', label:'ブラック', sub:'', price:2200 } ] },
+  };
 
-  cartItemsEl.innerHTML = entries.map(({ item, qty }) =>
-    '<div class="cart-item">' +
-      '<div class="cart-item-info">' +
-        '<p class="cart-item-name">' + item.name + '</p>' +
-        '<p class="cart-item-price">¥' + item.price.toLocaleString() + ' × ' + qty + '</p>' +
-      '</div>' +
-      '<div class="cart-item-subtotal">¥' + (item.price * qty).toLocaleString() + '</div>' +
-      '<button class="cart-item-remove" data-id="' + item.id + '" title="削除">✕</button>' +
-    '</div>'
-  ).join('');
-}
+  var WZ   = { mode:null, config:null, steps:[], current:0, data:{} };
+  var cart = [];
 
-// ── パネル開閉 ─────────────────────────────────────────────────
-function openPanel() {
-  cartPanel.classList.add('open');
-  cartOverlay.classList.add('open');
-}
-
-function closePanel() {
-  cartPanel.classList.remove('open');
-  cartOverlay.classList.remove('open');
-}
-
-// ── 商品グリッド描画 ───────────────────────────────────────────
-function renderItems() {
-  let list = allItems.filter(i => i.category === currentCategory);
-
-  const keyword = searchInput.value.toLowerCase().trim();
-  if (keyword) list = list.filter(i => i.name.toLowerCase().includes(keyword));
-
-  if (currentCategory === 'goods') {
-    const size = sizeFilter.value;
-    if (size !== 'all') list = list.filter(i => i.size === size);
+  function showAlert(msg) {
+    document.getElementById('custom-alert-msg').textContent = msg;
+    document.getElementById('custom-alert').removeAttribute('hidden');
+    document.getElementById('custom-alert-ok').focus();
   }
 
-  const sort = sortPrice.value;
-  if (sort === 'asc')  list.sort((a, b) => a.price - b.price);
-  if (sort === 'desc') list.sort((a, b) => b.price - a.price);
-
-  itemCount.textContent = list.length + '件';
-
-  if (list.length === 0) {
-    grid.innerHTML = '<p class="goods-empty">該当する商品がありません。</p>';
-    return;
-  }
-
-  grid.innerHTML = list.map(item => {
-    const qty = cart[item.id] ? cart[item.id].qty : 0;
-
-    const optionsHtml = item.sizes
-      ? '<div class="item-options"><div class="item-option"><label>サイズ</label>' +
-        '<select>' + item.sizes.map(s => '<option>' + s + '</option>').join('') + '</select>' +
-        '</div></div>'
-      : '';
-
-    // 予約フロー：＋－数量コントロール / 単体：カートに追加ボタン
-    const footerHtml = IS_BOOKING
-      ? '<div class="gs-card-footer">' + (
-          qty > 0
-            ? '<div class="gs-qty-control">' +
-                '<button class="gs-qty-btn" data-action="dec" data-id="' + item.id + '">－</button>' +
-                '<span class="gs-qty-num">' + qty + '</span>' +
-                '<button class="gs-qty-btn" data-action="inc" data-id="' + item.id + '">＋</button>' +
-              '</div>'
-            : '<button class="gs-add-btn" data-id="' + item.id + '">カートに追加</button>'
-        ) + '</div>'
-      : '<div class="item-card-footer"><button class="btn-add-cart" data-id="' + item.id + '">カートに追加</button></div>';
-
-    return '<div class="item-card">' +
-      '<img src="' + item.img + '" alt="' + item.name + '">' +
-      '<div class="item-info">' +
-        '<p class="item-title">' + item.name + '</p>' +
-        '<p class="item-price">¥' + item.price.toLocaleString() + '</p>' +
-        '<p class="item-desc">' + item.desc + '</p>' +
-        optionsHtml +
-      '</div>' +
-      footerHtml +
-    '</div>';
-  }).join('');
-}
-
-// ── グリッドのイベント委譲 ─────────────────────────────────────
-grid.addEventListener('click', function (e) {
-  // 予約フロー：gs-add-btn
-  const addBtn = e.target.closest('.gs-add-btn');
-  if (addBtn) {
-    const id   = parseInt(addBtn.dataset.id);
-    const item = allItems.find(i => i.id === id);
-    if (item) cart[id] = { item, qty: 1 };
-    renderItems(); renderCart();
-    return;
-  }
-
-  // 予約フロー：gs-qty-btn
-  const qtyBtn = e.target.closest('.gs-qty-btn');
-  if (qtyBtn) {
-    const id     = parseInt(qtyBtn.dataset.id);
-    const action = qtyBtn.dataset.action;
-    if (action === 'inc' && cart[id]) {
-      cart[id].qty++;
-    } else if (action === 'dec' && cart[id]) {
-      cart[id].qty--;
-      if (cart[id].qty <= 0) delete cart[id];
+  function buildSteps(mode, config) {
+    if (mode === 'popcorn') return ['pc-flavor'];
+    if (mode === 'drink')   return ['drink-type', 'drink-custom'];
+    if (mode === 'fries')   return ['fries-type', 'fries-flavor'];
+    if (mode === 'set') {
+      var steps = ['pc-flavor'];
+      config.set.drinkSlots.forEach(function (slot, i) { steps.push('drink-type-' + i, 'drink-custom-' + i); });
+      steps.push('set-confirm');
+      return steps;
     }
-    renderItems(); renderCart();
-    return;
+    if (mode === 'simple') return ['simple-option'];
+    return [];
   }
 
-  // 単体ページ：btn-add-cart
-  const cartBtn = e.target.closest('.btn-add-cart');
-  if (cartBtn) {
-    const id   = parseInt(cartBtn.dataset.id);
-    const item = allItems.find(i => i.id === id);
-    if (!item) return;
-    if (cart[id]) cart[id].qty++;
-    else          cart[id] = { item, qty: 1 };
-    renderCart();
+  function openWizard(mode, config) {
+    WZ.mode = mode; WZ.config = config; WZ.data = {};
+    WZ.steps = buildSteps(mode, config); WZ.current = 0;
+    document.getElementById('wizard-popup').removeAttribute('hidden');
+    document.body.style.overflow = 'hidden';
+    setTitle(mode, config);
+    renderStep();
   }
-});
 
-// ── パネル内：削除ボタン ──────────────────────────────────────
-cartItemsEl.addEventListener('click', function (e) {
-  const btn = e.target.closest('.cart-item-remove');
-  if (!btn) return;
-  delete cart[parseInt(btn.dataset.id)];
+  function closeWizard() {
+    document.getElementById('wizard-popup').setAttribute('hidden', '');
+    document.body.style.overflow = '';
+  }
+
+  function setTitle(mode, config) {
+    var t = document.getElementById('wz-title');
+    if (mode === 'popcorn') { var sz = { s:'S（約300g）', m:'M（約450g）', l:'L（約600g）' }; t.textContent = '🍿 ポップコーン ' + (sz[config.size] || ''); }
+    else if (mode === 'drink')  { var sz2 = { s:'S（約400ml）', m:'M（約550ml）', l:'L（約700ml）' }; t.textContent = '🥤 ドリンク ' + (sz2[config.size] || ''); }
+    else if (mode === 'fries')  { t.textContent = '🍟 フライドポテト / French Fries'; }
+    else if (mode === 'set')    { t.textContent = config.set.icon + ' ' + config.set.name; }
+    else if (mode === 'simple') { t.textContent = SIMPLE_OPTIONS[config.item].title; }
+  }
+
+  function renderStep() {
+    renderStepIndicator();
+    var stepId = WZ.steps[WZ.current];
+    var body   = document.getElementById('wz-body');
+    body.innerHTML = '';
+    if (stepId === 'pc-flavor') renderPcFlavor(body);
+    else if (stepId === 'pc-mix') renderPcMix(body);
+    else if (stepId === 'fries-type')   renderFriesType(body);
+    else if (stepId === 'fries-flavor') renderFriesFlavor(body);
+    else if (stepId && stepId.indexOf('drink-type') === 0)   { var si  = stepId.replace('drink-type-','');   renderDrinkType(body,   isNaN(parseInt(si))  ? null : parseInt(si));  }
+    else if (stepId && stepId.indexOf('drink-custom') === 0) { var si2 = stepId.replace('drink-custom-',''); renderDrinkCustom(body, isNaN(parseInt(si2)) ? null : parseInt(si2)); }
+    else if (stepId === 'set-confirm')   renderSetConfirm(body);
+    else if (stepId === 'simple-option') renderSimpleOption(body);
+    var backBtn = document.getElementById('wz-back');
+    var nextBtn = document.getElementById('wz-next');
+    backBtn.style.visibility = WZ.current === 0 ? 'hidden' : 'visible';
+    var isLast = WZ.current === WZ.steps.length - 1;
+    nextBtn.textContent = isLast ? 'カートに追加 ✓' : '次へ ▸';
+    nextBtn.className = 'wz-btn ' + (isLast ? 'wz-btn--add' : 'wz-btn--next');
+  }
+
+  function renderStepIndicator() {
+    var el = document.getElementById('wz-steps');
+    if (WZ.steps.length <= 1) { el.innerHTML = ''; return; }
+    var html = '';
+    WZ.steps.forEach(function (s, i) {
+      if (i > 0) html += '<div class="wz-step-line"></div>';
+      var cls = i < WZ.current ? 'wz-step done' : (i === WZ.current ? 'wz-step active' : 'wz-step');
+      html += '<div class="' + cls + '"><span class="wz-step__dot">' + (i + 1) + '</span></div>';
+    });
+    el.innerHTML = html;
+  }
+
+  function renderPcFlavor(body) {
+    var size = WZ.mode === 'set' ? WZ.config.set.pcSize : WZ.config.size;
+    var html = '<p class="wz-hint">お好みの味を選んでください</p><div class="wz-flavor-grid">';
+    PC_FLAVORS.forEach(function (f) {
+      var sel   = WZ.data.pcFlavor === f.id ? ' selected' : '';
+      var badge = f.badge ? '<span class="wz-badge">' + f.badge + '</span>' : '';
+      html += '<button class="wz-flavor-card' + sel + '" data-flavor="' + f.id + '">'
+            + '<div class="wz-flavor-img"><img src="' + f.img + '" alt="' + f.label + '"></div>'
+            + '<span class="wz-flavor-name">' + f.label + badge + '</span>'
+            + '<span class="wz-flavor-price">¥' + (PC_BASE[size] + (f.priceAdd[size] || 0)).toLocaleString() + '</span>'
+            + '</button>';
+    });
+    body.innerHTML = html + '</div>';
+    body.querySelectorAll('.wz-flavor-card').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        body.querySelectorAll('.wz-flavor-card').forEach(function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        WZ.data.pcFlavor = btn.dataset.flavor;
+        if (btn.dataset.flavor === 'mix') {
+          WZ.data.pcMixFlavors = [];
+          var mixIdx = WZ.steps.indexOf('pc-mix');
+          if (mixIdx === -1) WZ.steps.splice(WZ.current + 1, 0, 'pc-mix');
+        } else {
+          var mixIdx2 = WZ.steps.indexOf('pc-mix');
+          if (mixIdx2 !== -1) WZ.steps.splice(mixIdx2, 1);
+        }
+      });
+    });
+  }
+
+  function renderPcMix(body) {
+    var selectableFlavors = PC_FLAVORS.filter(function (f) { return f.id !== 'mix'; });
+    if (!WZ.data.pcMixFlavors) WZ.data.pcMixFlavors = [];
+    var html = '<p class="wz-hint">ミックスする味を2〜3種類選んでください</p>'
+             + '<p class="wz-mix-count" id="wz-mix-count">選択中：' + WZ.data.pcMixFlavors.length + '種類</p>'
+             + '<div class="wz-flavor-grid">';
+    selectableFlavors.forEach(function (f) {
+      var sel   = WZ.data.pcMixFlavors.indexOf(f.id) !== -1 ? ' selected' : '';
+      var badge = f.badge ? '<span class="wz-badge">' + f.badge + '</span>' : '';
+      html += '<button class="wz-flavor-card' + sel + '" data-flavor="' + f.id + '">'
+            + '<div class="wz-flavor-img"><img src="' + f.img + '" alt="' + f.label + '"></div>'
+            + '<span class="wz-flavor-name">' + f.label + badge + '</span>'
+            + '</button>';
+    });
+    body.innerHTML = html + '</div>';
+    body.querySelectorAll('.wz-flavor-card').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id  = btn.dataset.flavor;
+        var arr = WZ.data.pcMixFlavors;
+        var idx = arr.indexOf(id);
+        if (idx !== -1) { arr.splice(idx, 1); btn.classList.remove('selected'); }
+        else { if (arr.length >= 3) return; arr.push(id); btn.classList.add('selected'); }
+        var countEl = document.getElementById('wz-mix-count');
+        if (countEl) countEl.textContent = '選択中：' + arr.length + '種類';
+      });
+    });
+  }
+
+  function renderDrinkType(body, slotIdx) {
+    var size    = slotIdx !== null ? WZ.config.set.drinkSlots[slotIdx].size : WZ.config.size;
+    var dataKey = slotIdx !== null ? 'drinkType' + slotIdx : 'drinkType';
+    var slotLbl = slotIdx !== null ? '（ドリンク ' + (slotIdx + 1) + '）' : '';
+    var html    = '<p class="wz-hint">ドリンクの種類を選んでください' + slotLbl + '</p><div class="wz-drink-grid">';
+    DRINKS.forEach(function (d) {
+      var sel   = WZ.data[dataKey] === d.id ? ' selected' : '';
+      var badge = d.badge ? '<span class="wz-badge">' + d.badge + '</span>' : '';
+      var iconHtml = d.img
+        ? '<div class="wz-drink-logo"><img src="' + d.img + '" alt="' + d.label + '"></div>'
+        : '<span class="wz-drink-icon">' + (d.icon || '🥤') + '</span>';
+      html += '<button class="wz-drink-btn' + sel + '" data-drink="' + d.id + '">' + iconHtml + '<span class="wz-drink-label">' + d.label + badge + '</span><span class="wz-drink-price">¥' + d.price[size].toLocaleString() + '</span></button>';
+    });
+    body.innerHTML = html + '</div>';
+    body.querySelectorAll('.wz-drink-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        body.querySelectorAll('.wz-drink-btn').forEach(function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected'); WZ.data[dataKey] = btn.dataset.drink;
+      });
+    });
+  }
+
+  function renderDrinkCustom(body, slotIdx) {
+    var dataKey = slotIdx !== null ? 'drinkType' + slotIdx : 'drinkType';
+    var tempKey = slotIdx !== null ? 'drinkTemp' + slotIdx : 'drinkTemp';
+    var drink   = DRINKS.find(function (d) { return d.id === WZ.data[dataKey]; });
+    if (!drink || (!drink.hasTemp && !drink.hasIce)) { WZ.current++; renderStep(); return; }
+    var opts, hint;
+    if (drink.hasTemp) {
+      hint = drink.label + ' の温度を選んでください';
+      opts = [{ id:'hot', label:'ホット ☕', sub:'温かい' }, { id:'iced', label:'アイス 🧊', sub:'冷たい' }];
+    } else {
+      hint = '氷の有無を選んでください';
+      opts = [{ id:'ice', label:'氷あり 🧊', sub:'通常' }, { id:'no-ice', label:'氷なし', sub:'氷を入れない' }];
+    }
+    var html = '<p class="wz-hint">' + hint + '</p><div class="wz-radio-list">';
+    opts.forEach(function (o) {
+      var sel = WZ.data[tempKey] === o.id ? ' selected' : '';
+      html += '<button class="wz-radio-btn' + sel + '" data-temp="' + o.id + '"><span class="wz-radio-label">' + o.label + '</span><span class="wz-radio-sub">' + o.sub + '</span></button>';
+    });
+    body.innerHTML = html + '</div>';
+    body.querySelectorAll('.wz-radio-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        body.querySelectorAll('.wz-radio-btn').forEach(function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected'); WZ.data[tempKey] = btn.dataset.temp;
+      });
+    });
+  }
+
+  function renderFriesType(body) {
+    var html = '<p class="wz-hint">ポテトの種類を選んでください <span style="font-size:0.7rem;opacity:0.5">/ Select potato style</span></p><div class="wz-simple-grid">';
+    FRIES_TYPES.forEach(function (t) {
+      var sel = WZ.data.friesType === t.id ? ' selected' : '';
+      var imgHtml = t.img
+        ? '<div class="wz-simple-img"><img src="' + t.img + '" alt="' + t.label + '"></div>'
+        : '<div class="wz-simple-img wz-simple-img--ph"></div>';
+      html += '<button class="wz-simple-card' + sel + '" data-type="' + t.id + '">'
+            + imgHtml
+            + '<span class="wz-simple-name">' + t.label + '<span style="display:block;font-size:0.6rem;color:rgba(255,255,255,0.38);font-style:italic">' + t.en + '</span></span>'
+            + '<span class="wz-simple-sub">' + t.sub + '</span>'
+            + '<span class="wz-simple-price">¥' + t.price.toLocaleString() + '〜</span>'
+            + '</button>';
+    });
+    body.innerHTML = html + '</div>';
+    body.querySelectorAll('.wz-simple-card').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        body.querySelectorAll('.wz-simple-card').forEach(function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        WZ.data.friesType = btn.dataset.type;
+      });
+    });
+  }
+
+  function renderFriesFlavor(body) {
+    var ft = FRIES_TYPES.find(function (t) { return t.id === WZ.data.friesType; });
+    var basePrice = ft ? ft.price : 0;
+    var html = '<p class="wz-hint">味を選んでください <span style="font-size:0.7rem;opacity:0.5">/ Select seasoning</span></p><div class="wz-radio-list">';
+    FRIES_FLAVORS.forEach(function (f) {
+      var sel   = WZ.data.friesFlavor === f.id ? ' selected' : '';
+      var badge = f.badge ? '<span class="wz-badge">' + f.badge + '</span>' : '';
+      var total = basePrice + (f.priceAdd || 0);
+      var priceLabel = f.priceAdd > 0 ? '¥' + total.toLocaleString() + '<span style="font-size:0.65rem;opacity:0.6"> (+¥' + f.priceAdd + ')</span>' : '¥' + total.toLocaleString();
+      html += '<button class="wz-radio-btn' + sel + '" data-flavor="' + f.id + '">'
+            + '<span class="wz-radio-label">' + f.label + badge + ' <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);font-style:italic">' + f.en + '</span></span>'
+            + '<span class="wz-radio-sub"></span>'
+            + '<span class="wz-radio-price">' + priceLabel + '</span>'
+            + '</button>';
+    });
+    body.innerHTML = html + '</div>';
+    body.querySelectorAll('.wz-radio-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        body.querySelectorAll('.wz-radio-btn').forEach(function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        WZ.data.friesFlavor = btn.dataset.flavor;
+      });
+    });
+  }
+
+  function renderSetConfirm(body) {
+    var set = WZ.config.set;
+    var flavor = PC_FLAVORS.find(function (f) { return f.id === WZ.data.pcFlavor; });
+    var pcPrice = PC_BASE[set.pcSize] + (flavor ? (flavor.priceAdd[set.pcSize] || 0) : 0);
+    var drinkTotal = 0, drinkRows = '';
+    set.drinkSlots.forEach(function (slot, i) {
+      var d = DRINKS.find(function (d) { return d.id === WZ.data['drinkType' + i]; });
+      var temp = WZ.data['drinkTemp' + i] || '';
+      var price = d ? d.price[slot.size] : 0;
+      drinkTotal += price;
+      var tl = { hot:' ホット', iced:' アイス', ice:' 氷あり', 'no-ice':' 氷なし' }[temp] || '';
+      drinkRows += '<div class="wz-confirm-row"><span>🥤 ドリンク ' + (i+1) + '</span><span>' + (d ? d.label : '—') + tl + ' (' + slot.size.toUpperCase() + ')</span><span>¥' + price.toLocaleString() + '</span></div>';
+    });
+    var total = pcPrice + drinkTotal - set.discount;
+    var mixLbl = '';
+    if (WZ.data.pcFlavor === 'mix' && WZ.data.pcMixFlavors && WZ.data.pcMixFlavors.length > 0) {
+      var mixNames2 = WZ.data.pcMixFlavors.map(function (id) { var fm = PC_FLAVORS.find(function (f) { return f.id === id; }); return fm ? fm.label : id; });
+      mixLbl = '（' + mixNames2.join('・') + '）';
+    }
+    body.innerHTML = '<p class="wz-hint">内容をご確認ください</p><div class="wz-confirm-list"><div class="wz-confirm-row"><span>🍿 ポップコーン (' + set.pcSize.toUpperCase() + ')</span><span>' + (flavor ? flavor.label : '—') + mixLbl + '</span><span>¥' + pcPrice.toLocaleString() + '</span></div>' + drinkRows + '<div class="wz-confirm-row wz-confirm-row--discount"><span>割引</span><span></span><span>-¥' + set.discount + '</span></div><div class="wz-confirm-row wz-confirm-row--total"><span>合計</span><span></span><span>¥' + total.toLocaleString() + '</span></div></div>';
+  }
+
+  function renderSimpleOption(body) {
+    var opt    = SIMPLE_OPTIONS[WZ.config.item];
+    var hasImg = opt.items.some(function (it) { return it.img; });
+    if (hasImg) {
+      var html = '<p class="wz-hint">種類を選んでください</p><div class="wz-simple-grid">';
+      opt.items.forEach(function (it) {
+        var sel   = WZ.data.simpleItem === it.id ? ' selected' : '';
+        var badge = it.badge ? '<span class="wz-badge">' + it.badge + '</span>' : '';
+        var imgHtml = it.img
+          ? '<div class="wz-simple-img"><img src="' + it.img + '" alt="' + it.label + '"></div>'
+          : '<div class="wz-simple-img wz-simple-img--ph"></div>';
+        html += '<button class="wz-simple-card' + sel + '" data-item-id="' + it.id + '">'
+              + imgHtml
+              + '<span class="wz-simple-name">' + it.label + badge + '</span>'
+              + (it.sub ? '<span class="wz-simple-sub">' + it.sub + '</span>' : '')
+              + '<span class="wz-simple-price">¥' + it.price.toLocaleString() + '</span>'
+              + '</button>';
+      });
+      body.innerHTML = html + '</div>';
+      body.querySelectorAll('.wz-simple-card').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.wz-simple-card').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          WZ.data.simpleItem     = btn.dataset.itemId;
+          WZ.data.simpleItemData = opt.items.find(function (it) { return it.id === btn.dataset.itemId; });
+        });
+      });
+    } else {
+      var html2 = '<p class="wz-hint">種類を選んでください</p><div class="wz-radio-list">';
+      opt.items.forEach(function (it) {
+        var sel   = WZ.data.simpleItem === it.id ? ' selected' : '';
+        var badge = it.badge ? '<span class="wz-badge">' + it.badge + '</span>' : '';
+        html2 += '<button class="wz-radio-btn' + sel + '" data-item-id="' + it.id + '"><span class="wz-radio-label">' + it.label + badge + '</span><span class="wz-radio-sub">' + (it.sub||'') + '</span><span class="wz-radio-price">¥' + it.price.toLocaleString() + '</span></button>';
+      });
+      body.innerHTML = html2 + '</div>';
+      body.querySelectorAll('.wz-radio-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          body.querySelectorAll('.wz-radio-btn').forEach(function (b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          WZ.data.simpleItem     = btn.dataset.itemId;
+          WZ.data.simpleItemData = opt.items.find(function (it) { return it.id === btn.dataset.itemId; });
+        });
+      });
+    }
+  }
+
+  function goNext() {
+    var stepId = WZ.steps[WZ.current];
+    if (stepId === 'pc-flavor' && !WZ.data.pcFlavor) { showAlert('味を選んでください'); return; }
+    if (stepId === 'pc-mix' && (!WZ.data.pcMixFlavors || WZ.data.pcMixFlavors.length < 2)) { showAlert('2種類以上の味を選んでください'); return; }
+    if (stepId === 'fries-type'   && !WZ.data.friesType)   { showAlert('種類を選んでください'); return; }
+    if (stepId === 'fries-flavor' && !WZ.data.friesFlavor) { showAlert('味を選んでください'); return; }
+    if (stepId && stepId.indexOf('drink-type') === 0) {
+      var si = stepId.replace('drink-type-',''); var dk = isNaN(parseInt(si)) ? null : parseInt(si);
+      if (!WZ.data[dk !== null ? 'drinkType'+dk : 'drinkType']) { showAlert('ドリンクを選んでください'); return; }
+    }
+    if (stepId && stepId.indexOf('drink-custom') === 0) {
+      var si2 = stepId.replace('drink-custom-',''); var dk2 = isNaN(parseInt(si2)) ? null : parseInt(si2);
+      var drink2 = DRINKS.find(function (d) { return d.id === WZ.data[dk2 !== null ? 'drinkType'+dk2 : 'drinkType']; });
+      if (drink2 && (drink2.hasTemp || drink2.hasIce) && !WZ.data[dk2 !== null ? 'drinkTemp'+dk2 : 'drinkTemp']) { showAlert('選択してください'); return; }
+    }
+    if (stepId === 'simple-option' && !WZ.data.simpleItem) { showAlert('種類を選んでください'); return; }
+    if (WZ.current === WZ.steps.length - 1) { addToCart(); closeWizard(); }
+    else { WZ.current++; renderStep(); }
+  }
+
+  function goBack() { if (WZ.current > 0) { WZ.current--; renderStep(); } }
+
+  function addToCart() {
+    var item, mode = WZ.mode;
+    if (mode === 'popcorn') {
+      var f = PC_FLAVORS.find(function (f) { return f.id === WZ.data.pcFlavor; });
+      var price = PC_BASE[WZ.config.size] + (f ? (f.priceAdd[WZ.config.size] || 0) : 0);
+      var lbl = f ? f.label : '';
+      if (WZ.data.pcFlavor === 'mix' && WZ.data.pcMixFlavors && WZ.data.pcMixFlavors.length > 0) {
+        var mixNames = WZ.data.pcMixFlavors.map(function (id) { var fm = PC_FLAVORS.find(function (f) { return f.id === id; }); return fm ? fm.label : id; });
+        lbl += '（' + mixNames.join('・') + '）';
+      }
+      item = { label:'🍿 ポップコーン ' + WZ.config.size.toUpperCase() + ' ' + lbl, price:price };
+    } else if (mode === 'drink') {
+      var d = DRINKS.find(function (d) { return d.id === WZ.data.drinkType; });
+      var tl = { hot:' ホット', iced:' アイス', ice:' 氷あり', 'no-ice':' 氷なし' }[WZ.data.drinkTemp] || '';
+      item = { label:'🥤 ドリンク ' + WZ.config.size.toUpperCase() + ' ' + (d ? d.label : '') + tl, price: d ? d.price[WZ.config.size] : 0 };
+    } else if (mode === 'set') {
+      var s = WZ.config.set;
+      var f4 = PC_FLAVORS.find(function (f) { return f.id === WZ.data.pcFlavor; });
+      var pc = PC_BASE[s.pcSize] + (f4 ? (f4.priceAdd[s.pcSize] || 0) : 0);
+      var dt = 0;
+      s.drinkSlots.forEach(function (sl, i) { var d4 = DRINKS.find(function (d) { return d.id === WZ.data['drinkType'+i]; }); if (d4) dt += d4.price[sl.size]; });
+      item = { label: s.icon + ' ' + s.name, price: pc + dt - s.discount };
+    } else if (mode === 'fries') {
+      var ft2 = FRIES_TYPES.find(function (t) { return t.id === WZ.data.friesType; });
+      var ff2 = FRIES_FLAVORS.find(function (f) { return f.id === WZ.data.friesFlavor; });
+      var friesTotal = (ft2 ? ft2.price : 0) + (ff2 ? (ff2.priceAdd || 0) : 0);
+      item = { label: '🍟 ' + (ft2 ? ft2.label : '') + '（' + (ff2 ? ff2.label : '') + '）', price: friesTotal };
+    } else if (mode === 'simple') {
+      var si3 = WZ.data.simpleItemData;
+      item = { label: SIMPLE_OPTIONS[WZ.config.item].title + ' ' + (si3 ? si3.label : ''), price: si3 ? si3.price : 0 };
+    }
+    if (item) { cart.push(item); renderCart(); }
+  }
+
+  // ── サイドバー：カート・合計金額の描画 ────────────────────────
+  function renderCart() {
+    var list = document.getElementById('js-cart-list');
+    var ticketTotal = 0;
+    if (MODE === 'wizard')  ticketTotal = seatData ? (seatData.totalPrice || 0) : 0;
+    if (MODE === 'booking') ticketTotal = reservationData ? (reservationData.totalAmount || 0) : 0;
+
+    list.innerHTML = '';
+    var foodTotal = 0;
+    if (cart.length === 0) {
+      var li = document.createElement('li'); li.className = 'cart-empty'; li.textContent = '未選択'; list.appendChild(li);
+    } else {
+      cart.forEach(function (item, idx) {
+        var li = document.createElement('li'); li.className = 'cart-item';
+        li.innerHTML = '<span class="cart-item__label">' + item.label + '</span><span class="cart-item__price">¥' + item.price.toLocaleString() + '</span><button class="cart-item__remove" data-idx="' + idx + '" aria-label="削除">×</button>';
+        list.appendChild(li);
+        foodTotal += item.price;
+      });
+      list.querySelectorAll('.cart-item__remove').forEach(function (btn) {
+        btn.addEventListener('click', function (e) { e.stopPropagation(); cart.splice(parseInt(btn.dataset.idx), 1); renderCart(); });
+      });
+    }
+    document.getElementById('js-cart-count').textContent = cart.length + '点';
+    document.getElementById('js-total-price').textContent = (ticketTotal + foodTotal).toLocaleString();
+  }
+
+  // ── カード／ウィザード起動 ────────────────────────────────────
+  document.querySelectorAll('[data-wz]').forEach(function (card) {
+    card.addEventListener('click', function (e) {
+      if (e.target.closest('.cart-item__remove')) return;
+      var mode = card.dataset.wz, config = {};
+      if (mode === 'popcorn') config.size = card.dataset.size;
+      if (mode === 'drink')   config.size = card.dataset.size;
+      if (mode === 'set')     config.set  = SETS.find(function (s) { return s.id === card.dataset.set; });
+      if (mode === 'simple')  config.item = card.dataset.item;
+      openWizard(mode, config);
+    });
+  });
+
+  document.getElementById('custom-alert-ok').addEventListener('click', function () {
+    document.getElementById('custom-alert').setAttribute('hidden', '');
+  });
+  document.getElementById('custom-alert-overlay').addEventListener('click', function () {
+    document.getElementById('custom-alert').setAttribute('hidden', '');
+  });
+
+  document.getElementById('wizard-close').addEventListener('click', closeWizard);
+  document.getElementById('wizard-overlay').addEventListener('click', closeWizard);
+  document.getElementById('wz-next').addEventListener('click', goNext);
+  document.getElementById('wz-back').addEventListener('click', goBack);
+
+  document.querySelectorAll('.category-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.category-tab').forEach(function (t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── サイドバー：上映・予約情報の反映（モードごと） ────────────
+  if (MODE === 'wizard' && seatData) {
+    if (seatData.movie)  document.getElementById('sb-movie-title').textContent  = seatData.movie;
+    if (seatData.time)   document.getElementById('sb-movie-time').textContent   = seatData.time;
+    if (seatData.screen) document.getElementById('sb-screen-detail').textContent= seatData.screen;
+    var nameMap = { small:'小学生以下', general:'一般', junior:'中学生・高校生', college:'大学生', senior:'シニア', oyako:'親子割', couple:'カップル割' };
+    var el = document.getElementById('js-sidebar-tickets');
+    if (seatData.tickets && seatData.tickets.length > 0) {
+      seatData.tickets.forEach(function (t) { var li = document.createElement('li'); li.textContent = '・' + (nameMap[t.type]||t.type) + '：' + t.count + '枚'; el.appendChild(li); });
+    } else {
+      var li2 = document.createElement('li'); li2.textContent = 'チケット情報なし'; el.appendChild(li2);
+    }
+  } else if (MODE === 'booking' && reservationData) {
+    if (reservationData.movieTitle)    document.getElementById('sb-booking-title').textContent = reservationData.movieTitle;
+    if (reservationData.screeningInfo) document.getElementById('sb-booking-time').textContent  = reservationData.screeningInfo;
+    var elB = document.getElementById('js-sidebar-tickets');
+    if (reservationData.seats && reservationData.seats.length > 0) {
+      var liB = document.createElement('li'); liB.textContent = '・座席：' + reservationData.seats.join('・'); elB.appendChild(liB);
+    }
+    var liB2 = document.createElement('li'); liB2.textContent = '・チケット金額：¥' + (reservationData.totalAmount || 0).toLocaleString(); elB.appendChild(liB2);
+  }
+
+  // ── 「次へ」ボタン：モードごとに遷移先・保存先が異なる ────────
+  document.getElementById('btn-next').addEventListener('click', function () {
+    if (MODE === 'wizard') {
+      var existing = JSON.parse(sessionStorage.getItem('halcinema_seats') || '{}');
+      existing.foods = cart.map(function (item) { return { name: item.label, price: item.price, count: 1 }; });
+      sessionStorage.setItem('halcinema_seats', JSON.stringify(existing));
+      window.location.href = 'order-confirm.html';
+    } else if (MODE === 'booking') {
+      var goodsCart = cart.map(function (item) { return { name: item.label, price: item.price, qty: 1 }; });
+      sessionStorage.setItem('goodsCart', JSON.stringify(goodsCart));
+      window.location.href = 'payment.html';
+    } else {
+      if (cart.length === 0) {
+        showAlert('カートに商品を追加してください。');
+        return;
+      }
+      if (!localStorage.getItem('hal_token')) {
+        alert('ご注文にはログインが必要です。ログイン画面に移動します。');
+        window.location.href = 'login.html?redirect=goods.html';
+        return;
+      }
+      var standaloneCart = cart.map(function (item) { return { name: item.label, price: item.price, qty: 1 }; });
+      sessionStorage.setItem('goodsCart', JSON.stringify(standaloneCart));
+      window.location.href = 'payment.html';
+    }
+  });
+
   renderCart();
-  renderItems(); // 予約フローの数量コントロールを更新
-});
 
-// ── パネル開閉ボタン ───────────────────────────────────────────
-document.getElementById('cart-toggle').addEventListener('click', openPanel);
-document.getElementById('cart-close').addEventListener('click', closePanel);
-cartOverlay.addEventListener('click', closePanel);
-
-// ── 単体ページ：注文ボタン ────────────────────────────────────
-const checkoutBtn = document.getElementById('cart-checkout');
-if (checkoutBtn) {
-  checkoutBtn.addEventListener('click', function () {
-    if (Object.keys(cart).length === 0) return;
-    alert('注文機能は準備中です。');
-  });
-}
-
-// ── 予約フロー：決済・スキップボタン ─────────────────────────
-const proceedBtn = document.getElementById('proceed-btn');
-const skipBtn    = document.getElementById('skip-btn');
-
-if (skipBtn) skipBtn.addEventListener('click', function () {
-  sessionStorage.setItem('goodsCart', JSON.stringify([]));
-  location.href = 'payment.html';
-});
-
-if (proceedBtn) proceedBtn.addEventListener('click', function () {
-  const cartArray = Object.values(cart).map(({ item, qty }) => ({
-    id: item.id, name: item.name, price: item.price, qty, img: item.img,
-  }));
-  sessionStorage.setItem('goodsCart', JSON.stringify(cartArray));
-  location.href = 'payment.html';
-});
-
-// ── カテゴリ切り替え ───────────────────────────────────────────
-document.querySelectorAll('.category-btn').forEach(btn => {
-  btn.addEventListener('click', function () {
-    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-    currentCategory = this.dataset.cat;
-    catTitle.innerHTML = TITLES[currentCategory];
-    sizeFilterGroup.style.display = currentCategory === 'goods' ? '' : 'none';
-    searchInput.value = ''; sizeFilter.value = 'all'; sortPrice.value = 'none';
-    renderItems();
-  });
-});
-
-searchInput.addEventListener('input',  renderItems);
-sizeFilter.addEventListener('change',  renderItems);
-sortPrice.addEventListener('change',   renderItems);
-
-// ── 初期表示 ───────────────────────────────────────────────────
-renderItems();
-renderCart();
+})();

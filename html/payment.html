@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>決済 | HAL CINEMA</title>
+  <script src="../js/config.js"></script>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/step-progress.css">
@@ -21,6 +22,7 @@
         <a href="goods.html">グッズ・物販</a>
         <a href="event.html">イベント情報</a>
         <a href="theater.html">劇場情報</a>
+        <a href="ai-chatbot.html">AIチャットボット</a>
       </nav>
       <div class="header-actions">
         <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
@@ -208,7 +210,11 @@
   var reservation = JSON.parse(sessionStorage.getItem('reservationData')  || '{}');
   var goodsCart   = JSON.parse(sessionStorage.getItem('goodsCart')         || '[]');
 
+  var API_BASE     = window.HAL_API_BASE;
   var isTicketFlow = !!ticketData;
+  // goods.html の単体訪問モード（グッズのみ、映画予約なし）からの注文。
+  // AIチャットボット予約後のグッズ購入（reservation.movieTitleあり）とはここで区別する。
+  var isGoodsOnlyFlow = !isTicketFlow && !reservation.movieTitle && goodsCart.length > 0;
   var baseAmount   = 0;
   var pointsUsed   = 0;
   var POINT_BALANCE = 1450;
@@ -439,7 +445,6 @@
     var payMethodCode  = { card: 1, paypay: 2, paypal: 2, cash: 3 }[method] || 1;
 
     if (isTicketFlow) {
-      var API_BASE   = 'http://localhost:8080';
       var scheduleId = ticketData.scheduleId || null;
       var seatIdList = (ticketData.seatIds || []).map(function(s){ return s.seatId; }).filter(Boolean);
 
@@ -556,6 +561,63 @@
       sessionStorage.setItem('reservationData', JSON.stringify(fbData));
       sessionStorage.removeItem('halcinema_seats');
       location.href = 'ticket.html';
+
+    } else if (isGoodsOnlyFlow) {
+      var token = localStorage.getItem('hal_token');
+      if (!token) {
+        alert('ご注文にはログインが必要です。');
+        location.href = 'login.html?redirect=goods.html';
+        nextBtn.disabled = false;
+        nextBtn.textContent = '次へ';
+        return;
+      }
+
+      try {
+        var orderRes = await fetch(API_BASE + '/api/goods-orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({
+            items: goodsCart.map(function(i) { return { name: i.name, price: i.price, qty: i.qty }; }),
+            paymentMethod: payMethodCode
+          })
+        });
+        var orderData = await orderRes.json();
+
+        if (orderRes.status === 401) {
+          localStorage.removeItem('hal_token');
+          localStorage.removeItem('hal_member');
+          alert('ログイン状態が無効になっていました。再度ログインしてください。');
+          location.href = 'login.html?redirect=goods.html';
+          nextBtn.disabled = false;
+          nextBtn.textContent = '次へ';
+          return;
+        }
+        if (!orderRes.ok) {
+          alert('注文に失敗しました: ' + (orderData.error || '不明なエラー'));
+          nextBtn.disabled = false;
+          nextBtn.textContent = '次へ';
+          return;
+        }
+
+        sessionStorage.setItem('latestGoodsOrder', JSON.stringify({
+          orderId:      orderData.orderId,
+          orderCode:    orderData.orderCode,
+          qrCode:       orderData.qrCode,
+          items:        goodsCart,
+          totalAmount:  orderData.totalAmount,
+          finalAmount:  finalAmount,
+          pointsUsed:   pointsUsed,
+          paymentMethod: method,
+          orderedAt:    orderData.orderedAt
+        }));
+        sessionStorage.removeItem('goodsCart');
+        location.href = 'ticket.html';
+      } catch (e) {
+        alert('通信エラーが発生しました。もう一度お試しください。');
+        nextBtn.disabled = false;
+        nextBtn.textContent = '次へ';
+      }
+      return;
 
     } else {
       reservation.paymentMethod = method;

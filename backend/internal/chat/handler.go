@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/miyaarekkusu/halcinema/backend/internal/ctxkeys"
 	"github.com/miyaarekkusu/halcinema/backend/internal/reservations"
@@ -41,12 +42,28 @@ func (h *Handler) Converse(w http.ResponseWriter, r *http.Request) {
 	case "assistant":
 		h.handleAssistant(w, r.Context(), req)
 	case "recommend":
-		h.handleRecommend(w, r.Context(), req)
+		h.handleRecommend(w, r.Context(), req, memberID)
 	case "reserve":
 		h.handleReserve(w, r.Context(), req, memberID)
 	default:
 		jsonError(w, "invalid intent", http.StatusBadRequest)
 	}
+}
+
+// requireLogin は「おすすめ映画」「AI予約」がログイン必須になったことに対する保険。
+// フロント（AIチャットボットページ）は未ログインなら入口でログインへ誘導するが、
+// /api/chat は optionalJWTMiddleware のままなので、直接APIを叩かれた場合に備えて
+// ハンドラ側でも memberID を確認する。
+func requireLogin(w http.ResponseWriter, req chatRequest, memberID int) bool {
+	if memberID > 0 {
+		return true
+	}
+	writeJSON(w, chatResponse{
+		Reply:    "この機能はログイン会員向けです。マイページ上部の「ログイン」からログインしてから、もう一度お試しください。",
+		Messages: req.Messages,
+		Slots:    req.Slots,
+	})
+	return false
 }
 
 func (h *Handler) handleAssistant(w http.ResponseWriter, ctx context.Context, req chatRequest) {
@@ -71,14 +88,23 @@ func (h *Handler) handleAssistant(w http.ResponseWriter, ctx context.Context, re
 	})
 }
 
-func (h *Handler) handleRecommend(w http.ResponseWriter, ctx context.Context, req chatRequest) {
+func (h *Handler) handleRecommend(w http.ResponseWriter, ctx context.Context, req chatRequest, memberID int) {
+	if !requireLogin(w, req, memberID) {
+		return
+	}
+
 	movies, err := listShowingMovies(h.db)
 	if err != nil {
 		writeFallback(w, req, "映画情報の取得に失敗しました。もう一度お試しください。")
 		return
 	}
 
-	raw, err := h.deepseek.Complete(ctx, recommendPrompt(movies), req.Messages)
+	genreHistory, err := memberGenreHistory(h.db, memberID, 3)
+	if err != nil {
+		genreHistory = nil // 取得失敗してもレコメンド自体は続行する（参考情報でしかないため）
+	}
+
+	raw, err := h.deepseek.Complete(ctx, recommendPrompt(movies, genreHistory), req.Messages)
 	if err != nil {
 		writeFallback(w, req, "只今混み合っております。少し時間をおいて再度お試しください。")
 		return
@@ -114,7 +140,23 @@ func (h *Handler) handleRecommend(w http.ResponseWriter, ctx context.Context, re
 }
 
 func (h *Handler) handleReserve(w http.ResponseWriter, ctx context.Context, req chatRequest, memberID int) {
+	if !requireLogin(w, req, memberID) {
+		return
+	}
+
 	slots := req.Slots
+
+	// 決定的処理0a: 映画・人数は決まっているが日にちが未選択→今週(7日間)の日にちをその場で提示。DeepSeekは呼ばない。
+	if slots.MovieID > 0 && slots.SeatCount > 0 && slots.ShowDate == "" && slots.ScheduleID == 0 {
+		h.presentDatePicker(w, req.Messages, slots)
+		return
+	}
+
+	// 決定的処理0b: 日にちは決まっているが上映回が未選択→その日の上映時間をその場で提示。DeepSeekは呼ばない。
+	if slots.MovieID > 0 && slots.SeatCount > 0 && slots.ShowDate != "" && slots.ScheduleID == 0 {
+		h.presentSchedulePicker(w, req.Messages, slots)
+		return
+	}
 
 	// 決定的処理1: 映画・上映回・人数は決まっているが座席が未選択→(再)提示。DeepSeekは呼ばない。
 	if slots.MovieID > 0 && slots.ScheduleID > 0 && slots.SeatCount > 0 && len(slots.SeatIDs) == 0 {
@@ -135,10 +177,9 @@ func (h *Handler) handleReserve(w http.ResponseWriter, ctx context.Context, req 
 	case slots.MovieID == 0:
 		promptCtx.Stage = reserveStageMovie
 		promptCtx.Movies, err = listShowingMovies(h.db)
-	case slots.ScheduleID == 0:
-		promptCtx.Stage = reserveStageSchedule
-		promptCtx.Schedules, err = listSchedulesForMovie(h.db, slots.MovieID)
 	case slots.SeatCount == 0:
+		// 人数は日程より先に聞く（「何名か」→「いつ・今週のどの回か」の順）。
+		// 上映回はここでは聞かない：人数が決まった時点で決定的処理0（presentSchedulePicker）に進む。
 		promptCtx.Stage = reserveStageSeatCount
 	default: // 座席は選択済み・支払い方法だけ未定
 		promptCtx.Stage = reserveStagePayment
@@ -167,6 +208,18 @@ func (h *Handler) handleReserve(w http.ResponseWriter, ctx context.Context, req 
 	merged := mergeSlots(h.db, slots, parsed.Slots, memberID)
 	messages := appendAssistantTurn(req.Messages, raw)
 
+	// マージ後に映画・人数が揃ったら、ここでも日にちピッカーへ（LLM抜き）
+	if merged.MovieID > 0 && merged.SeatCount > 0 && merged.ShowDate == "" && merged.ScheduleID == 0 {
+		h.presentDatePicker(w, messages, merged)
+		return
+	}
+
+	// マージ後に日にちも決まっていたら、ここでも上映回ピッカーへ（LLM抜き）
+	if merged.MovieID > 0 && merged.SeatCount > 0 && merged.ShowDate != "" && merged.ScheduleID == 0 {
+		h.presentSchedulePicker(w, messages, merged)
+		return
+	}
+
 	// マージ後に映画・上映回・人数が揃ったら、ここでも座席ピッカーへ（LLM抜き）
 	if merged.MovieID > 0 && merged.ScheduleID > 0 && merged.SeatCount > 0 && len(merged.SeatIDs) == 0 {
 		h.presentSeatPicker(w, messages, merged, parsed.Reply)
@@ -180,6 +233,122 @@ func (h *Handler) handleReserve(w http.ResponseWriter, ctx context.Context, req 
 	}
 
 	writeJSON(w, chatResponse{Reply: parsed.Reply, Messages: messages, Slots: merged})
+}
+
+// presentDatePicker は今週（本日から7日間）のうち、この映画の上映がある日にちを
+// その場で提示する。DeepSeekのプロース生成に頼らず決定的にリストを返す
+// （座席選択・予約確定と同じ「決定的処理」の方針）。日にちが決まったら
+// presentSchedulePicker でその日の上映時間だけを絞り込んで提示する。
+func (h *Handler) presentDatePicker(w http.ResponseWriter, messages []chatMessage, slots Slots) {
+	schedules, err := listSchedulesForMovie(h.db, slots.MovieID)
+	if err != nil {
+		writeJSON(w, chatResponse{
+			Reply:    "上映スケジュールの取得に失敗しました。もう一度お試しください。",
+			Messages: messages,
+			Slots:    slots,
+		})
+		return
+	}
+
+	if len(schedules) == 0 {
+		nextDate, dateErr := nextAvailableDate(h.db, slots.MovieID)
+		reply := "今後の上映予定が見つかりませんでした。恐れ入りますが別の作品をお選びください。"
+		switch {
+		case dateErr != nil:
+			reply = "上映スケジュールの取得に失敗しました。もう一度お試しください。"
+		case nextDate != "":
+			reply = fmt.Sprintf("今週はこの映画の上映がありません。次に上映があるのは%sです。恐れ入りますが「上映スケジュール」ページまたは通常予約からお探しください。", nextDate)
+		}
+		writeJSON(w, chatResponse{Reply: reply, Messages: messages, Slots: slots})
+		return
+	}
+
+	// 週内の日にちを、上映がある日だけ・上映順のまま重複なく抽出する
+	// （listSchedulesForMovie が日付・時刻順で返すため、初出順=日付順になる）。
+	seen := map[string]bool{}
+	var dates []string
+	for _, s := range schedules {
+		if !seen[s.ShowDate] {
+			seen[s.ShowDate] = true
+			dates = append(dates, s.ShowDate)
+		}
+	}
+
+	datePayload := make([]map[string]any, len(dates))
+	for i, d := range dates {
+		datePayload[i] = map[string]any{"date": d}
+	}
+
+	writeJSON(w, chatResponse{
+		Reply:    "ご希望の日にちをお選びください。",
+		Messages: messages,
+		Slots:    slots,
+		UIAction: &UIAction{
+			Type:  "date_picker",
+			Dates: datePayload,
+		},
+	})
+}
+
+// presentSchedulePicker は presentDatePicker で選ばれた日にちの上映時間一覧を
+// その場で提示する。DeepSeekは呼ばない（決定的処理）。
+func (h *Handler) presentSchedulePicker(w http.ResponseWriter, messages []chatMessage, slots Slots) {
+	all, err := listSchedulesForMovie(h.db, slots.MovieID)
+	if err != nil {
+		writeJSON(w, chatResponse{
+			Reply:    "上映スケジュールの取得に失敗しました。もう一度お試しください。",
+			Messages: messages,
+			Slots:    slots,
+		})
+		return
+	}
+
+	var schedules []ScheduleInfo
+	for _, s := range all {
+		if s.ShowDate == slots.ShowDate {
+			schedules = append(schedules, s)
+		}
+	}
+
+	if len(schedules) == 0 {
+		// 直前の日にち選択後に上映状況が変わった等のレアケース→日にち選択からやり直させる
+		resetSlots := slots
+		resetSlots.ShowDate = ""
+		h.presentDatePicker(w, messages, resetSlots)
+		return
+	}
+
+	schedulePayload := make([]map[string]any, len(schedules))
+	for i, s := range schedules {
+		schedulePayload[i] = map[string]any{
+			"scheduleId":     s.ScheduleID,
+			"screenName":     s.ScreenName,
+			"showDate":       s.ShowDate,
+			"startTime":      s.StartTime,
+			"availableSeats": s.AvailableSeats,
+		}
+	}
+
+	writeJSON(w, chatResponse{
+		Reply:    fmt.Sprintf("%sの上映時間です。ご希望の回をお選びください。", formatDateJP(slots.ShowDate)),
+		Messages: messages,
+		Slots:    slots,
+		UIAction: &UIAction{
+			Type:      "schedule_picker",
+			Schedules: schedulePayload,
+		},
+	})
+}
+
+// formatDateJP は "2026-09-17" を "9/17(木)" のような表示用文字列に変換する。
+// パースに失敗した場合は元の文字列をそのまま返す。
+func formatDateJP(dateStr string) string {
+	t, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		return dateStr
+	}
+	weekdays := [...]string{"日", "月", "火", "水", "木", "金", "土"}
+	return fmt.Sprintf("%d/%d(%s)", t.Month(), t.Day(), weekdays[t.Weekday()])
 }
 
 func (h *Handler) presentSeatPicker(w http.ResponseWriter, messages []chatMessage, slots Slots, reply string) {
@@ -246,6 +415,7 @@ func (h *Handler) finalizeReservation(w http.ResponseWriter, messages []chatMess
 		Slots:    Slots{}, // 予約完了。同じ会話で続けて別の予約もできるようリセット
 		UIAction: &UIAction{
 			Type:            "reservation_confirmed",
+			ReservationID:   result.ReservationID,
 			ReservationCode: result.ReservationCode,
 			TotalAmount:     result.TotalAmount,
 			Tickets:         result.Tickets,
@@ -264,6 +434,7 @@ func mergeSlots(db *gorm.DB, current, incoming Slots, memberID int) Slots {
 
 	if incoming.MovieID > 0 && movieExists(db, incoming.MovieID) {
 		if incoming.MovieID != merged.MovieID {
+			merged.ShowDate = ""
 			merged.ScheduleID = 0
 			merged.SeatIDs = nil
 			merged.PaymentMethod = 0

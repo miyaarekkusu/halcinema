@@ -4,22 +4,24 @@ package chat
 // DBには保存せず、フロントとの往復（リクエスト/レスポンス）だけで状態を持ち回す。
 // 0 / 空配列 = 未確定を表す（既存コードの memberID==0=ゲスト 等と同じ流儀）。
 type Slots struct {
-	MovieID       int   `json:"movieId"`
-	ScheduleID    int   `json:"scheduleId"`
-	SeatCount     int   `json:"seatCount"`
-	SeatIDs       []int `json:"seatIds"`
-	PaymentMethod int   `json:"paymentMethod"`
-	CardID        int   `json:"cardId"`
+	MovieID       int    `json:"movieId"`
+	ShowDate      string `json:"showDate"` // YYYY-MM-DD。空文字=未確定（日にち選択→上映回選択の順で決める）
+	ScheduleID    int    `json:"scheduleId"`
+	SeatCount     int    `json:"seatCount"`
+	SeatIDs       []int  `json:"seatIds"`
+	PaymentMethod int    `json:"paymentMethod"`
+	CardID        int    `json:"cardId"`
 }
 
 // MovieInfo はDeepSeekへのコンテキスト注入・recommend応答の両方で使う映画情報。
 type MovieInfo struct {
-	MovieID  int    `json:"movieId"`
-	Title    string `json:"title"`
-	Genre    string `json:"genre"`
-	Duration int    `json:"duration"`
-	Rating   string `json:"rating"`
-	Synopsis string `json:"synopsis"`
+	MovieID    int    `json:"movieId"`
+	Title      string `json:"title"`
+	Genre      string `json:"genre"`
+	Duration   int    `json:"duration"`
+	Rating     string `json:"rating"`
+	Synopsis   string `json:"synopsis"`
+	PosterSlug string `json:"posterSlug,omitempty"`
 }
 
 // ScheduleInfo はAI予約で上映回選択の材料としてDeepSeekへ渡す情報。
@@ -49,9 +51,12 @@ type chatRequest struct {
 // フロントに描画させるための指示。DeepSeekは関与しない。
 type UIAction struct {
 	Type            string           `json:"type"`
+	Dates           []map[string]any `json:"dates,omitempty"`
 	ScheduleID      int              `json:"scheduleId,omitempty"`
+	Schedules       []map[string]any `json:"schedules,omitempty"`
 	Seats           []map[string]any `json:"seats,omitempty"`
 	Prices          []map[string]any `json:"prices,omitempty"`
+	ReservationID   int              `json:"reservationId,omitempty"`
 	ReservationCode string           `json:"reservationCode,omitempty"`
 	TotalAmount     int              `json:"totalAmount,omitempty"`
 	Tickets         []map[string]any `json:"tickets,omitempty"`

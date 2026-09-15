@@ -240,6 +240,22 @@
   }
 
   /* ──────────────────────────────────────────────────────────
+     4.5 認証エラー(401)の共通処理
+     hal_token は存在チェックのみでヘッダーの表示を切り替えているため、
+     期限切れ・秘密鍵変更等で無効化したトークンが残っていても
+     見た目上は「ログイン済み」のままになってしまう。
+     各ページはAPIが401を返した時にこれを呼び、トークンを破棄して
+     ヘッダーをログアウト状態に戻す（＝再ログインが必要なことを可視化する）。
+     ────────────────────────────────────────────────────────── */
+  function handleUnauthorized() {
+    localStorage.removeItem('hal_token');
+    localStorage.removeItem('hal_member');
+    initAuthHeader();
+  }
+
+  window.HALAuth = { handleUnauthorized: handleUnauthorized };
+
+  /* ──────────────────────────────────────────────────────────
      5. DOM 準備後に全初期化
      ────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {

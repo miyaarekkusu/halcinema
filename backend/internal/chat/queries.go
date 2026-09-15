@@ -12,13 +12,14 @@ import (
 // 各パッケージが同じテーブルに対する軽量なGORMモデルをそれぞれ持つ）。
 
 type movieRow struct {
-	MovieID   int    `gorm:"column:f_movie_id"`
-	Title     string `gorm:"column:f_title"`
-	Genre     string `gorm:"column:f_genre"`
-	Duration  *int   `gorm:"column:f_duration"`
-	Rating    string `gorm:"column:f_rating"`
-	Synopsis  string `gorm:"column:f_synopsis"`
-	IsShowing int    `gorm:"column:f_is_showing"`
+	MovieID    int    `gorm:"column:f_movie_id"`
+	Title      string `gorm:"column:f_title"`
+	Genre      string `gorm:"column:f_genre"`
+	Duration   *int   `gorm:"column:f_duration"`
+	Rating     string `gorm:"column:f_rating"`
+	Synopsis   string `gorm:"column:f_synopsis"`
+	PosterSlug string `gorm:"column:f_poster_slug"`
+	IsShowing  int    `gorm:"column:f_is_showing"`
 }
 
 func (movieRow) TableName() string { return "t_movie" }
@@ -35,12 +36,13 @@ func listShowingMovies(db *gorm.DB) ([]MovieInfo, error) {
 			duration = *r.Duration
 		}
 		movies[i] = MovieInfo{
-			MovieID:  r.MovieID,
-			Title:    r.Title,
-			Genre:    r.Genre,
-			Duration: duration,
-			Rating:   r.Rating,
-			Synopsis: r.Synopsis,
+			MovieID:    r.MovieID,
+			Title:      r.Title,
+			Genre:      r.Genre,
+			Duration:   duration,
+			Rating:     r.Rating,
+			Synopsis:   r.Synopsis,
+			PosterSlug: r.PosterSlug,
 		}
 	}
 	return movies, nil
@@ -62,8 +64,8 @@ type scheduleRow struct {
 }
 
 // listSchedulesForMovie は指定映画の販売中(f_status=0)の上映回一覧を、
-// 直近のものから最大20件だけ返す（上映期間が長い映画だと数十〜数百件になり、
-// そのままDeepSeekのプロンプトに載せるとコンテキストが肥大化するため）。
+// 「今週（本日から7日間）」に絞って返す（AI予約で「今週のスケジュールの中から」
+// 選んでもらうため。上映期間が長い映画でも今週分だけならコンテキストが肥大化しない）。
 // schedules.Handler.List と同じJOIN構成（t_schedule + t_screen + t_seat_stock集計）。
 func listSchedulesForMovie(db *gorm.DB, movieID int) ([]ScheduleInfo, error) {
 	var rows []scheduleRow
@@ -77,9 +79,9 @@ func listSchedulesForMovie(db *gorm.DB, movieID int) ([]ScheduleInfo, error) {
 		JOIN t_screen sc ON sc.f_screen_id = s.f_screen_id
 		LEFT JOIN t_seat_stock ss ON ss.f_schedule_id = s.f_schedule_id
 		WHERE s.f_movie_id = ? AND s.f_status = 0
+		  AND s.f_show_date >= CURRENT_DATE AND s.f_show_date < CURRENT_DATE + INTERVAL '7 days'
 		GROUP BY s.f_schedule_id, sc.f_screen_name
 		ORDER BY s.f_show_date, s.f_start_time
-		LIMIT 20
 	`, movieID).Scan(&rows).Error
 	if err != nil {
 		return nil, err
@@ -95,6 +97,57 @@ func listSchedulesForMovie(db *gorm.DB, movieID int) ([]ScheduleInfo, error) {
 		}
 	}
 	return schedules, nil
+}
+
+// nextAvailableDate は「今週（7日間）」より先で、その映画の上映が最初にある日付を返す。
+// 今週分に1件も無かった場合のフォールバック案内（「一番近い日程は◯月◯日です」）に使う。
+// 見つからない場合は空文字を返す。
+func nextAvailableDate(db *gorm.DB, movieID int) (string, error) {
+	var date *string
+	err := db.Raw(`
+		SELECT CAST(MIN(f_show_date) AS TEXT)
+		FROM t_schedule
+		WHERE f_movie_id = ? AND f_status = 0
+		  AND f_show_date >= CURRENT_DATE + INTERVAL '7 days'
+	`, movieID).Scan(&date).Error
+	if err != nil {
+		return "", err
+	}
+	if date == nil {
+		return "", nil
+	}
+	return *date, nil
+}
+
+type genreCountRow struct {
+	Genre string `gorm:"column:f_genre"`
+}
+
+// memberGenreHistory はそのメンバーが過去に予約した映画のジャンルを、予約件数が
+// 多い順に返す（新規テーブルなしで既存の予約実績だけを根拠にした軽量パーソナライズ）。
+func memberGenreHistory(db *gorm.DB, memberID int, limit int) ([]string, error) {
+	if memberID <= 0 {
+		return nil, nil
+	}
+	var rows []genreCountRow
+	err := db.Raw(`
+		SELECT m.f_genre AS f_genre, COUNT(*) AS cnt
+		FROM t_reservation r
+		JOIN t_schedule s ON s.f_schedule_id = r.f_schedule_id
+		JOIN t_movie m ON m.f_movie_id = s.f_movie_id
+		WHERE r.f_member_id = ?
+		GROUP BY m.f_genre
+		ORDER BY cnt DESC
+		LIMIT ?
+	`, memberID, limit).Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	genres := make([]string, len(rows))
+	for i, r := range rows {
+		genres[i] = r.Genre
+	}
+	return genres, nil
 }
 
 // scheduleBelongsToMovie は scheduleId が実在し、かつ movieId の上映回であることを確認する。

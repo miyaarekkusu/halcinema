@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>マイページ | HAL CINEMA</title>
+  <script src="../js/config.js"></script>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
   <link rel="stylesheet" href="../css/mypage.css">
@@ -21,6 +22,7 @@
         <a href="goods.html">グッズ・物販</a>
         <a href="event.html">イベント情報</a>
         <a href="theater.html">劇場情報</a>
+        <a href="ai-chatbot.html">AIチャットボット</a>
       </nav>
       <div class="header-actions">
         <a href="mypage.html" class="mypage-nav-btn active">
@@ -63,6 +65,12 @@
           <div class="ticket-list" id="ticket-list">
             <p class="zaseki-empty-msg" id="ticket-empty-msg" style="padding:32px 0;text-align:center;color:var(--c-text-muted);font-size:14px;">予約済みのチケットはありません</p>
           </div>
+
+          <h2 class="mypage-panel-title" style="margin-top:40px;">ご注文履歴（グッズ・売店）</h2>
+
+          <div class="ticket-list" id="goods-order-list">
+            <p class="zaseki-empty-msg" id="goods-order-empty-msg" style="padding:32px 0;text-align:center;color:var(--c-text-muted);font-size:14px;">ご注文履歴はありません</p>
+          </div>
         </section>
 
         <!-- ─── 支払方法 ─── -->
@@ -91,15 +99,15 @@
           <div class="settings-section">
             <div class="settings-section-header">プロフィール</div>
             <div class="settings-section-body">
-              <div class="settings-row">
+              <div class="settings-row" id="settings-row-name">
                 <span class="settings-row-label">お名前</span>
-                <span class="settings-row-value">山田 太郎</span>
-                <button class="btn btn-secondary btn-sm">編集</button>
+                <span class="settings-row-value" id="settings-name-value">山田 太郎</span>
+                <button class="btn btn-secondary btn-sm settings-edit-btn" id="settings-name-edit-btn" data-field="name">編集</button>
               </div>
-              <div class="settings-row">
+              <div class="settings-row" id="settings-row-email">
                 <span class="settings-row-label">メールアドレス</span>
-                <span class="settings-row-value">example@email.com</span>
-                <button class="btn btn-secondary btn-sm">編集</button>
+                <span class="settings-row-value" id="settings-email-value">example@email.com</span>
+                <button class="btn btn-secondary btn-sm settings-edit-btn" id="settings-email-edit-btn" data-field="email">編集</button>
               </div>
               <div class="settings-row">
                 <span class="settings-row-label">電話番号</span>
@@ -116,7 +124,7 @@
               <div class="settings-row">
                 <span class="settings-row-label">パスワード</span>
                 <span class="settings-row-value">••••••••</span>
-                <button class="btn btn-secondary btn-sm">変更</button>
+                <button class="btn btn-secondary btn-sm" id="password-change-btn">変更</button>
               </div>
             </div>
           </div>
@@ -240,6 +248,57 @@
     </div>
   </div>
 
+  <!-- グッズ注文詳細モーダル（css/ticket.css の .ticket-card テンプレートを流用） -->
+  <div id="goods-order-modal-backdrop" class="tm-backdrop">
+    <div class="ticket-card tm-modal" id="goods-order-modal">
+
+      <div class="ticket-card-header">
+        <span class="ticket-header-logo">HAL <span>CINEMA</span></span>
+        <div class="tm-header-right">
+          <span class="ticket-admit">受付済み</span>
+          <button id="goods-modal-close" class="tm-close-btn" aria-label="閉じる">×</button>
+        </div>
+      </div>
+
+      <div class="ticket-card-body">
+
+        <div class="ticket-info-side">
+          <div>
+            <p class="ticket-movie-title">🍿 グッズ・売店ご注文</p>
+          </div>
+          <div class="ticket-detail-table">
+            <div class="ticket-detail-row">
+              <span class="ticket-detail-label">注文日時</span>
+              <span class="ticket-detail-value" id="goods-modal-datetime">—</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span class="ticket-detail-label">注文番号</span>
+              <span class="ticket-detail-value" id="goods-modal-order-id">—</span>
+            </div>
+          </div>
+          <div id="goods-modal-items" class="tm-goods-body" style="margin-top:10px;"></div>
+          <div class="ticket-amount-row">
+            <span class="ticket-amount-label">お支払金額</span>
+            <span class="ticket-amount-value" id="goods-modal-amount">0</span>
+            <span class="ticket-amount-unit">円（税込）</span>
+          </div>
+        </div>
+
+        <div class="ticket-divider"></div>
+
+        <div class="ticket-qr-side">
+          <p class="ticket-qr-label">受取用 QR コード</p>
+          <div id="goods-modal-qr" class="tm-qr-canvas"></div>
+        </div>
+
+      </div>
+
+      <div class="ticket-card-footer">
+        ※ お受け取りの際にQRコードをスタッフにご提示ください
+      </div>
+    </div>
+  </div>
+
   <!-- カード追加モーダル -->
   <div id="card-modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;overflow-y:auto;padding:40px 16px;">
     <div style="background:var(--c-bg-2);border:1px solid var(--c-border-em);border-radius:16px;max-width:400px;margin:0 auto;overflow:hidden;">
@@ -282,6 +341,37 @@
     </div>
   </div>
 
+  <!-- パスワード変更モーダル -->
+  <div id="password-modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;overflow-y:auto;padding:40px 16px;">
+    <div style="background:var(--c-bg-2);border:1px solid var(--c-border-em);border-radius:16px;max-width:400px;margin:0 auto;overflow:hidden;">
+      <div style="background:var(--c-red);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:16px;font-weight:800;color:#fff;">パスワードを変更</span>
+        <button type="button" id="password-modal-close" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
+      </div>
+      <form id="password-change-form" style="padding:22px 24px;display:flex;flex-direction:column;gap:14px;">
+        <label style="font-size:13px;color:var(--c-text-muted);">
+          現在のパスワード
+          <input type="password" id="password-current-input" required autocomplete="current-password"
+                 style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--c-border-em);background:var(--c-bg-1);color:var(--c-text);">
+        </label>
+        <label style="font-size:13px;color:var(--c-text-muted);">
+          新しいパスワード
+          <input type="password" id="password-new-input" minlength="8" required autocomplete="new-password"
+                 style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--c-border-em);background:var(--c-bg-1);color:var(--c-text);">
+        </label>
+        <label style="font-size:13px;color:var(--c-text-muted);">
+          新しいパスワード（確認）
+          <input type="password" id="password-new-confirm-input" minlength="8" required autocomplete="new-password"
+                 style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--c-border-em);background:var(--c-bg-1);color:var(--c-text);">
+        </label>
+        <p style="font-size:11px;color:var(--c-text-muted);line-height:1.6;">
+          ※ 8文字以上で入力してください。
+        </p>
+        <button type="submit" class="btn btn-primary" style="margin-top:4px;">変更する</button>
+      </form>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="../js/common.js" defer></script>
   <script src="../js/chatbot.js" defer></script>
@@ -299,17 +389,165 @@
       });
     });
 
-    var API_BASE   = 'http://localhost:8080';
+    var API_BASE   = window.HAL_API_BASE;
     var POSTER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>';
 
     // ── ログイン状態の反映 ──────────────────────────────────
+    var settingsToken = localStorage.getItem('hal_token');
     var member = JSON.parse(localStorage.getItem('hal_member') || 'null');
-    if (member) {
-      var nameEl = document.querySelector('.settings-row-value');
-      if (nameEl) nameEl.textContent = (member.lastName || '') + ' ' + (member.firstName || '');
-      var emailEl = document.querySelectorAll('.settings-row-value')[1];
-      if (emailEl) emailEl.textContent = member.email || '';
+
+    function applyMemberToSettings(m) {
+      if (!m) return;
+      var nameEl  = document.getElementById('settings-name-value');
+      var emailEl = document.getElementById('settings-email-value');
+      if (nameEl)  nameEl.textContent  = ((m.lastName || '') + ' ' + (m.firstName || '')).trim();
+      if (emailEl) emailEl.textContent = m.email || '';
     }
+    applyMemberToSettings(member);
+
+    // localStorageのキャッシュではなく最新のDB値を表示する（他端末で変更された場合等に備える）
+    if (settingsToken) {
+      fetch(API_BASE + '/api/me', { headers: { 'Authorization': 'Bearer ' + settingsToken } })
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (fresh) {
+          if (!fresh) return;
+          member = { id: fresh.id, lastName: fresh.lastName, firstName: fresh.firstName, email: fresh.email };
+          localStorage.setItem('hal_member', JSON.stringify(member));
+          applyMemberToSettings(member);
+        })
+        .catch(function () { /* オフライン時はキャッシュ表示のまま続行 */ });
+    }
+
+    // ── プロフィール（お名前・メールアドレス）インライン編集 ──────
+    function startInlineEdit(field, valueEl, editBtn) {
+      if (!settingsToken) { alert('編集するにはログインが必要です。'); return; }
+
+      var input = document.createElement('input');
+      input.type = field === 'email' ? 'email' : 'text';
+      input.className = 'form-input';
+      input.value = valueEl.textContent;
+      input.style.maxWidth = '260px';
+
+      var saveBtn = document.createElement('button');
+      saveBtn.type = 'button';
+      saveBtn.className = 'btn btn-primary btn-sm';
+      saveBtn.textContent = '保存';
+
+      var cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'btn btn-ghost btn-sm';
+      cancelBtn.textContent = 'キャンセル';
+
+      valueEl.replaceWith(input);
+      editBtn.replaceWith(saveBtn);
+      saveBtn.insertAdjacentElement('afterend', cancelBtn);
+      input.focus();
+
+      function restore(newValue) {
+        input.replaceWith(valueEl);
+        saveBtn.replaceWith(editBtn);
+        cancelBtn.remove();
+        if (newValue !== undefined) valueEl.textContent = newValue;
+      }
+
+      cancelBtn.addEventListener('click', function () { restore(); });
+
+      saveBtn.addEventListener('click', async function () {
+        var newValue = input.value.trim();
+        if (!newValue) { alert('入力してください。'); return; }
+        if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newValue)) {
+          alert('メールアドレスの形式が正しくありません。');
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = '保存中…';
+        try {
+          var body = {};
+          body[field] = newValue;
+          var res = await fetch(API_BASE + '/api/me', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + settingsToken },
+            body: JSON.stringify(body)
+          });
+          var data = await res.json();
+          if (!res.ok) {
+            alert(field === 'email' && res.status === 409
+              ? 'このメールアドレスは既に使用されています。'
+              : '更新に失敗しました: ' + (data.error || '不明なエラー'));
+            saveBtn.disabled = false;
+            saveBtn.textContent = '保存';
+            return;
+          }
+
+          member = { id: data.id, lastName: data.lastName, firstName: data.firstName, email: data.email };
+          localStorage.setItem('hal_member', JSON.stringify(member));
+
+          var displayValue = field === 'name'
+            ? ((data.lastName || '') + ' ' + (data.firstName || '')).trim()
+            : (data.email || '');
+          restore(displayValue);
+        } catch (e) {
+          alert('通信に失敗しました。もう一度お試しください。');
+          saveBtn.disabled = false;
+          saveBtn.textContent = '保存';
+        }
+      });
+    }
+
+    document.getElementById('settings-name-edit-btn').addEventListener('click', function () {
+      startInlineEdit('name', document.getElementById('settings-name-value'), document.getElementById('settings-name-edit-btn'));
+    });
+    document.getElementById('settings-email-edit-btn').addEventListener('click', function () {
+      startInlineEdit('email', document.getElementById('settings-email-value'), document.getElementById('settings-email-edit-btn'));
+    });
+
+    // ── パスワード変更 ──────────────────────────────────────
+    var passwordModalEl = document.getElementById('password-modal-backdrop');
+    var passwordForm    = document.getElementById('password-change-form');
+
+    document.getElementById('password-change-btn').addEventListener('click', function () {
+      if (!settingsToken) { alert('パスワードを変更するにはログインが必要です。'); return; }
+      passwordModalEl.style.display = 'block';
+    });
+
+    function closePasswordModal() {
+      passwordModalEl.style.display = 'none';
+      passwordForm.reset();
+    }
+    document.getElementById('password-modal-close').addEventListener('click', closePasswordModal);
+    passwordModalEl.addEventListener('click', function (e) {
+      if (e.target === passwordModalEl) closePasswordModal();
+    });
+
+    passwordForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var current    = document.getElementById('password-current-input').value;
+      var next       = document.getElementById('password-new-input').value;
+      var nextConfirm = document.getElementById('password-new-confirm-input').value;
+
+      if (next.length < 8) { alert('新しいパスワードは8文字以上で入力してください。'); return; }
+      if (next !== nextConfirm) { alert('新しいパスワード（確認）が一致しません。'); return; }
+
+      try {
+        var res = await fetch(API_BASE + '/api/me/password', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + settingsToken },
+          body: JSON.stringify({ currentPassword: current, newPassword: next })
+        });
+        if (!res.ok) {
+          var err = await res.json().catch(function () { return {}; });
+          alert(res.status === 401
+            ? '現在のパスワードが正しくありません。'
+            : 'パスワードの変更に失敗しました: ' + (err.error || '不明なエラー'));
+          return;
+        }
+        alert('パスワードを変更しました。');
+        closePasswordModal();
+      } catch (e) {
+        alert('通信に失敗しました。もう一度お試しください。');
+      }
+    });
 
     // ログアウト
     document.getElementById('logout-btn').addEventListener('click', function () {
@@ -361,7 +599,10 @@
       fetch(API_BASE + '/api/me/reservations', {
         headers: { 'Authorization': 'Bearer ' + token }
       })
-      .then(function(r) { return r.ok ? r.json() : []; })
+      .then(function(r) {
+        if (r.status === 401) { window.HALAuth && window.HALAuth.handleUnauthorized(); return []; }
+        return r.ok ? r.json() : [];
+      })
       .then(function(reservations) {
         if (!Array.isArray(reservations) || reservations.length === 0) return;
         reservations.forEach(function(r) {
@@ -381,9 +622,15 @@
       .catch(function() {});
     }
 
-    // ── 最新チケット（sessionStorage）をリスト先頭に追加 ──
-    var latest = JSON.parse(sessionStorage.getItem('latestTicket') || 'null')
-    if (latest && (latest.reservationId || latest.reservationCode)) {
+    // ── 最新チケット（sessionStorage）をリスト先頭に追加 ─────────
+    // Web予約（ticket.html）・AI予約（chatbot.js）のどちらも同じ形で
+    // sessionStorage['latestTicket'] に保存するため、読み込みロジックを共通化する。
+    var addedTicketKeys = {}
+    function addLatestTicket(latest) {
+      if (!latest || !(latest.reservationId || latest.reservationCode)) return
+      var key = String(latest.reservationId || latest.reservationCode)
+      if (addedTicketKeys[key]) return
+      addedTicketKeys[key] = true
       addTicketItem({
         id:       latest.reservationId,
         code:     latest.reservationCode,
@@ -397,21 +644,22 @@
         status:   'reserved',
         tickets:  latest.tickets || [],
         foods:    latest.foods || []
-      }, true);
+      }, true)
     }
+    addLatestTicket(JSON.parse(sessionStorage.getItem('latestTicket') || 'null'))
+
+    // AI予約はこのページを開いたまま（チャットポップアップ経由で）完了することがあるため、
+    // chatbot.js が飛ばす halcinema:ticketAdded を受けて再読み込みなしで即座に反映する。
+    window.addEventListener('halcinema:ticketAdded', function (e) {
+      addLatestTicket(e.detail)
+    })
 
     // ── チケット詳細モーダル ──────────────────────────────────
     var backdrop  = document.getElementById('ticket-modal-backdrop')
     var qrListEl  = document.getElementById('modal-qr-list')
 
-    // 座席1つ＝チケット1枚分のQRコードブロックを描画する
-    function renderTicketQR(ticket, fallbackSeats, fallbackId) {
-      var seatLabel = ticket.rowLabel
-        ? (ticket.rowLabel + '列 ' + ticket.seatNumber + '番')
-        : (fallbackSeats || '—')
-      var qrValue = ticket.qrCode || fallbackId || 'HAL-CINEMA'
-      var isUsed  = ticket.status === 2 || ticket.status === 3
-
+    // 1予約＝1枚のQRコードブロックを描画する（座席が複数あっても分割しない）
+    function renderTicketQR(qrValue, seatLabel, isUsed) {
       var block = document.createElement('div')
       block.className = 'tm-qr-block'
 
@@ -482,13 +730,18 @@
     function openTicketModal(data) {
       qrListEl.innerHTML = ''
 
-      var tickets = Array.isArray(data.tickets) && data.tickets.length > 0
-        ? data.tickets
-        : [{}]  // チケット明細が無い場合は予約ID自体をQRにしたブロックを1枚だけ表示
+      var tickets = Array.isArray(data.tickets) ? data.tickets : []
 
-      tickets.forEach(function (t) {
-        renderTicketQR(t, data.seats, data.id)
-      })
+      // 座席ラベルは各チケット行から組み立てる（座席1つ＝1行だが、QRは共通の1枚分）
+      var seatLabels = tickets
+        .filter(function (t) { return t.rowLabel })
+        .map(function (t) { return t.rowLabel + t.seatNumber })
+        .join('、')
+      var seatsText = seatLabels || data.seats || '—'
+      var qrValue   = (tickets[0] && tickets[0].qrCode) || data.code || data.id || 'HAL-CINEMA'
+      var isUsed    = tickets.some(function (t) { return t.status === 2 || t.status === 3 })
+
+      renderTicketQR(qrValue, seatsText, isUsed)
 
       document.getElementById('modal-reservation-id').textContent = data.code || data.id || '—'
       document.getElementById('modal-status-badge').textContent   = data.status === 'reserved' ? '予約済み' : '使用済み'
@@ -496,7 +749,7 @@
       document.getElementById('modal-format').textContent   = data.format || ''
       document.getElementById('modal-screen').textContent   = data.screen   || '—'
       document.getElementById('modal-datetime').textContent = data.datetime || '—'
-      document.getElementById('modal-seats').textContent    = data.seats    || '—'
+      document.getElementById('modal-seats').textContent    = seatsText
       document.getElementById('modal-count').textContent    = data.count    || '—'
       document.getElementById('modal-amount').textContent   = Number(data.amount || 0).toLocaleString()
 
@@ -557,6 +810,147 @@
       })
     })
 
+    // ── グッズ注文履歴一覧に追加 ─────────────────────────────
+    function addGoodsOrderItem(data, prepend) {
+      var item = document.createElement('div')
+      item.className = 'ticket-item'
+      item.setAttribute('data-order-id',   data.orderId || '')
+      item.setAttribute('data-order-code', data.orderCode || '')
+      item.setAttribute('data-amount',     String(data.totalAmount || 0))
+      item.setAttribute('data-ordered-at', data.orderedAt || '')
+      item.setAttribute('data-items',      data.items && data.items.length ? JSON.stringify(data.items) : '')
+      item.setAttribute('data-qr',         data.qrCode || '')
+      item.innerHTML =
+        '<div class="ticket-poster">🛍️</div>'
+        + '<div class="ticket-info">'
+        + '<p class="ticket-title">注文番号 ' + (data.orderCode || '—') + '</p>'
+        + '<p class="ticket-meta">' + (data.itemCount !== undefined ? data.itemCount + '点　' : '') + '¥' + Number(data.totalAmount || 0).toLocaleString() + '</p>'
+        + '</div>'
+        + '<div class="ticket-actions">'
+        + '<span class="badge badge-green">受付済み</span>'
+        + '<button class="btn btn-ghost btn-sm goods-order-detail-btn">詳細</button>'
+        + '</div>'
+      var list = document.getElementById('goods-order-list')
+      document.getElementById('goods-order-empty-msg').style.display = 'none'
+      if (prepend) list.insertBefore(item, list.firstChild)
+      else list.appendChild(item)
+    }
+
+    // ── API からグッズ注文履歴を取得 ────────────────────────
+    var addedGoodsOrderKeys = {}
+    if (token) {
+      fetch(API_BASE + '/api/me/goods-orders', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(r) {
+        if (r.status === 401) { window.HALAuth && window.HALAuth.handleUnauthorized(); return []; }
+        return r.ok ? r.json() : [];
+      })
+      .then(function(orders) {
+        if (!Array.isArray(orders)) return
+        orders.forEach(function(o) {
+          var key = String(o.orderId)
+          if (addedGoodsOrderKeys[key]) return
+          addedGoodsOrderKeys[key] = true
+          addGoodsOrderItem(o, false)
+        })
+      })
+      .catch(function() {})
+    }
+
+    // ── 最新のグッズ注文（sessionStorage）をリスト先頭に追加 ─────
+    var latestGoodsOrder = JSON.parse(sessionStorage.getItem('latestGoodsOrder') || 'null')
+    if (latestGoodsOrder && (latestGoodsOrder.orderId || latestGoodsOrder.orderCode)) {
+      var latestKey = String(latestGoodsOrder.orderId || latestGoodsOrder.orderCode)
+      if (!addedGoodsOrderKeys[latestKey]) {
+        addedGoodsOrderKeys[latestKey] = true
+        addGoodsOrderItem({
+          orderId:     latestGoodsOrder.orderId,
+          orderCode:   latestGoodsOrder.orderCode,
+          totalAmount: latestGoodsOrder.finalAmount !== undefined ? latestGoodsOrder.finalAmount : latestGoodsOrder.totalAmount,
+          orderedAt:   latestGoodsOrder.orderedAt,
+          items:       latestGoodsOrder.items || [],
+          itemCount:   (latestGoodsOrder.items || []).reduce(function(s, i) { return s + (i.qty || 1) }, 0),
+          qrCode:      latestGoodsOrder.qrCode
+        }, true)
+      }
+    }
+
+    // ── グッズ注文詳細モーダル ──────────────────────────────
+    var goodsOrderBackdrop = document.getElementById('goods-order-modal-backdrop')
+    var goodsModalQrEl     = document.getElementById('goods-modal-qr')
+    var goodsModalItemsEl  = document.getElementById('goods-modal-items')
+
+    function openGoodsOrderModal(data) {
+      document.getElementById('goods-modal-order-id').textContent = data.orderCode || '—'
+      document.getElementById('goods-modal-datetime').textContent = data.orderedAt ? new Date(data.orderedAt).toLocaleString('ja-JP') : '—'
+      document.getElementById('goods-modal-amount').textContent   = Number(data.totalAmount || 0).toLocaleString()
+
+      var items = Array.isArray(data.items) ? data.items : []
+      goodsModalItemsEl.innerHTML = items.map(function (i) {
+        return '<div class="tm-goods-row">'
+          + '<span class="tm-goods-row-name">' + i.name + ' ×' + i.qty + '</span>'
+          + '<span class="tm-goods-row-price">' + (Number(i.price || 0) * i.qty).toLocaleString() + ' 円</span>'
+          + '</div>'
+      }).join('')
+
+      goodsModalQrEl.innerHTML = ''
+      new QRCode(goodsModalQrEl, {
+        text        : data.qrCode || data.orderCode || 'HAL-CINEMA',
+        width       : 130,
+        height      : 130,
+        colorDark   : '#000000',
+        colorLight  : '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      })
+
+      goodsOrderBackdrop.style.display = 'block'
+      document.body.style.overflow = 'hidden'
+    }
+
+    function closeGoodsOrderModal() {
+      goodsOrderBackdrop.style.display = 'none'
+      document.body.style.overflow = ''
+    }
+
+    document.getElementById('goods-modal-close').addEventListener('click', closeGoodsOrderModal)
+    goodsOrderBackdrop.addEventListener('click', function (e) {
+      if (e.target === goodsOrderBackdrop) closeGoodsOrderModal()
+    })
+
+    // 詳細ボタンに委譲。一覧APIには明細・QRを含まないため、開く直前に遅延取得する
+    document.getElementById('goods-order-list').addEventListener('click', async function (e) {
+      if (!e.target.classList.contains('goods-order-detail-btn')) return
+      var item = e.target.closest('.ticket-item')
+
+      var items = []
+      try { items = JSON.parse(item.dataset.items || '[]') } catch (parseErr) { items = [] }
+      var qrCode = item.dataset.qr || ''
+
+      if (items.length === 0 && item.dataset.orderId && token) {
+        try {
+          var res = await fetch(API_BASE + '/api/me/goods-orders/' + item.dataset.orderId, {
+            headers: { 'Authorization': 'Bearer ' + token }
+          })
+          if (res.ok) {
+            var detail = await res.json()
+            items  = detail.items || []
+            qrCode = detail.qrCode || ''
+            item.setAttribute('data-items', JSON.stringify(items))
+            item.setAttribute('data-qr', qrCode)
+          }
+        } catch (fetchErr) {}
+      }
+
+      openGoodsOrderModal({
+        orderCode:   item.dataset.orderCode,
+        orderedAt:   item.dataset.orderedAt,
+        totalAmount: item.dataset.amount,
+        items:       items,
+        qrCode:      qrCode
+      })
+    })
+
     // ── 支払方法（クレジットカード）管理 ──────────────────────
     var cardToken       = localStorage.getItem('hal_token')
     var cardListEl      = document.getElementById('payment-card-list')
@@ -586,7 +980,10 @@
     function loadCards() {
       if (!cardToken) return
       fetch(API_BASE + '/api/me/cards', { headers: { 'Authorization': 'Bearer ' + cardToken } })
-        .then(function(r) { return r.ok ? r.json() : [] })
+        .then(function(r) {
+          if (r.status === 401) { window.HALAuth && window.HALAuth.handleUnauthorized(); return []; }
+          return r.ok ? r.json() : [];
+        })
         .then(function(list) {
           cardListEl.innerHTML = ''
           if (!Array.isArray(list) || list.length === 0) {

@@ -1,15 +1,18 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>チャットボット | HAL CINEMA</title>
+  <title>AIチャットボット | HAL CINEMA</title>
   <script src="../js/config.js"></script>
   <link rel="stylesheet" href="../css/common.css">
   <link rel="stylesheet" href="../css/chatbot.css">
+  <!-- ログイン必須ページ：本文描画前に未ログインならログインへリダイレクトする -->
+  <script src="../js/ai-chatbot-guard.js"></script>
 </head>
-<!-- data-no-widget="true" でポップアップウィジェットの自動挿入を抑止 -->
-<body data-no-widget="true">
+<!-- data-chat-mode="chatbot" でおすすめ映画／AI予約の2択モードにする。
+     ポップアップ（アシスタント）はこのページでも利用できるよう残す -->
+<body data-chat-mode="chatbot">
 
   <!-- ヘッダー -->
   <header class="site-header">
@@ -18,10 +21,10 @@
       <nav class="site-nav" id="site-nav">
         <a href="index.html">上映スケジュール</a>
         <a href="movies.html">作品一覧</a>
+        <a href="ai-chatbot.html" class="active">AIチャットボット</a>
         <a href="goods.html">グッズ・物販</a>
         <a href="event.html">イベント情報</a>
         <a href="theater.html">劇場情報</a>
-        <a href="ai-chatbot.html">AIチャットボット</a>
       </nav>
       <div class="header-actions">
         <a href="login.html" class="btn btn-ghost btn-sm">ログイン</a>
@@ -57,7 +60,7 @@
           </svg>
         </div>
         <div class="chatbot-header-info">
-          <p class="chatbot-name">HAL アシスタント</p>
+          <p class="chatbot-name">HAL AIチャットボット</p>
           <p class="chatbot-status">● オンライン</p>
         </div>
         <button class="chatbot-icon-btn" id="history-btn-full" title="会話履歴" aria-label="会話履歴">
@@ -98,12 +101,12 @@
           </div>
           <div>
             <div class="msg-bubble">
-              こんにちは！HALシネマのアシスタントです。<br>
-              上映スケジュール・予約・劇場案内など、なんでもお気軽にご質問ください。
+              こんにちは！HALシネマのAIチャットボットです。<br>
+              おすすめ映画・AI予約をお手伝いします。お気軽にご相談ください。
             </div>
             <div class="msg-footer">
               <span class="msg-time">--:--</span>
-              <button class="speak-btn" data-text="こんにちは！HALシネマのアシスタントです。上映スケジュール・予約・劇場案内など、なんでもお気軽にご質問ください。">
+              <button class="speak-btn" data-text="こんにちは！HALシネマのAIチャットボットです。おすすめ映画・AI予約をお手伝いします。お気軽にご相談ください。">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
                   <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
@@ -117,12 +120,10 @@
           </div>
         </div>
 
-        <!-- クイックリプライ -->
+        <!-- クイックリプライ（JS初期化時に「おすすめ映画を聞く」「AIで予約する」の2択へ差し替わる） -->
         <div class="quick-replies" id="quick-replies-full">
-          <button class="quick-reply-btn">今日の上映スケジュール</button>
-          <button class="quick-reply-btn">座席の予約方法</button>
-          <button class="quick-reply-btn">料金について</button>
-          <button class="quick-reply-btn">劇場へのアクセス</button>
+          <button class="quick-reply-btn">おすすめ映画を聞く</button>
+          <button class="quick-reply-btn">AIで予約する</button>
         </div>
 
       </div>
