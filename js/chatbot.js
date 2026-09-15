@@ -497,9 +497,11 @@
     return Number(parts[1]) + '/' + Number(parts[2]) + '(' + wd + ')';
   }
 
-  /* ── 日にちピッカー：今週(7日間)のうち上映がある日をその場でボタン表示 ──
-     ここで日にちを1つ選んでから、その日の上映時間一覧（buildSchedulePickerBlock）
-     に進む2段階フロー。 */
+  /* ── 日にちピッカー：今後14日間のうち上映がある日を1週間ずつボタン表示 ──
+     作品詳細ページ(movie-detail.html)の日付タブ（前週/次週ボタン）と同じ
+     操作感にするため、7件ずつページ送りする（rich.page に現在ページを
+     保持し、再表示時にも同じページを保つ）。日にちを1つ選ぶと、その日の
+     上映時間一覧（buildSchedulePickerBlock）に進む2段階フロー。 */
   function buildDatePickerBlock(block, containerId, rich) {
     var store = getStore(containerId);
     var payload = rich.payload || {};
@@ -508,42 +510,86 @@
     if (!dates.length) {
       var empty = document.createElement('p');
       empty.className = 'schedule-picker-empty';
-      empty.textContent = '今週の上映日はありません。';
+      empty.textContent = '直近2週間の上映日はありません。';
       block.appendChild(empty);
       return;
     }
 
+    var PAGE_SIZE  = 7;
+    var totalPages = Math.ceil(dates.length / PAGE_SIZE);
+    var page       = rich.page || 0;
+
+    var nav = document.createElement('div');
+    nav.className = 'date-picker-nav';
+
+    var prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.className = 'date-picker-arrow';
+    prevBtn.setAttribute('aria-label', '前の週');
+    prevBtn.innerHTML = '&#8249;';
+
     var list = document.createElement('div');
     list.className = 'date-picker-list';
 
-    dates.forEach(function (d) {
-      var dateLabel = formatScheduleDate(d.date);
+    var nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'date-picker-arrow';
+    nextBtn.setAttribute('aria-label', '次の週');
+    nextBtn.innerHTML = '&#8250;';
 
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'date-picker-btn';
-      btn.disabled = !!rich.answered;
-      btn.textContent = dateLabel;
+    function renderPage() {
+      list.innerHTML = '';
+      var start = page * PAGE_SIZE;
+      dates.slice(start, start + PAGE_SIZE).forEach(function (d) {
+        var dateLabel = formatScheduleDate(d.date);
 
-      if (!rich.answered) {
-        btn.addEventListener('click', function () {
-          list.querySelectorAll('.date-picker-btn').forEach(function (b) { b.disabled = true; });
-          block.classList.add('is-answered');
-          rich.answered = true;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'date-picker-btn';
+        btn.disabled = !!rich.answered;
+        btn.textContent = dateLabel;
 
-          store.state.slots.showDate = d.date;
-          saveState(store);
+        if (!rich.answered) {
+          btn.addEventListener('click', function () {
+            nav.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+            block.classList.add('is-answered');
+            rich.answered = true;
 
-          var text = dateLabel + 'を予約したいです。';
-          recordAndRender(containerId, { role: 'user', text: text });
-          sendToChat(containerId, text);
-        });
-      }
+            store.state.slots.showDate = d.date;
+            saveState(store);
 
-      list.appendChild(btn);
+            var text = dateLabel + 'を予約したいです。';
+            recordAndRender(containerId, { role: 'user', text: text });
+            sendToChat(containerId, text);
+          });
+        }
+
+        list.appendChild(btn);
+      });
+
+      prevBtn.disabled = !!rich.answered || page === 0;
+      nextBtn.disabled = !!rich.answered || page >= totalPages - 1;
+    }
+
+    prevBtn.addEventListener('click', function () {
+      if (rich.answered || page === 0) return;
+      page -= 1;
+      rich.page = page;
+      renderPage();
+    });
+    nextBtn.addEventListener('click', function () {
+      if (rich.answered || page >= totalPages - 1) return;
+      page += 1;
+      rich.page = page;
+      renderPage();
     });
 
-    block.appendChild(list);
+    renderPage();
+
+    nav.appendChild(prevBtn);
+    nav.appendChild(list);
+    nav.appendChild(nextBtn);
+    block.appendChild(nav);
   }
 
   function buildSchedulePickerBlock(block, containerId, rich) {

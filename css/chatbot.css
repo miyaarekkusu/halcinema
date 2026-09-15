@@ -947,6 +947,36 @@
   max-width: 100%;
 }
 
+.date-picker-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-picker-arrow {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-3);
+  color: var(--c-text-sub);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.date-picker-arrow:hover:not(:disabled) {
+  background: var(--c-bg-4);
+  color: var(--c-text);
+}
+
+.date-picker-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .date-picker-list {
   display: flex;
   flex-wrap: wrap;

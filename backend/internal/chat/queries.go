@@ -71,8 +71,9 @@ type scheduleRow struct {
 }
 
 // listSchedulesForMovie は指定映画の販売中(f_status=0)の上映回一覧を、
-// 「今週（本日から7日間）」に絞って返す（AI予約で「今週のスケジュールの中から」
-// 選んでもらうため。上映期間が長い映画でも今週分だけならコンテキストが肥大化しない）。
+// 「今日から14日間」（movie-detail.htmlの日付タブと同じ範囲・schema.sqlのシード
+// 期間と同じ）に絞って返す。AI予約の日にちピッカーはこれを1週間ずつページ送りで
+// 表示する（作品詳細ページの前週/次週ボタンと同じ操作感にするため）。
 // schedules.Handler.List と同じJOIN構成（t_schedule + t_screen + t_seat_stock集計）。
 func listSchedulesForMovie(db *gorm.DB, movieID int) ([]ScheduleInfo, error) {
 	var rows []scheduleRow
@@ -86,7 +87,7 @@ func listSchedulesForMovie(db *gorm.DB, movieID int) ([]ScheduleInfo, error) {
 		JOIN t_screen sc ON sc.f_screen_id = s.f_screen_id
 		LEFT JOIN t_seat_stock ss ON ss.f_schedule_id = s.f_schedule_id
 		WHERE s.f_movie_id = ? AND s.f_status = 0
-		  AND s.f_show_date >= CURRENT_DATE AND s.f_show_date < CURRENT_DATE + INTERVAL '7 days'
+		  AND s.f_show_date >= CURRENT_DATE AND s.f_show_date < CURRENT_DATE + INTERVAL '14 days'
 		GROUP BY s.f_schedule_id, sc.f_screen_name
 		ORDER BY s.f_show_date, s.f_start_time
 	`, movieID).Scan(&rows).Error
@@ -106,8 +107,9 @@ func listSchedulesForMovie(db *gorm.DB, movieID int) ([]ScheduleInfo, error) {
 	return schedules, nil
 }
 
-// nextAvailableDate は「今週（7日間）」より先で、その映画の上映が最初にある日付を返す。
-// 今週分に1件も無かった場合のフォールバック案内（「一番近い日程は◯月◯日です」）に使う。
+// nextAvailableDate は listSchedulesForMovie の範囲（14日間）より先で、
+// その映画の上映が最初にある日付を返す。範囲内に1件も無かった場合の
+// フォールバック案内（「一番近い日程は◯月◯日です」）に使う。
 // 見つからない場合は空文字を返す。
 func nextAvailableDate(db *gorm.DB, movieID int) (string, error) {
 	var date *string
@@ -115,7 +117,7 @@ func nextAvailableDate(db *gorm.DB, movieID int) (string, error) {
 		SELECT CAST(MIN(f_show_date) AS TEXT)
 		FROM t_schedule
 		WHERE f_movie_id = ? AND f_status = 0
-		  AND f_show_date >= CURRENT_DATE + INTERVAL '7 days'
+		  AND f_show_date >= CURRENT_DATE + INTERVAL '14 days'
 	`, movieID).Scan(&date).Error
 	if err != nil {
 		return "", err

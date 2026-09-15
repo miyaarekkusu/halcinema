@@ -151,7 +151,7 @@ func (h *Handler) handleReserve(w http.ResponseWriter, ctx context.Context, req 
 
 	slots := req.Slots
 
-	// 決定的処理0a: 映画・人数は決まっているが日にちが未選択→今週(7日間)の日にちをその場で提示。DeepSeekは呼ばない。
+	// 決定的処理0a: 映画・人数は決まっているが日にちが未選択→今後14日間の日にちをその場で提示。DeepSeekは呼ばない。
 	if slots.MovieID > 0 && slots.SeatCount > 0 && slots.ShowDate == "" && slots.ScheduleID == 0 {
 		h.presentDatePicker(w, req.Messages, slots)
 		return
@@ -253,10 +253,12 @@ func (h *Handler) handleReserve(w http.ResponseWriter, ctx context.Context, req 
 	writeJSON(w, chatResponse{Reply: parsed.Reply, Messages: messages, Slots: merged})
 }
 
-// presentDatePicker は今週（本日から7日間）のうち、この映画の上映がある日にちを
+// presentDatePicker は今日から14日間のうち、この映画の上映がある日にちを
 // その場で提示する。DeepSeekのプロース生成に頼らず決定的にリストを返す
-// （座席選択・予約確定と同じ「決定的処理」の方針）。日にちが決まったら
-// presentSchedulePicker でその日の上映時間だけを絞り込んで提示する。
+// （座席選択・予約確定と同じ「決定的処理」の方針）。フロント側で1週間ずつ
+// ページ送り表示する（movie-detail.htmlの日付タブと同じ操作感）。
+// 日にちが決まったら presentSchedulePicker でその日の上映時間だけを
+// 絞り込んで提示する。
 func (h *Handler) presentDatePicker(w http.ResponseWriter, messages []chatMessage, slots Slots) {
 	schedules, err := listSchedulesForMovie(h.db, slots.MovieID)
 	if err != nil {
@@ -275,13 +277,13 @@ func (h *Handler) presentDatePicker(w http.ResponseWriter, messages []chatMessag
 		case dateErr != nil:
 			reply = "上映スケジュールの取得に失敗しました。もう一度お試しください。"
 		case nextDate != "":
-			reply = fmt.Sprintf("今週はこの映画の上映がありません。次に上映があるのは%sです。恐れ入りますが「上映スケジュール」ページまたは通常予約からお探しください。", nextDate)
+			reply = fmt.Sprintf("直近2週間はこの映画の上映がありません。次に上映があるのは%sです。恐れ入りますが「上映スケジュール」ページまたは通常予約からお探しください。", nextDate)
 		}
 		writeJSON(w, chatResponse{Reply: reply, Messages: messages, Slots: slots})
 		return
 	}
 
-	// 週内の日にちを、上映がある日だけ・上映順のまま重複なく抽出する
+	// 14日間の日にちを、上映がある日だけ・上映順のまま重複なく抽出する
 	// （listSchedulesForMovie が日付・時刻順で返すため、初出順=日付順になる）。
 	seen := map[string]bool{}
 	var dates []string
