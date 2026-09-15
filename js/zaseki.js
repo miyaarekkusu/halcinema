@@ -382,32 +382,8 @@ window.addEventListener('pageshow', (e) => {
     if (!seatsRes.ok) return
     const seatData = await seatsRes.json()
 
-    // ラベルマップを構築
-    ;(seatData.seats || []).forEach(s => {
-      seatMapByLabel[`${s.rowLabel}-${s.seatNumber}`] = s
-    })
-
-    // 既存の座席オブジェクトに実際の在庫状況を反映
-    // （この時点ではまだ何も選択されていないため、無条件に上書きしてよい）
-    seatObjects.forEach(obj => {
-      const info = seatMapByLabel[obj.label]
-      if (!info) return
-
-      obj.group.userData.seatId = info.seatId
-      const newState = info.status === 0 ? STATE_AVAILABLE : STATE_TAKEN
-
-      if (newState !== obj.state) {
-        setSeatState(obj, newState)
-        if (newState === STATE_TAKEN) {
-          const idx = clickableGroups.indexOf(obj.group)
-          if (idx !== -1) clickableGroups.splice(idx, 1)
-        } else if (newState === STATE_AVAILABLE && !clickableGroups.includes(obj.group)) {
-          clickableGroups.push(obj.group)
-        }
-      }
-    })
-
-    // 2Dグリッドも更新
+    // 初回はまだ何も選択されていないので、座席オブジェクトへ無条件に反映してよい
+    applySeatStatuses(seatData.seats, { seedSeatId: true })
     buildTwoDMap()
 
   } catch (e) {
@@ -415,8 +391,68 @@ window.addEventListener('pageshow', (e) => {
   } finally {
     seatsReady = true
     restoreSavedSeats()
+    startSeatPolling()
   }
 })()
+
+// ─── 座席状況の反映（初回ロード・ポーリング共通） ───────────────────
+// info.status: 0=空席 / それ以外=予約済み・仮押さえ中。
+// 自分が今まさに選択中(STATE_SELECTED)の座席は上書きしない——「次へ」押下時
+// のhold APIが最終的な整合性（他人と競合していないか）を保証するため、
+// ポーリングでここが横から状態を変えてユーザーの選択を消す必要はない。
+function applySeatStatuses(seats, { seedSeatId = false } = {}) {
+  ;(seats || []).forEach(s => {
+    const label = `${s.rowLabel}-${s.seatNumber}`
+    seatMapByLabel[label] = s
+
+    const obj = seatObjects.find(o => o.label === label)
+    if (!obj || obj.state === STATE_SELECTED) return
+    if (seedSeatId) obj.group.userData.seatId = s.seatId
+
+    const newState = s.status === 0 ? STATE_AVAILABLE : STATE_TAKEN
+    if (newState !== obj.state) {
+      setSeatState(obj, newState)
+      if (newState === STATE_TAKEN) {
+        const idx = clickableGroups.indexOf(obj.group)
+        if (idx !== -1) clickableGroups.splice(idx, 1)
+      } else if (newState === STATE_AVAILABLE && !clickableGroups.includes(obj.group)) {
+        clickableGroups.push(obj.group)
+      }
+    }
+  })
+}
+
+// ─── リアルタイム更新（ポーリング） ──────────────────────────────
+// 他のお客様の仮押さえ・予約確定・解放（このタブでの「戻る」操作を含む）を
+// 数秒おきに反映する。これが無いと、例えば他人が仮押さえ解放しても、
+// 既にこのページを開いている人の画面では「予約できない」ままになってしまう。
+const SEAT_POLL_INTERVAL_MS = 5000
+let seatPollTimer = null
+
+function startSeatPolling() {
+  stopSeatPolling()
+  if (!_halScheduleId) return
+  seatPollTimer = setInterval(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/schedules/${_halScheduleId}/seats`)
+      if (!res.ok) return
+      const data = await res.json()
+      applySeatStatuses(data.seats)
+      buildTwoDMap()
+    } catch (e) {
+      // 次回のポーリングでリトライされるので、ここでは何もしない
+    }
+  }, SEAT_POLL_INTERVAL_MS)
+}
+
+function stopSeatPolling() {
+  if (seatPollTimer) {
+    clearInterval(seatPollTimer)
+    seatPollTimer = null
+  }
+}
+
+window.addEventListener('pagehide', stopSeatPolling)
 
 // ─── Raycaster ────────────────────────────────────────────────────
 const raycaster = new THREE.Raycaster()
