@@ -66,7 +66,7 @@
      state = そのモードで現在アクティブなスレッド（intent/messages/slots/log）。
      ────────────────────────────────────────────────────────── */
   function emptySlots() {
-    return { movieId: 0, showDate: '', scheduleId: 0, seatCount: 0, seatIds: [], paymentMethod: 0, cardId: 0 };
+    return { movieId: 0, showDate: '', scheduleId: 0, seatCount: 0, seatIds: [], holdToken: '', paymentMethod: 0, cardId: 0 };
   }
 
   function generateThreadId() {
@@ -167,6 +167,9 @@
   }
 
   function startNewChat(containerId) {
+    // 進行中のAI予約があれば座席仮押さえを解放してから新規チャットへ切り替える
+    // （common.js、ヘッダーからの離脱時と同じ仕組み）。
+    if (window.HALSeatHold) window.HALSeatHold.release();
     closeHistoryPanel(containerId);
     var store = getStore(containerId);
     store.state = createThread();
@@ -183,6 +186,9 @@
     var found = null;
     for (var i = 0; i < store.threads.length; i++) { if (store.threads[i].id === id) { found = store.threads[i]; break; } }
     if (!found) return;
+
+    // 切り替え元のスレッドで進行中のAI予約があれば座席仮押さえを解放する。
+    if (window.HALSeatHold) window.HALSeatHold.release();
 
     closeHistoryPanel(containerId);
     store.state = found;
@@ -924,21 +930,69 @@
     confirmBtn.className = 'rich-confirm-btn';
     confirmBtn.textContent = '選択した座席で確定';
     confirmBtn.disabled = true;
-    confirmBtn.addEventListener('click', function () {
+    // 「選択した座席で確定」：Web予約(zaseki.js)と同じ座席仮押さえ(hold)を取得
+    // してから次へ進む。他のお客様がその間に取ってしまっていた場合は409が
+    // 返るので、その座席だけ選択解除してもう一度選んでもらう。
+    confirmBtn.addEventListener('click', async function () {
       var chosen = Object.keys(selected).map(function (id) { return selected[id]; });
       if (!chosen.length) return;
 
       confirmBtn.disabled = true;
+      confirmBtn.textContent = '座席を確保しています…';
+
+      var seatIds   = chosen.map(function (s) { return s.seatId; });
+      var scheduleId = store.state.slots.scheduleId;
+      var holdToken  = (crypto.randomUUID ? crypto.randomUUID() : ('hold-' + Date.now() + '-' + Math.random().toString(36).slice(2)));
+
+      try {
+        var holdRes = await fetch(API_BASE + '/api/schedules/' + scheduleId + '/hold', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ seatIds: seatIds, holdToken: holdToken })
+        });
+
+        if (holdRes.status === 409) {
+          var data = await holdRes.json().catch(function () { return {}; });
+          var unavailable = data.unavailable || [];
+          alert('選択された座席の一部はちょうど他のお客様が手続き中です。お手数ですが別の座席をお選びください。');
+          unavailable.forEach(function (seatId) {
+            var seat = selected[seatId];
+            if (!seat) return;
+            delete selected[seatId];
+            var btnEl = grid.querySelector('.seat-grid-btn[data-seat-id="' + seatId + '"]');
+            if (btnEl) { btnEl.classList.remove('selected'); btnEl.classList.add('taken'); btnEl.disabled = true; }
+          });
+          var count = Object.keys(selected).length;
+          updateCountHint(count);
+          renderSelectedTags();
+          confirmBtn.disabled = count !== requiredCount;
+          confirmBtn.textContent = '選択した座席で確定';
+          return;
+        }
+        if (!holdRes.ok) {
+          alert('座席の確保に失敗しました。もう一度お試しください。');
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = '選択した座席で確定';
+          return;
+        }
+      } catch (e) {
+        console.warn('仮押さえAPIに接続できませんでした（オフラインで続行）:', e);
+      }
+
+      try {
+        sessionStorage.setItem('halcinema_hold', JSON.stringify({ token: holdToken, scheduleId: scheduleId, seatIds: seatIds }));
+      } catch (e) { /* ignore */ }
+
       grid.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
       block.classList.add('is-answered');
       rich.answered = true;
-      saveState(store);
 
       var labels = chosen
         .sort(function (a, b) { return a.seatNumber - b.seatNumber; })
         .map(function (s) { return s.rowLabel + s.seatNumber; });
 
-      store.state.slots.seatIds = chosen.map(function (s) { return s.seatId; });
+      store.state.slots.seatIds = seatIds;
+      store.state.slots.holdToken = holdToken;
       saveState(store);
       renderSelectedTags();
 
@@ -1202,6 +1256,10 @@
           recordAndRender(containerId, { role: 'bot', rich: { kind: data.uiAction.type, payload: data.uiAction } });
           if (data.uiAction.type === 'reservation_confirmed') {
             publishConfirmedTicket(data.uiAction);
+            // 予約が確定したので座席仮押さえの記録も消す（本予約済みでサーバー側の
+            // 在庫はf_stock_status=1に切り替わっており、そのままでもリリース処理は
+            // 無害だが、ヘッダー離脱時に無駄なrelease-hold呼び出しをしないため）。
+            try { sessionStorage.removeItem('halcinema_hold'); } catch (e) { /* ignore */ }
           }
         }
       })

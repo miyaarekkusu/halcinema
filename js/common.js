@@ -256,13 +256,59 @@
   window.HALAuth = { handleUnauthorized: handleUnauthorized };
 
   /* ──────────────────────────────────────────────────────────
-     5. DOM 準備後に全初期化
+     5. 座席仮押さえの解放（予約フロー途中でヘッダーから離脱した場合）
+     zaseki.htmlで「次へ」を押すとsessionStorage.halcinema_holdに
+     {token, scheduleId, seatIds} が保存され、10分間その座席が仮押さえ
+     される。予約完了時（payment.html）やzaseki.htmlへの再訪問時
+     （releaseStaleHold、zaseki.js側）は既にこのキーを消しているが、
+     ticket-select.html〜payment.htmlの途中でヘッダーのロゴ／ナビから
+     離脱した場合はそのままだと10分間のタイムアウト任せになってしまう。
+     ここでは「戻る」ボタン（フロー内の前ページへの history.back()）は
+     対象外にする——まだ予約継続中の可能性があり、そこで解放すると
+     再度「次へ」を押したときに他人に座席を取られるレースを生むため。
+     ヘッダーのロゴ・ナビリンクのクリックだけは、どのページからでも
+     フロー全体からの離脱を意味するので解放対象にする。
+     ────────────────────────────────────────────────────────── */
+  function releaseSeatHoldIfAny() {
+    var raw = sessionStorage.getItem('halcinema_hold');
+    if (!raw) return;
+    sessionStorage.removeItem('halcinema_hold');
+    try {
+      var hold = JSON.parse(raw);
+      if (!hold || !hold.scheduleId || !hold.token) return;
+      var apiBase = window.HAL_API_BASE || 'http://localhost:8080';
+      var url     = apiBase + '/api/schedules/' + hold.scheduleId + '/release-hold';
+      var payload = JSON.stringify({ seatIds: hold.seatIds || [], holdToken: hold.token });
+      // ページ遷移中でも確実に送るため、可能ならsendBeaconを使う
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true })
+          .catch(function () { /* 失敗しても期限切れで自動解放される */ });
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function initHoldReleaseOnNav() {
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('.site-header a');
+      if (link) releaseSeatHoldIfAny();
+    });
+  }
+
+  // AIチャット（chatbot.js）の「新規チャットを始める」「会話履歴の切り替え」も
+  // 進行中のAI予約を離脱する操作なので、同じ解放処理を呼べるように公開する。
+  window.HALSeatHold = { release: releaseSeatHoldIfAny };
+
+  /* ──────────────────────────────────────────────────────────
+     6. DOM 準備後に全初期化
      ────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
     initNav();
     insertWidget();
     initWidget();
     initAuthHeader();
+    initHoldReleaseOnNav();
   });
 
 })();

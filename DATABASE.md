@@ -358,9 +358,19 @@ UNIQUE制約: `(f_reservation_id, f_seat_id)`（同予約での同一座席の�
 | f_stock_id | SERIAL | PK | 在庫ID |
 | f_schedule_id | INTEGER | NOT NULL, FK→t_SCHEDULE | 上映回 |
 | f_seat_id | INTEGER | NOT NULL, FK→t_SEAT | 座席 |
-| f_stock_status | SMALLINT | NOT NULL, DEFAULT 0, CHECK(0,1,2) | 0:空席 / 1:予約済 / 2:使用不可 |
+| f_stock_status | SMALLINT | NOT NULL, DEFAULT 0, CHECK(0,1,2,3) | 0:空席 / 1:予約済 / 2:使用不可 / 3:仮押さえ中 |
+| f_hold_token | VARCHAR(64) | NULL可 | 仮押さえ発行時のトークン（座席選択画面が生成、クライアント側でsessionStorageに保持） |
+| f_hold_expires_at | TIMESTAMP | NULL可 | 仮押さえの有効期限（発行から10分）。これを過ぎた status=3 は参照・取得のたびに空席扱いにする（バッチ処理なし） |
 
 UNIQUE制約: `(f_schedule_id, f_seat_id)`（← これがDB層での二重予約防止）
+
+#### 仮押さえ（一時ロック）の流れ
+
+座席選択画面（zaseki.html）で座席を選び「次へ」を押した時点で `POST /api/schedules/{id}/hold` を呼び、対象座席を `f_stock_status=3` にして10分間ロックする。この間、他のユーザーの画面（GET /api/schedules/{id}/seats）には「予約中」（空席として選べない状態）として見える。
+
+- **決済完了**：`POST /api/reservations` が仮押さえ済みの座席（同じ `f_hold_token`）を本予約として確定し、`f_stock_status=1`・`f_hold_token`/`f_hold_expires_at`をNULLに更新する。
+- **やめる（座席選択に戻る）**：座席選択画面を再度開くと、そのブラウザが保持していた仮押さえを `POST /api/schedules/{id}/release-hold` で明示的に解放し、`f_stock_status=0` に戻す。
+- **放置**：10分間操作がなければ `f_hold_expires_at` 超過として自動的に空席扱いに戻る（他のユーザーが取得できるようになる。行自体はそのまま残り、次に誰かが取得を試みた時点で上書きされる）。
 
 ---
 
@@ -430,7 +440,7 @@ UNIQUE制約: `(f_screen_id, f_show_date, f_slot_order)`
 
 ### 二重予約防止（最重要）
 
-`t_SEAT_STOCK` の `(f_schedule_id, f_seat_id)` UNIQUE制約 ＋ `SELECT FOR UPDATE` で防止。
+`t_SEAT_STOCK` の `(f_schedule_id, f_seat_id)` UNIQUE制約 ＋ `SELECT FOR UPDATE` で防止。データの整合性はこれだけで担保されるが、UX上は「決済の最後の最後になって初めて『すでに予約されています』と分かる」だけでは不親切なため、座席選択画面の「次へ」の時点で仮押さえ（`f_stock_status=3`、詳細は上記t_SEAT_STOCKの項を参照）を行い、他のユーザーには選択中の座席をその場で「予約中」として見せる。決済時の`SELECT ... FOR UPDATE`は空席（0）に加えて「自分自身の仮押さえ（同じf_hold_token）」と「期限切れの仮押さえ」も対象にする。
 
 ```sql
 -- 予約処理（必ずトランザクション内で実行）
@@ -634,7 +644,7 @@ goods.html（グッズ・売店ページ）の商品ウィザードはフレー�
 | t_RESERVATION | f_payment_status | `0`:未払 / `1`:支払済 / `2`:返金済 |
 | t_RESERVATION | f_reservation_status | `0`:予約中 / `1`:発券済 / `2`:キャンセル |
 | t_TICKET | f_ticket_status | `0`:未発券 / `1`:発券済 / `2`:入場済 / `3`:無効 |
-| t_SEAT_STOCK | f_stock_status | `0`:空席 / `1`:予約済 / `2`:使用不可 |
+| t_SEAT_STOCK | f_stock_status | `0`:空席 / `1`:予約済 / `2`:使用不可 / `3`:仮押さえ中 |
 | t_SLOT | f_slot_type | `0`:通常枠 / `1`:予備枠（振替専用） |
 | t_SCHEDULE_CHANGE_LOG | f_change_type | `1`:枠振替 / `2`:時刻変更 / `3`:スクリーン変更 / `4`:中止 |
 | t_NOTIFICATION | f_type | `1`:枠振替 / `2`:時刻変更 / `3`:スクリーン変更 / `4`:中止 |

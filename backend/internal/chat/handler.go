@@ -439,6 +439,7 @@ func (h *Handler) finalizeReservation(w http.ResponseWriter, messages []chatMess
 		PaymentMethod: slots.PaymentMethod,
 		MemberID:      memberID,
 		GuestName:     guestName,
+		HoldToken:     slots.HoldToken,
 	})
 
 	if err != nil {
@@ -446,6 +447,7 @@ func (h *Handler) finalizeReservation(w http.ResponseWriter, messages []chatMess
 			// 座席が埋まっていた→座席選択からやり直させる（スナップショットを信用しない）
 			resetSlots := slots
 			resetSlots.SeatIDs = nil
+			resetSlots.HoldToken = ""
 			resetSlots.PaymentMethod = 0
 			resetSlots.CardID = 0
 			h.presentSeatPicker(w, messages, resetSlots,
@@ -457,6 +459,7 @@ func (h *Handler) finalizeReservation(w http.ResponseWriter, messages []chatMess
 			// バックエンドを直接叩かれた場合等に備えた保険。座席選択からやり直させる。
 			resetSlots := slots
 			resetSlots.SeatIDs = nil
+			resetSlots.HoldToken = ""
 			resetSlots.PaymentMethod = 0
 			resetSlots.CardID = 0
 			h.presentSeatPicker(w, messages, resetSlots,
@@ -501,6 +504,7 @@ func mergeSlots(db *gorm.DB, current, incoming Slots, memberID int) Slots {
 			merged.ShowDate = ""
 			merged.ScheduleID = 0
 			merged.SeatIDs = nil
+			merged.HoldToken = ""
 			merged.PaymentMethod = 0
 			merged.CardID = 0
 		}
@@ -510,6 +514,7 @@ func mergeSlots(db *gorm.DB, current, incoming Slots, memberID int) Slots {
 	if incoming.ScheduleID > 0 && merged.MovieID > 0 && scheduleBelongsToMovie(db, incoming.ScheduleID, merged.MovieID) {
 		if incoming.ScheduleID != merged.ScheduleID {
 			merged.SeatIDs = nil
+			merged.HoldToken = ""
 			merged.PaymentMethod = 0
 			merged.CardID = 0
 		}

@@ -9,6 +9,10 @@ type Slots struct {
 	ScheduleID    int    `json:"scheduleId"`
 	SeatCount     int    `json:"seatCount"`
 	SeatIDs       []int  `json:"seatIds"`
+	// HoldToken はWeb予約(zaseki.js)と同じ座席仮押さえの本人確認トークン。
+	// フロントが座席選択の確定時に /api/schedules/{id}/hold を呼んで取得し、
+	// ここに保持して予約確定(CreateReservation)まで持ち回る。
+	HoldToken     string `json:"holdToken"`
 	PaymentMethod int    `json:"paymentMethod"`
 	CardID        int    `json:"cardId"`
 }
