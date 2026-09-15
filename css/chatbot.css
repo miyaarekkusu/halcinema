@@ -938,6 +938,15 @@
 }
 
 /* ── 日にちピッカー：今週の上映日をボタンで即提示 ─────────────────── */
+/* .chat-rich-block は横幅いっぱいに伸びるdivのため、日数が少ない週は
+   ボタン列の右側に余分な空白ができてしまう。中身（7日分のボタン列）に
+   合わせて幅が縮むようにする。 */
+.chat-rich-date_picker {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+}
+
 .date-picker-list {
   display: flex;
   flex-wrap: wrap;
