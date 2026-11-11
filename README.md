@@ -204,9 +204,20 @@ https://github.com/ユーザー名/halcinema
 |----------|------|
 | [README.md](README.md) | このファイル。プロジェクト概要・ページ一覧・起動方法 |
 | [AGENTS.md](AGENTS.md) | 開発ルール・共通 CSS/JS コピペ集・変更記録 |
+| [BRANCH.md](BRANCH.md) | ブランチ運用ルール（main / develop / feat）・自分のPCで動かす手順 |
 | [GitHub.md](GitHub.md) | Git / GitHub トラブルシューティング |
 | [DATABASE.md](DATABASE.md) | DB設計書・API アーキテクチャ・JWT 説明 |
 | [PROJECT_STATUS.md](PROJECT_STATUS.md) | ページ・CSS・JS ファイル使用状況まとめ（詳細版） |
+
+### 管理者画面（三次開発：映画情報管理システム）の設計書 — `docs/admin/`
+
+番号順に読むと流れが分かります。
+
+| ファイル | 内容 |
+|----------|------|
+| [00_admin-screens-current.txt](docs/admin/00_admin-screens-current.txt) | 今の管理者画面（admin/）の一覧と、整理後の画面構成 |
+| [01_operation-flow.md](docs/admin/01_operation-flow.md) | 映画館の運営フロー整理（配給・上映・売上…）と、システム化する範囲 |
+| [02_design-distribution-sales-auth.md](docs/admin/02_design-distribution-sales-auth.md) | 設計書：管理者認証・配給/作品管理・売上/精算（DB・画面・API） |
 
 ---
 
@@ -217,11 +228,14 @@ https://github.com/ユーザー名/halcinema
 
 | ファイル | 内容 |
 |----------|------|
-| `database.txt` | DB（PostgreSQL）への接続方法・テーブル確認・データ操作コマンド |
-| `docker.txt` | Docker のセットアップ手順・よく使うコマンド |
-| `重要メモ.txt` | チーム全員が知っておくべき注意点・決定事項 |
-| `修正追加予定メモ.txt` | 今後対応予定の修正・機能追加リスト |
-| `更新記録.txt` | 作業の更新記録（通し） |
-| `更新記録_0608.txt` | 2026-06-08 以降の更新記録 |
+| [database.txt](note/database.txt) | DB（PostgreSQL）への接続方法・テーブル確認・データ操作コマンド |
+| [docker.txt](note/docker.txt) | Docker のセットアップ手順・よく使うコマンド |
+| [重要メモ.txt](note/重要メモ.txt) | チーム全員が知っておくべき注意点・決定事項 |
+| [修正追加予定メモ.txt](note/修正追加予定メモ.txt) | 今後対応予定の修正・機能追加リスト |
+| [更新記録.txt](note/更新記録.txt) | 作業の更新記録（通し） |
+| [更新記録_0608.txt](note/更新記録_0608.txt) | 2026-06-08 以降の更新記録 |
+| [まとめ.txt](note/まとめ.txt) | 作業まとめ |
+| [home-renewal-plan.md](note/home-renewal-plan.md) | トップページ刷新の計画 |
+| [枠方式_テーブル設計変更メモ.md](note/枠方式_テーブル設計変更メモ.md) | 上映スケジュールを枠方式にするための DB 変更依頼メモ |
 
-> バックエンド（Docker・DB）に触れる前は必ず `docker.txt` と `database.txt` を読んでください。
+> バックエンド（Docker・DB）に触れる前は必ず [docker.txt](note/docker.txt) と [database.txt](note/database.txt) を読んでください。
