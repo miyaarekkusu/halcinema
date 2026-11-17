@@ -109,6 +109,10 @@
       el.className = 'sched-toast';
       document.body.appendChild(el);
     }
+    // 保存できない状態（開発サーバーなし）では、成功メッセージにその旨を付ける
+    if (type !== 'error' && window.AdminData && window.AdminData.mode === 'readonly') {
+      message += '（※ テストデータ表示中のため保存されません）';
+    }
     el.className = 'sched-toast' + (type === 'error' ? ' sched-toast--error' : '');
     el.innerHTML = '<div class="sched-toast__title">' + (type === 'error' ? 'エラー' : '完了') + '</div>' + esc(message);
     el.hidden = false;
@@ -156,12 +160,26 @@
     if (alert) alert.hidden = true;
   }
 
+  /* ── CSV（Excel で文字化けしないよう BOM 付き） ── */
+  function downloadCsv(filename, rows) {
+    var csv = rows.map(function (r) {
+      return r.map(function (v) { var s = String(v == null ? '' : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',');
+    }).join('\r\n');
+    var blob = new Blob(['﻿' + csv], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
   window.Office = {
     yen: yen, pct: pct, md: md, esc: esc,
     parseDate: parseDate, toISO: toISO, daysBetween: daysBetween,
     openModal: openModal, closeModal: closeModal,
     confirm: confirmDialog, toast: toast,
     setFieldError: setFieldError, clearFormErrors: clearFormErrors,
+    downloadCsv: downloadCsv,
     // モックの「今日」。サーバー接続後は API の日付を使う
     today: '2026-12-02',
   };

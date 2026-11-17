@@ -1,6 +1,6 @@
 /* ============================================================
    HAL CINEMA — movies.js（G03 作品・配給）
-   ※ モック：データはこのファイル内のサンプル。保存はメモリ上のみ（再読み込みで戻る）
+   ※ データは data/admin/seed.json（AdminData 経由）。この画面の編集はまだ保存しない（再読み込みで戻る）
    API 接続時の置き換え先：
      GET/POST  /api/admin/movies          PATCH /api/admin/movies/{id}
      GET/POST  /api/admin/distributors    PATCH /api/admin/distributors/{id}
@@ -8,43 +8,12 @@
    ============================================================ */
 (function () {
   var O = window.Office;
-  var TODAY = O.today;
+  var TODAY;   // データ読み込み後に入る
 
   var GENRES = ['アクション / SF', 'アニメ / ミステリー', 'アニメ / スポーツ', 'アニメ / ファミリー', 'ドラマ', 'コメディ', 'ホラー', 'ミュージカル'];
 
-  /* ── サンプルデータ ── */
-  var movies = [
-    { id: 1, title: 'ゴジラ-1.0',              title_en: 'GODZILLA MINUS ONE', genre: 'アクション / SF',   duration: 125, rating: 'G',    release_date: '2026-11-01', poster: 'godzilla-minus-one',      formats: ['2D', 'IMAX'] },
-    { id: 2, title: '名探偵コナン 黒鉄の魚影',  title_en: '',                  genre: 'アニメ / ミステリー', duration: 113, rating: 'G',    release_date: '2026-11-08', poster: 'conan-black-iron',        formats: ['2D'] },
-    { id: 3, title: 'THE FIRST SLAM DUNK',     title_en: '',                  genre: 'アニメ / スポーツ',  duration: 124, rating: 'G',    release_date: '2026-10-01', poster: 'first-slam-dunk',         formats: ['2D', '4DX'] },
-    { id: 4, title: '君たちはどう生きるか',      title_en: 'The Boy and the Heron', genre: 'アニメ / ファミリー', duration: 124, rating: 'G', release_date: '2026-09-01', poster: 'boy-and-the-heron',  formats: ['2D'] },
-    { id: 5, title: 'プラダを着た悪魔2',         title_en: 'The Devil Wears Prada 2', genre: 'コメディ',   duration: 118, rating: 'G',    release_date: '2026-12-10', poster: 'devil-wears-prada-2',     formats: ['2D'] },
-    { id: 6, title: 'トイ・ストーリー5',         title_en: 'Toy Story 5',       genre: 'アニメ / ファミリー', duration: 105, rating: 'G',    release_date: '2026-12-19', poster: 'toy-story-5',             formats: ['2D', '3D'] },
-    { id: 7, title: 'マイケル',                 title_en: 'Michael',           genre: 'ドラマ',            duration: 132, rating: 'PG12', release_date: '2026-11-20', poster: 'michael',                 formats: ['2D', 'IMAX'] },
-    { id: 8, title: '口に関するアンケート',       title_en: '',                  genre: 'ホラー',            duration: 98,  rating: 'R15+', release_date: '2026-12-05', poster: 'kuchi-ni-kansuru-anketo', formats: ['2D'] },
-  ];
-
-  var distributors = [
-    { id: 1, name: '東邦映画配給',        contact: '佐藤 健一', phone: '03-1234-5678', email: 'sato@example.jp',   active: true },
-    { id: 2, name: 'ワールドピクチャーズ', contact: '鈴木 花子', phone: '06-2345-6789', email: 'suzuki@example.jp', active: true },
-    { id: 3, name: 'スタジオ北斗',        contact: '高田 誠',   phone: '052-345-6789', email: '',                  active: true },
-    { id: 4, name: '旧ミナト映画',        contact: '',          phone: '',             email: '',                  active: false },
-  ];
-
-  // status 0:有効 / 1:終了 / 2:打ち切り
-  var contracts = [
-    { id: 1, movie_id: 1, dist_id: 1, start: '2026-11-01', end: '2026-12-05', share: 50,   mg: 300000, status: 0, note: '' },
-    { id: 2, movie_id: 2, dist_id: 1, start: '2026-11-08', end: '2026-12-31', share: 50,   mg: 0,      status: 0, note: '' },
-    { id: 3, movie_id: 3, dist_id: 2, start: '2026-10-01', end: '2026-11-30', share: 45,   mg: 200000, status: 1, note: '' },
-    { id: 4, movie_id: 4, dist_id: 3, start: '2026-09-01', end: '2026-10-31', share: 50,   mg: 0,      status: 1, note: '' },
-    { id: 5, movie_id: 5, dist_id: 2, start: '2026-12-10', end: '2027-01-31', share: 45,   mg: 300000, status: 0, note: '' },
-    { id: 6, movie_id: 6, dist_id: 2, start: '2026-12-19', end: '2027-02-28', share: 55,   mg: 500000, status: 0, note: '冬休み作品' },
-    { id: 7, movie_id: 7, dist_id: 3, start: '2026-11-20', end: '2026-12-25', share: 47.5, mg: 1500000,      status: 0, note: '' },
-    { id: 8, movie_id: 8, dist_id: 3, start: '2026-12-05', end: '2026-12-08', share: 40,   mg: 0,      status: 2, note: '動員不振のため打ち切り' },
-  ];
-
-  // 割り当て済み上映回（延長・打ち切り時の警告用のサンプル）
-  var assignedShows = { 1: ['2026-12-03', '2026-12-04', '2026-12-05'], 7: ['2026-12-20', '2026-12-21', '2026-12-22', '2026-12-23'] };
+  /* ── データ（data/admin/seed.json → db.json から読み込む。この画面の編集は保存しない） ── */
+  var movies, distributors, contracts, assignedShows;
 
   /* ── 参照ヘルパ ── */
   function byId(list, id) { return list.find(function (x) { return x.id === Number(id); }); }
@@ -443,7 +412,12 @@
     renderContracts();
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  AdminData.onReady(function (db) {
+    TODAY = O.today;
+    movies = db.movies;
+    distributors = db.distributors;
+    contracts = db.contracts;
+    assignedShows = db.assigned_shows;
     renderAll();
 
     ['movie-search', 'movie-filter-status', 'movie-filter-genre'].forEach(function (id) {

@@ -983,6 +983,56 @@ body {
 .hbar__fill { height: 100%; background: var(--ad-red); }
 .hbar__val { text-align: right; font-variant-numeric: tabular-nums; }
 
+/* ── ダッシュボード・バックヤード ── */
+/* 表の最小幅で画面全体が横に広がらないようにする（表は .table-wrap の中で横スクロール） */
+.main-col { min-width: 0; }
+.dash-grid > * { min-width: 0; }
+.stat-card__sub { display: block; font-size: 11px; color: var(--ad-text-muted); margin-top: 4px; }
+.stat-card__sub--up { color: var(--ad-green); }
+.stat-card__sub--down { color: #fb923c; }
+.dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+.panel { background: var(--ad-surface); border: 1px solid var(--ad-border); border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; }
+.dash-grid .panel { margin-bottom: 0; }
+.panel__head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+.panel__count { font-size: 11px; font-weight: 400; color: var(--ad-text-muted); }
+.panel .admin-table { border: none; }
+.alert-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.alert-list li { display: flex; align-items: center; gap: 10px; font-size: 13px; padding: 8px 10px; border-radius: 6px; background: var(--ad-surface2); }
+.alert-list li.is-danger { background: rgba(232,33,43,0.1); }
+.alert-list li.is-warn { background: rgba(250,204,21,0.07); }
+.alert-list__text { flex: 1; }
+.alert-list__link { font-size: 12px; color: var(--ad-text-sub); text-decoration: none; white-space: nowrap; }
+.alert-list__link:hover { color: var(--ad-text); }
+.alert-list__none { color: var(--ad-text-muted); background: none !important; }
+.closing-box { display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+.closing-box .toolbar__btn { text-align: center; text-decoration: none; }
+.sold-bar { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; font-size: 12px; }
+.sold-bar__track { width: 90px; height: 6px; border-radius: 3px; background: var(--ad-surface3); overflow: hidden; }
+.sold-bar__fill { height: 100%; background: var(--ad-green); }
+.sold-bar__fill--high { background: #fb923c; }
+.admin-table tr.row--now td { background: rgba(74,222,128,0.06); }
+
+/* データの保存先表示（admin-data.js が各ページ右上に出す） */
+.data-mode { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--ad-border); color: var(--ad-text-sub); white-space: nowrap; }
+.data-mode__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ad-green); }
+.data-mode--readonly { color: #facc15; border-color: rgba(250,204,21,0.35); }
+.data-mode--readonly .data-mode__dot { background: #facc15; }
+
+/* シフト表 */
+.shift-table td, .shift-table th { text-align: center; white-space: nowrap; }
+.shift-table td:first-child, .shift-table th:first-child { text-align: left; }
+.shift-cell { display: block; width: 100%; min-height: 36px; border: 1px dashed transparent; border-radius: 6px; background: none; color: var(--ad-text); font-size: 11px; cursor: pointer; font-family: inherit; line-height: 1.4; padding: 3px; }
+.shift-cell:hover { border-color: var(--ad-border); background: var(--ad-surface2); }
+.shift-cell--off { color: var(--ad-text-muted); }
+.shift-cell__post { display: inline-block; padding: 0 6px; border-radius: 3px; font-size: 10px; margin-top: 2px; }
+.post-窓口 { background: rgba(232,33,43,0.18); color: #fca5a5; }
+.post-物販 { background: rgba(251,146,60,0.18); color: #fdba74; }
+.post-清掃 { background: rgba(96,165,250,0.18); color: #93c5fd; }
+.post-事務 { background: rgba(255,255,255,0.1); color: var(--ad-text-sub); }
+.shift-table th.is-today, .shift-table td.is-today { background: rgba(232,33,43,0.05); }
+.shift-short { color: var(--ad-red); font-weight: 700; }
+.shift-ok { color: var(--ad-text-muted); }
+
 /* ════════════════════════════════════════════════
    レスポンシブ
 ════════════════════════════════════════════════ */
@@ -1000,6 +1050,7 @@ body {
   .sched-layout { grid-template-columns: 1fr; }
   .movie-pool { position: static; }
   .form-grid { grid-template-columns: 1fr; }
+  .dash-grid { grid-template-columns: 1fr; }
   .hbar { grid-template-columns: 90px 1fr 80px; }
 }
 

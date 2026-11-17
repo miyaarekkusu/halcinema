@@ -20,17 +20,24 @@
       <ul class="sidebar__list">
         <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
       </ul>
-      <p class="sidebar__section-label">スケジュール</p>
+      <p class="sidebar__section-label">編成</p>
       <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="movies" href="movies.html">作品・配給</a></li>
         <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
       </ul>
-      <p class="sidebar__section-label">端末切り替え</p>
+      <p class="sidebar__section-label">経理</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
+        <li><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
+      </ul>
+      <p class="sidebar__section-label">運営</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+      </ul>
+      <p class="sidebar__section-label">現場</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
         <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
         <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
-        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
-        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
       </ul>
       <p class="sidebar__section-label">システム</p>
       <ul class="sidebar__list">
@@ -60,21 +67,50 @@
 
     <main class="page-content">
       <section class="page-section">
-        <h1 class="page-title">ダッシュボード</h1>
-
-        <div class="stat-grid">
-          <div class="stat-card"><div class="stat-card__body"><span class="stat-card__label">本日の予約数</span><span class="stat-card__value">—</span></div></div>
-          <div class="stat-card"><div class="stat-card__body"><span class="stat-card__label">フード売上</span><span class="stat-card__value">—</span></div></div>
-          <div class="stat-card"><div class="stat-card__body"><span class="stat-card__label">グッズ売上</span><span class="stat-card__value">—</span></div></div>
-          <div class="stat-card"><div class="stat-card__body"><span class="stat-card__label">入場者数</span><span class="stat-card__value">—</span></div></div>
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">ダッシュボード</h1>
+            <p class="page-desc">今日の売上・上映・注意が必要なことをひと目で確認します。</p>
+          </div>
+          <div class="toolbar" style="margin-bottom:0">
+            <button class="toolbar__btn toolbar__btn--sm" id="dash-prev" aria-label="前の日">◀</button>
+            <input class="toolbar__search" style="min-width:0" type="date" id="dash-date">
+            <button class="toolbar__btn toolbar__btn--sm" id="dash-next" aria-label="次の日">▶</button>
+            <button class="toolbar__btn toolbar__btn--sm" id="dash-today">今日</button>
+          </div>
         </div>
 
-        <div class="placeholder-box"><p>集計データはサーバー接続後に表示されます。左のメニューから各機能を選択してください。</p></div>
+        <div class="stat-grid" id="dash-stats"></div>
+
+        <div class="dash-grid">
+          <div class="panel">
+            <div class="panel__head"><span>アラート</span><span class="panel__count" id="dash-alert-count"></span></div>
+            <ul class="alert-list" id="dash-alerts"></ul>
+          </div>
+          <div class="panel">
+            <div class="panel__head"><span>本日の締め</span></div>
+            <div id="dash-closing"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__head"><span id="dash-shows-title">本日の上映</span><span class="panel__count" id="dash-now"></span></div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>時刻</th><th>スクリーン</th><th>作品</th><th>販売</th><th>状態</th><th>清掃</th></tr></thead>
+              <tbody id="dash-shows"></tbody>
+            </table>
+          </div>
+        </div>
       </section>
     </main>
   </div>
 </div>
 
 <script src="admin-common.js" defer></script>
+<script src="admin-office.js" defer></script>
+<script src="admin-data.js" defer></script>
+<script src="admin-model.js" defer></script>
+<script src="dashboard.js" defer></script>
 </body>
 </html>

@@ -10,93 +10,12 @@
    ============================================================ */
 (function () {
   var O = window.Office;
-  var TODAY = O.today;
+  var M = window.AdminModel;
   var ADMIN_NAME = sessionStorage.getItem('hal_admin_id') || 'admin';
+  var addDays = M.addDays, dayShows = M.dayShows, dayTotals = M.dayTotals;
 
-  /* ── マスタ（movies.js と同じサンプル） ── */
-  var SCREENS = [
-    { id: 1, name: 'SCREEN 1', seats: 120 },
-    { id: 2, name: 'SCREEN 2', seats: 80 },
-    { id: 3, name: 'SCREEN 3', seats: 150 },
-  ];
-  var MOVIES = {
-    1: 'ゴジラ-1.0', 2: '名探偵コナン 黒鉄の魚影', 3: 'THE FIRST SLAM DUNK', 4: '君たちはどう生きるか',
-    5: 'プラダを着た悪魔2', 6: 'トイ・ストーリー5', 7: 'マイケル', 8: '口に関するアンケート',
-  };
-  var DISTS = { 1: '東邦映画配給', 2: 'ワールドピクチャーズ', 3: 'スタジオ北斗' };
-  var CONTRACTS = [
-    { id: 1, movie_id: 1, dist_id: 1, start: '2026-11-01', end: '2026-12-05', share: 50,   mg: 300000, screen: 3 },
-    { id: 2, movie_id: 2, dist_id: 1, start: '2026-11-08', end: '2026-12-31', share: 50,   mg: 0,      screen: 1 },
-    { id: 3, movie_id: 3, dist_id: 2, start: '2026-10-01', end: '2026-11-30', share: 45,   mg: 200000, screen: 2 },
-    { id: 4, movie_id: 4, dist_id: 3, start: '2026-09-01', end: '2026-10-31', share: 50,   mg: 0,      screen: 1 },
-    { id: 7, movie_id: 7, dist_id: 3, start: '2026-11-20', end: '2026-12-25', share: 47.5, mg: 1500000,      screen: 2 },
-  ];
-  var FIRST_DAY = '2026-10-01';
-
-  /* ── 疑似乱数（同じ日付なら毎回同じ値） ── */
-  function rand(seed) {
-    var h = 2166136261;
-    for (var i = 0; i < seed.length; i++) { h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
-    h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15;
-    return (h >>> 0) / 4294967296;
-  }
-
-  function addDays(iso, n) {
-    var d = O.parseDate(iso);
-    d.setDate(d.getDate() + n);
-    return O.toISO(d);
-  }
-
-  /* ── 1日分の上映実績（作品×スクリーン） ── */
-  var dayCache = {};
-  function dayShows(date) {
-    if (dayCache[date]) return dayCache[date];
-    var dow = O.parseDate(date).getDay();
-    var weekend = dow === 0 || dow === 6;
-    var shows = [];
-    CONTRACTS.forEach(function (c) {
-      if (date < c.start || date > c.end) return;
-      var screen = SCREENS[c.screen - 1];
-      var count = 3 + Math.floor(rand(date + 'n' + c.id) * 2);   // 3〜4回
-      var elapsed = O.daysBetween(c.start, date);
-      var decay = Math.max(0.35, 1 - elapsed / 70);                  // 公開から日が経つほど減る
-      var rate = (weekend ? 0.75 : 0.45) * decay * (0.75 + rand(date + 'r' + c.id) * 0.5);
-      var sold = Math.min(screen.seats * count, Math.round(screen.seats * count * rate));
-      var avgPrice = 1650 + Math.round(rand(date + 'p' + c.id) * 300);
-      shows.push({
-        contract_id: c.id, movie_id: c.movie_id, screen_id: screen.id,
-        count: count, capacity: screen.seats * count,
-        sold: sold, admitted: Math.round(sold * (0.93 + rand(date + 'a' + c.id) * 0.06)),
-        ticket: sold * avgPrice,
-      });
-    });
-    dayCache[date] = shows;
-    return shows;
-  }
-
-  function dayTotals(date) {
-    var shows = dayShows(date);
-    var t = { ticket: 0, sold: 0, admitted: 0, capacity: 0 };
-    shows.forEach(function (s) { t.ticket += s.ticket; t.sold += s.sold; t.admitted += s.admitted; t.capacity += s.capacity; });
-    t.food = Math.round(t.sold * (180 + rand(date + 'f') * 80) / 10) * 10;
-    t.goods = Math.round(t.sold * (50 + rand(date + 'g') * 50) / 10) * 10;
-    // 今日はまだ途中の集計
-    if (date === TODAY) {
-      ['ticket', 'sold', 'admitted', 'food', 'goods'].forEach(function (k) { t[k] = Math.round(t[k] * 0.55); });
-    }
-    t.total = t.ticket + t.food + t.goods;
-    return t;
-  }
-
-  /* ════════ 日次締め ════════ */
-  // 締め済みデータ（確定値のスナップショット）。11/29 と 今日 が未締め
-  var closings = {};
-  (function seedClosings() {
-    for (var d = FIRST_DAY; d < TODAY; d = addDays(d, 1)) {
-      if (d === '2026-11-29') continue;
-      closings[d] = { values: dayTotals(d), by: d < '2026-11-15' ? '経理 田中' : '支配人 山田', at: '22:' + String(5 + Math.floor(rand(d + 'c') * 50)).padStart(2, '0') };
-    }
-  })();
+  // データ読み込み後（AdminData.onReady）に入る
+  var TODAY, SCREENS, MOVIES, DISTS, CONTRACTS, FIRST_DAY, closings, settlements;
 
   function monthsList() {
     var list = [];
@@ -212,12 +131,11 @@
       var t = dayTotals(d);
       days.push({ date: d, ticket: t.ticket, food: t.food, goods: t.goods, total: t.total, sold: t.sold, admitted: t.admitted });
       ['ticket', 'food', 'goods', 'sold', 'admitted', 'capacity'].forEach(function (k) { total[k] += t[k]; });
-      var ratio = d === TODAY ? 0.55 : 1;
       dayShows(d).forEach(function (s) {
         [[byMovie, s.movie_id], [byScreen, s.screen_id]].forEach(function (pair) {
           var o = pair[0][pair[1]] || (pair[0][pair[1]] = { key: pair[1], shows: 0, sold: 0, ticket: 0, capacity: 0 });
           o.shows += s.count; o.capacity += s.capacity;
-          o.sold += Math.round(s.sold * ratio); o.ticket += Math.round(s.ticket * ratio);
+          o.sold += s.sold; o.ticket += s.ticket;
         });
       });
     }
@@ -303,7 +221,6 @@
 
   /* ════════ 配給精算 ════════ */
   // status 0:下書き / 1:確定 / 2:支払済
-  var settlements = {};
 
   function calcMonth(m) {
     var days = daysOfMonth(m).filter(function (d) { return d <= TODAY; });
@@ -312,9 +229,8 @@
       var box = 0, adm = 0;
       days.forEach(function (d) {
         if (d < c.start || d > c.end) return;
-        var ratio = d === TODAY ? 0.55 : 1;
         dayShows(d).forEach(function (s) {
-          if (s.contract_id === c.id) { box += Math.round(s.ticket * ratio); adm += Math.round(s.admitted * ratio); }
+          if (s.contract_id === c.id) { box += s.ticket; adm += s.admitted; }
         });
       });
       if (!box) return;
@@ -327,11 +243,6 @@
     });
     return rows;
   }
-
-  (function seedSettlements() {
-    settlements['2026-10'] = calcMonth('2026-10').map(function (r) { r.status = 2; r.paid_at = '2026-11-20'; return r; });
-    settlements['2026-11'] = calcMonth('2026-11').map(function (r) { if (r.contract_id === 3) r.status = 1; return r; });
-  })();
 
   var SETTLE_BADGE = ['<span class="badge badge--gray">下書き</span>', '<span class="badge badge--blue">確定</span>', '<span class="badge badge--green">支払済</span>'];
 
@@ -438,18 +349,7 @@
     renderSettlement();
   }
 
-  /* ── CSV（Excel で文字化けしないよう BOM 付き） ── */
-  function downloadCsv(filename, rows) {
-    var csv = rows.map(function (r) {
-      return r.map(function (v) { var s = String(v == null ? '' : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',');
-    }).join('\r\n');
-    var blob = new Blob(['﻿' + csv], { type: 'text/csv' });
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
-  }
+  var downloadCsv = O.downloadCsv;
 
   function exportSettlement() {
     var m = document.getElementById('settle-month').value;
@@ -478,7 +378,20 @@
   }
 
   /* ════════ 初期化 ════════ */
-  document.addEventListener('DOMContentLoaded', function () {
+  AdminData.onReady(function (db) {
+    TODAY = O.today;
+    SCREENS = M.SCREENS; MOVIES = M.MOVIES; DISTS = M.DISTS; CONTRACTS = M.CONTRACTS; FIRST_DAY = M.FIRST_DAY;
+    closings = M.closings;   // 11/29 と 今日 が未締め
+    settlements = db.settlements;
+    // 精算データには契約IDしかないので、表示用に作品名・配給会社名を付ける
+    Object.keys(settlements).forEach(function (m) {
+      settlements[m].forEach(function (r) {
+        var c = CONTRACTS.find(function (x) { return x.id === r.contract_id; });
+        r.movie = MOVIES[c.movie_id];
+        r.dist = DISTS[c.dist_id];
+      });
+    });
+
     var months = monthsList();
     var current = TODAY.slice(0, 7);
     var opts = months.slice().reverse().map(function (m) { return '<option value="' + m + '">' + monthLabel(m) + '</option>'; }).join('');
