@@ -163,6 +163,20 @@
       location.href = '../admin/index.html';
     }
 
+    // 【開発用】管理者IDの自動入力ボタン（localhost で開いたときだけ表示。本番では出ない）
+    if (['localhost', '127.0.0.1'].includes(location.hostname)) {
+      const devBtn = document.createElement('button');
+      devBtn.type = 'button';
+      devBtn.className = 'btn';
+      devBtn.textContent = '【開発用】管理者でログイン情報を入力';
+      devBtn.style.cssText = 'width:100%;margin-top:10px;border:1px dashed #facc15;color:#facc15;background:transparent;';
+      devBtn.addEventListener('click', function () {
+        document.getElementById('email').value = ADMIN_CREDENTIALS[0].id;
+        document.getElementById('password').value = ADMIN_CREDENTIALS[0].password;
+      });
+      document.querySelector('.auth-submit').after(devBtn);
+    }
+
     // ログインフォーム送信
     document.querySelector('.auth-form').addEventListener('submit', async function (e) {
       e.preventDefault();
