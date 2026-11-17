@@ -39,7 +39,7 @@
     { id: 4, movie_id: 4, dist_id: 3, start: '2026-09-01', end: '2026-10-31', share: 50,   mg: 0,      status: 1, note: '' },
     { id: 5, movie_id: 5, dist_id: 2, start: '2026-12-10', end: '2027-01-31', share: 45,   mg: 300000, status: 0, note: '' },
     { id: 6, movie_id: 6, dist_id: 2, start: '2026-12-19', end: '2027-02-28', share: 55,   mg: 500000, status: 0, note: '冬休み作品' },
-    { id: 7, movie_id: 7, dist_id: 3, start: '2026-11-20', end: '2026-12-25', share: 47.5, mg: 0,      status: 0, note: '' },
+    { id: 7, movie_id: 7, dist_id: 3, start: '2026-11-20', end: '2026-12-25', share: 47.5, mg: 1500000,      status: 0, note: '' },
     { id: 8, movie_id: 8, dist_id: 3, start: '2026-12-05', end: '2026-12-08', share: 40,   mg: 0,      status: 2, note: '動員不振のため打ち切り' },
   ];
 
