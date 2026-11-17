@@ -9,3 +9,7 @@ backend/api
 backend/*.exe
 
 .vercel
+
+# 管理画面のローカルDBファイル（tools/admin-dev-server.js が seed.json から作る。各自のPCだけのデータ）
+data/admin/db.json
+data/admin/db.json.tmp

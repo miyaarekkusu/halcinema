@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>作品・配給 | HAL CINEMA 管理者画面</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body data-page="movies">
+
+<div class="admin-screen">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <span class="sidebar__brand">HAL CINEMA</span>
+      <span class="sidebar__sub">管理者画面</span>
+    </div>
+    <nav class="sidebar__nav">
+      <p class="sidebar__section-label">概要</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+      </ul>
+      <p class="sidebar__section-label">編成</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="movies" href="movies.html">作品・配給</a></li>
+        <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
+      </ul>
+      <p class="sidebar__section-label">経理</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
+      </ul>
+      <p class="sidebar__section-label">運営</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+      </ul>
+      <p class="sidebar__section-label">現場</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
+      </ul>
+      <p class="sidebar__section-label">システム</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-col">
+
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__menu-btn" id="sidebar-toggle" aria-label="メニュー">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="topbar__breadcrumb">
+          <span class="topbar__breadcrumb-root">管理者画面</span>
+          <span class="topbar__breadcrumb-sep">›</span>
+          <span class="topbar__breadcrumb-current">作品・配給</span>
+        </nav>
+      </div>
+      <div class="topbar__right">
+        <span class="topbar__user" id="topbar-user">admin</span>
+        <button class="topbar__logout" id="logout-btn">ログアウト</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <section class="page-section">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">作品・配給</h1>
+            <p class="page-desc">作品の登録と、配給会社との上映契約を管理します。公開状態は契約期間から自動で決まります。</p>
+          </div>
+        </div>
+
+        <div class="subtab-nav">
+          <button class="subtab-item subtab-item--active" data-tab="movies">作品</button>
+          <button class="subtab-item" data-tab="distributors">配給会社</button>
+          <button class="subtab-item" data-tab="contracts">契約</button>
+        </div>
+
+        <!-- ───────── 作品 ───────── -->
+        <div class="subtab-pane" data-tab-pane="movies">
+          <div class="toolbar">
+            <input class="toolbar__search" type="search" id="movie-search" placeholder="タイトルで検索…">
+            <select class="toolbar__select" id="movie-filter-status">
+              <option value="">状態：すべて</option>
+              <option value="showing">上映中</option>
+              <option value="upcoming">公開予定</option>
+              <option value="ended">終映</option>
+            </select>
+            <select class="toolbar__select" id="movie-filter-genre">
+              <option value="">ジャンル：すべて</option>
+            </select>
+            <span class="toolbar__spacer"></span>
+            <button class="toolbar__btn toolbar__btn--primary" id="movie-add-btn">＋ 作品を登録</button>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th></th><th>タイトル</th><th>上映時間</th><th>区分</th><th>公開状態</th><th>契約期間</th><th></th></tr>
+              </thead>
+              <tbody id="movie-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ───────── 配給会社 ───────── -->
+        <div class="subtab-pane" data-tab-pane="distributors" hidden>
+          <div class="toolbar">
+            <input class="toolbar__search" type="search" id="dist-search" placeholder="社名で検索…">
+            <span class="toolbar__spacer"></span>
+            <button class="toolbar__btn toolbar__btn--primary" id="dist-add-btn">＋ 配給会社を登録</button>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>社名</th><th>担当者</th><th>連絡先</th><th>契約中の作品</th><th>状態</th><th></th></tr>
+              </thead>
+              <tbody id="dist-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ───────── 契約 ───────── -->
+        <div class="subtab-pane" data-tab-pane="contracts" hidden>
+          <div class="toolbar">
+            <select class="toolbar__select" id="contract-filter-status">
+              <option value="0">状態：有効</option>
+              <option value="">状態：すべて</option>
+              <option value="1">終了</option>
+              <option value="2">打ち切り</option>
+            </select>
+            <select class="toolbar__select" id="contract-filter-movie">
+              <option value="">作品：すべて</option>
+            </select>
+            <select class="toolbar__select" id="contract-filter-dist">
+              <option value="">配給会社：すべて</option>
+            </select>
+            <span class="toolbar__spacer"></span>
+            <button class="toolbar__btn toolbar__btn--primary" id="contract-add-btn">＋ 契約を登録</button>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>作品</th><th>配給会社</th><th>期間</th><th>歩合</th><th>最低保証</th><th>状態</th><th></th></tr>
+              </thead>
+              <tbody id="contract-tbody"></tbody>
+            </table>
+          </div>
+          <p class="note">※ 同じ作品で期間が重なる有効な契約は登録できません。延長は「延長」から終了日を変更してください。</p>
+        </div>
+
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ═════════ 作品 登録・編集モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="movie-modal" hidden>
+  <div class="ad-modal" role="dialog" aria-modal="true" aria-labelledby="movie-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="movie-modal-title">作品を登録</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="movie-form" novalidate>
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="mf-title">タイトル<span class="req">*</span></label>
+          <input id="mf-title" name="title" maxlength="200">
+        </div>
+        <div class="form-field form-field--full">
+          <label for="mf-title-en">英題</label>
+          <input id="mf-title-en" name="title_en" maxlength="200">
+        </div>
+        <div class="form-field">
+          <label for="mf-genre">ジャンル<span class="req">*</span></label>
+          <select id="mf-genre" name="genre"></select>
+        </div>
+        <div class="form-field">
+          <label for="mf-duration">上映時間（分）<span class="req">*</span></label>
+          <input id="mf-duration" name="duration" type="number" min="1" max="300">
+          <span class="form-field__hint">枠割り当ての判定に使います</span>
+        </div>
+        <div class="form-field">
+          <label for="mf-rating">レーティング<span class="req">*</span></label>
+          <select id="mf-rating" name="rating">
+            <option value="">選択してください</option>
+            <option>G</option><option>PG12</option><option>R15+</option><option>R18+</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="mf-release">公開日<span class="req">*</span></label>
+          <input id="mf-release" name="release_date" type="date">
+        </div>
+        <div class="form-field">
+          <label for="mf-director">監督</label>
+          <input id="mf-director" name="director" maxlength="100">
+        </div>
+        <div class="form-field">
+          <label for="mf-trailer">予告編ID（YouTube）</label>
+          <input id="mf-trailer" name="trailer_id" maxlength="11" placeholder="例：dQw4w9WgXcQ">
+        </div>
+        <div class="form-field form-field--full">
+          <label for="mf-cast">キャスト</label>
+          <input id="mf-cast" name="cast_info" maxlength="300" placeholder="カンマ区切り">
+        </div>
+        <div class="form-field form-field--full">
+          <label>上映形式</label>
+          <div class="form-checks" id="mf-formats">
+            <label><input type="checkbox" value="2D">2D</label>
+            <label><input type="checkbox" value="3D">3D</label>
+            <label><input type="checkbox" value="IMAX">IMAX</label>
+            <label><input type="checkbox" value="4DX">4DX</label>
+          </div>
+        </div>
+        <div class="form-field form-field--full">
+          <label for="mf-synopsis">あらすじ</label>
+          <textarea id="mf-synopsis" name="synopsis"></textarea>
+        </div>
+        <div class="form-field form-field--full">
+          <label for="mf-poster">ポスター画像</label>
+          <input id="mf-poster" type="file" accept="image/png,image/jpeg,image/webp">
+          <span class="form-field__hint">jpg / png / webp、1MB以内</span>
+        </div>
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="movie-save-btn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════ 配給会社 登録・編集モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="dist-modal" hidden>
+  <div class="ad-modal" role="dialog" aria-modal="true" aria-labelledby="dist-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="dist-modal-title">配給会社を登録</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="dist-form" novalidate>
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="df-name">社名<span class="req">*</span></label>
+          <input id="df-name" maxlength="100">
+        </div>
+        <div class="form-field">
+          <label for="df-contact">担当者名</label>
+          <input id="df-contact" maxlength="50">
+        </div>
+        <div class="form-field">
+          <label for="df-phone">電話</label>
+          <input id="df-phone" maxlength="20" placeholder="03-1234-5678">
+        </div>
+        <div class="form-field form-field--full">
+          <label for="df-email">メール</label>
+          <input id="df-email" type="email" maxlength="255">
+        </div>
+        <div class="form-field form-field--full">
+          <div class="form-checks"><label><input type="checkbox" id="df-active" checked>有効（契約登録の候補に表示する）</label></div>
+        </div>
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="dist-save-btn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════ 契約 登録モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="contract-modal" hidden>
+  <div class="ad-modal" role="dialog" aria-modal="true" aria-labelledby="contract-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="contract-modal-title">契約を登録</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="contract-form" novalidate>
+      <div class="form-alert" id="contract-form-alert" hidden></div>
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="cf-movie">作品<span class="req">*</span></label>
+          <select id="cf-movie"></select>
+        </div>
+        <div class="form-field form-field--full">
+          <label for="cf-dist">配給会社<span class="req">*</span></label>
+          <select id="cf-dist"></select>
+        </div>
+        <div class="form-field">
+          <label for="cf-start">上映開始日<span class="req">*</span></label>
+          <input id="cf-start" type="date">
+        </div>
+        <div class="form-field">
+          <label for="cf-end">上映終了日<span class="req">*</span></label>
+          <input id="cf-end" type="date">
+        </div>
+        <div class="form-field">
+          <label for="cf-share">歩合率（%）<span class="req">*</span></label>
+          <input id="cf-share" type="number" min="0" max="100" step="0.1" placeholder="50.0">
+        </div>
+        <div class="form-field">
+          <label for="cf-mg">最低保証額（円）</label>
+          <input id="cf-mg" type="number" min="0" step="1000" placeholder="0">
+          <span class="form-field__hint">支払額 = max(興収×歩合, 最低保証)</span>
+        </div>
+        <div class="form-field form-field--full">
+          <label for="cf-note">備考</label>
+          <input id="cf-note" maxlength="255">
+        </div>
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="contract-save-btn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════ 契約 延長モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="extend-modal" hidden>
+  <div class="ad-modal ad-modal--sm" role="dialog" aria-modal="true" aria-labelledby="extend-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="extend-modal-title">上映期間の変更</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="extend-form" novalidate>
+      <p id="extend-target" style="margin-bottom:12px;"></p>
+      <div class="form-alert" id="extend-warn" hidden></div>
+      <div class="form-field">
+        <label for="ef-end">新しい終了日<span class="req">*</span></label>
+        <input id="ef-end" type="date">
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="extend-save-btn">変更する</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin-common.js" defer></script>
+<script src="admin-office.js" defer></script>
+<script src="admin-data.js" defer></script>
+<script src="movies.js" defer></script>
+</body>
+</html>
