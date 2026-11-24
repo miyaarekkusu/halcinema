@@ -29,10 +29,6 @@
       <ul class="sidebar__list">
         <li><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
       </ul>
-      <p class="sidebar__section-label">運営</p>
-      <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
-      </ul>
       <p class="sidebar__section-label">現場</p>
       <ul class="sidebar__list">
         <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
@@ -70,40 +66,279 @@
         <div class="page-head">
           <div>
             <h1 class="page-title">ダッシュボード</h1>
-            <p class="page-desc">今日の売上・上映・注意が必要なことをひと目で確認します。</p>
+            <p class="page-desc">今日の売上・上映・注意が必要なことの確認と、在庫・シフト・清掃などの裏方作業をまとめて行います。</p>
           </div>
-          <div class="toolbar" style="margin-bottom:0">
-            <button class="toolbar__btn toolbar__btn--sm" id="dash-prev" aria-label="前の日">◀</button>
-            <input class="toolbar__search" style="min-width:0" type="date" id="dash-date">
-            <button class="toolbar__btn toolbar__btn--sm" id="dash-next" aria-label="次の日">▶</button>
-            <button class="toolbar__btn toolbar__btn--sm" id="dash-today">今日</button>
+          <button class="toolbar__btn toolbar__btn--sm" id="reset-btn" title="DBファイルを seed.json の内容に戻す">テストデータに戻す</button>
+        </div>
+
+        <div class="subtab-nav">
+          <button class="subtab-item subtab-item--active" data-tab="overview">概要</button>
+          <button class="subtab-item" data-tab="stock">在庫・発注</button>
+          <button class="subtab-item" data-tab="products">商品</button>
+          <button class="subtab-item" data-tab="shift">シフト</button>
+          <button class="subtab-item" data-tab="cleaning">清掃・設備</button>
+        </div>
+
+        <!-- ───────── 概要（画面設計書 G02 の項目） ───────── -->
+        <div class="subtab-pane" data-tab-pane="overview">
+          <div class="toolbar">
+            <button class="toolbar__btn toolbar__btn--sm" id="date-prev" aria-label="前の日">◀</button>
+            <span class="date-label" id="date-label"></span>
+            <button class="toolbar__btn toolbar__btn--sm" id="date-next" aria-label="次の日">▶</button>
+            <button class="toolbar__btn toolbar__btn--sm" id="date-today">今日</button>
+          </div>
+
+          <div class="stat-grid" id="db-cards"></div>
+
+          <div class="dash-grid">
+            <div class="panel">
+              <div class="panel__head"><span>アラート</span><span class="panel__count" id="db-alert-count"></span></div>
+              <ul class="alert-list" id="db-alerts"></ul>
+            </div>
+            <div class="panel" id="closing-panel">
+              <div class="panel__head"><span id="closing-title">本日の締め</span></div>
+              <div id="closing-body"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel__head"><span id="shows-title">本日の上映</span><span class="panel__count" id="shows-note"></span></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>時刻</th><th>スクリーン</th><th>作品</th><th>販売</th><th>状態</th><th>清掃</th></tr></thead>
+                <tbody id="shows-tbody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <div class="stat-grid" id="dash-stats"></div>
-
-        <div class="dash-grid">
-          <div class="panel">
-            <div class="panel__head"><span>アラート</span><span class="panel__count" id="dash-alert-count"></span></div>
-            <ul class="alert-list" id="dash-alerts"></ul>
+        <!-- ───────── 在庫・発注 ───────── -->
+        <div class="subtab-pane" data-tab-pane="stock" hidden>
+          <div class="toolbar">
+            <select class="toolbar__select" id="stock-type">
+              <option value="">区分：すべて</option>
+              <option>フード</option><option>ドリンク</option><option>グッズ</option>
+            </select>
+            <label class="toolbar__label" style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="stock-need"> 発注が必要なものだけ</label>
+            <span class="toolbar__spacer"></span>
+            <button class="toolbar__btn" id="stock-csv-btn">発注リストCSV</button>
           </div>
-          <div class="panel">
-            <div class="panel__head"><span>本日の締め</span></div>
-            <div id="dash-closing"></div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel__head"><span id="dash-shows-title">本日の上映</span><span class="panel__count" id="dash-now"></span></div>
           <div class="table-wrap">
             <table class="admin-table">
-              <thead><tr><th>時刻</th><th>スクリーン</th><th>作品</th><th>販売</th><th>状態</th><th>清掃</th></tr></thead>
-              <tbody id="dash-shows"></tbody>
+              <thead><tr><th>商品</th><th>区分</th><th class="numeric">在庫</th><th class="numeric">発注点</th><th class="numeric">直近7日の販売</th><th class="numeric">残り日数</th><th>状態</th><th></th></tr></thead>
+              <tbody id="stock-tbody"></tbody>
             </table>
           </div>
+          <div class="panel" style="margin-top:16px">
+            <div class="panel__head"><span>入荷・調整の履歴</span></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>日時</th><th>商品</th><th class="numeric">増減</th><th>理由</th><th>担当</th></tr></thead>
+                <tbody id="stocklog-tbody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
+
+        <!-- ───────── 商品 ───────── -->
+        <div class="subtab-pane" data-tab-pane="products" hidden>
+          <div class="toolbar">
+            <input class="toolbar__search" type="search" id="prod-search" placeholder="商品名で検索…">
+            <select class="toolbar__select" id="prod-type">
+              <option value="">区分：すべて</option>
+              <option>フード</option><option>ドリンク</option><option>グッズ</option>
+            </select>
+            <span class="toolbar__spacer"></span>
+            <button class="toolbar__btn toolbar__btn--primary" id="prod-add-btn">＋ 商品を登録</button>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>商品名</th><th>区分</th><th class="numeric">価格</th><th>単位</th><th class="numeric">発注点</th><th>販売</th><th></th></tr></thead>
+              <tbody id="prod-tbody"></tbody>
+            </table>
+          </div>
+          <p class="note">※「販売」をオフにすると、物販画面・利用者の注文画面に表示されなくなります。</p>
+        </div>
+
+        <!-- ───────── シフト ───────── -->
+        <div class="subtab-pane" data-tab-pane="shift" hidden>
+          <div class="toolbar">
+            <button class="toolbar__btn toolbar__btn--sm" id="shift-prev">◀ 前の週</button>
+            <span id="shift-range" style="font-weight:700"></span>
+            <button class="toolbar__btn toolbar__btn--sm" id="shift-next">次の週 ▶</button>
+            <span class="toolbar__spacer"></span>
+            <span class="toolbar__label">セルをクリックして編集</span>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table shift-table">
+              <thead id="shift-thead"></thead>
+              <tbody id="shift-tbody"></tbody>
+              <tfoot id="shift-tfoot"></tfoot>
+            </table>
+          </div>
+          <p class="note" id="shift-required"></p>
+        </div>
+
+        <!-- ───────── 清掃・設備 ───────── -->
+        <div class="subtab-pane" data-tab-pane="cleaning" hidden>
+          <div class="panel">
+            <div class="panel__head"><span id="clean-title">本日の清掃チェック</span><span class="panel__count" id="clean-count"></span></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>上映回</th><th>スクリーン</th><th>作品</th><th>終了</th><th>清掃</th><th></th></tr></thead>
+                <tbody id="clean-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel__head"><span>設備の不具合</span><button class="toolbar__btn toolbar__btn--sm toolbar__btn--primary" id="issue-add-btn">＋ 報告する</button></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>報告日時</th><th>場所</th><th>内容</th><th>報告者</th><th>状態</th><th></th></tr></thead>
+                <tbody id="issue-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </section>
     </main>
+  </div>
+</div>
+
+<!-- ═════════ 入荷・調整モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="stock-modal" hidden>
+  <div class="ad-modal ad-modal--sm" role="dialog" aria-modal="true" aria-labelledby="stock-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="stock-modal-title">入荷を記録</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="stock-form" novalidate>
+      <p id="stock-target" style="margin-bottom:12px"></p>
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="sf-qty" id="sf-qty-label">入荷数<span class="req">*</span></label>
+          <input id="sf-qty" type="number" step="1">
+          <span class="form-field__hint" id="sf-qty-hint"></span>
+        </div>
+        <div class="form-field form-field--full" id="sf-reason-field">
+          <label for="sf-reason">理由<span class="req">*</span></label>
+          <select id="sf-reason">
+            <option value="">選択してください</option>
+            <option>廃棄</option><option>棚卸し</option><option>その他</option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="stock-save-btn">記録する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════ 商品 登録・編集モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="prod-modal" hidden>
+  <div class="ad-modal" role="dialog" aria-modal="true" aria-labelledby="prod-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="prod-modal-title">商品を登録</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="prod-form" novalidate>
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="pf-name">商品名<span class="req">*</span></label>
+          <input id="pf-name" maxlength="200">
+        </div>
+        <div class="form-field">
+          <label for="pf-type">区分<span class="req">*</span></label>
+          <select id="pf-type"><option value="">選択してください</option><option>フード</option><option>ドリンク</option><option>グッズ</option></select>
+        </div>
+        <div class="form-field">
+          <label for="pf-price">価格（円）<span class="req">*</span></label>
+          <input id="pf-price" type="number" min="0" step="10">
+        </div>
+        <div class="form-field">
+          <label for="pf-unit">単位<span class="req">*</span></label>
+          <input id="pf-unit" maxlength="10" placeholder="個 / 杯 / 冊">
+        </div>
+        <div class="form-field">
+          <label for="pf-threshold">発注点<span class="req">*</span></label>
+          <input id="pf-threshold" type="number" min="0" step="1">
+          <span class="form-field__hint">在庫がこの数以下になると「発注」表示</span>
+        </div>
+        <div class="form-field form-field--full">
+          <div class="form-checks"><label><input type="checkbox" id="pf-active" checked>販売中</label></div>
+        </div>
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="prod-save-btn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════ シフト編集モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="shift-modal" hidden>
+  <div class="ad-modal ad-modal--sm" role="dialog" aria-modal="true" aria-labelledby="shift-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="shift-modal-title">シフトを編集</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="shift-form" novalidate>
+      <p id="shift-target" style="margin-bottom:12px"></p>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="shf-start">開始<span class="req">*</span></label>
+          <input id="shf-start" type="time" step="900">
+        </div>
+        <div class="form-field">
+          <label for="shf-end">終了<span class="req">*</span></label>
+          <input id="shf-end" type="time" step="900">
+        </div>
+        <div class="form-field form-field--full">
+          <label for="shf-post">持ち場<span class="req">*</span></label>
+          <select id="shf-post"></select>
+        </div>
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn toolbar__btn--ghost-red" id="shift-off-btn" style="margin-right:auto">休みにする</button>
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="shift-save-btn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════ 不具合報告モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="issue-modal" hidden>
+  <div class="ad-modal ad-modal--sm" role="dialog" aria-modal="true" aria-labelledby="issue-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="issue-modal-title">設備の不具合を報告</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="issue-form" novalidate>
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="if-place">場所<span class="req">*</span></label>
+          <select id="if-place"></select>
+        </div>
+        <div class="form-field form-field--full" id="if-seat-field" hidden>
+          <label for="if-seat">座席番号</label>
+          <input id="if-seat" maxlength="10" placeholder="例：F-5">
+          <div class="form-checks" style="margin-top:6px"><label><input type="checkbox" id="if-block">この座席を販売停止にする</label></div>
+        </div>
+        <div class="form-field form-field--full">
+          <label for="if-detail">内容<span class="req">*</span></label>
+          <textarea id="if-detail" maxlength="200" placeholder="例：リクライニングが戻らない"></textarea>
+        </div>
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="issue-save-btn">報告する</button>
+    </div>
   </div>
 </div>
 
@@ -112,5 +347,6 @@
 <script src="admin-data.js" defer></script>
 <script src="admin-model.js" defer></script>
 <script src="dashboard.js" defer></script>
+<script src="backyard.js" defer></script>
 </body>
 </html>

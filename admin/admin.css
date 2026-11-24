@@ -1018,6 +1018,9 @@ body {
 .data-mode--readonly { color: #facc15; border-color: rgba(250,204,21,0.35); }
 .data-mode--readonly .data-mode__dot { background: #facc15; }
 
+/* ダッシュボードの表示日 */
+.date-label { font-weight: 700; font-size: 15px; min-width: 130px; text-align: center; font-variant-numeric: tabular-nums; }
+
 /* シフト表 */
 .shift-table td, .shift-table th { text-align: center; white-space: nowrap; }
 .shift-table td:first-child, .shift-table th:first-child { text-align: left; }

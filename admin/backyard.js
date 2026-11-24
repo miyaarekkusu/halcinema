@@ -1,6 +1,6 @@
 /* ============================================================
-   HAL CINEMA — backyard.js（G09 バックヤード）
-   タブ：在庫・発注 / 商品 / シフト / 清掃・設備
+   HAL CINEMA — backyard.js（G02 ダッシュボードの裏方タブ。旧バックヤード画面を統合）
+   タブ：在庫・発注 / 商品 / シフト / 清掃・設備（admin/index.html 内）
    ※ データは data/admin/seed.json → db.json（AdminData 経由）。書き換えは AdminData.save() で DBファイルに保存する
    API 接続時の置き換え先（予定）：
      GET/PATCH /api/admin/goods        POST /api/admin/goods/{id}/stock（入荷・調整）
@@ -383,7 +383,7 @@
   function confirmReset() {
     O.confirm({
       title: 'テストデータに戻す',
-      message: 'DBファイル（db.json）を data/admin/seed.json の内容に戻します。在庫・商品・シフト・清掃・不具合の書き換えはすべて消えます。',
+      message: 'DBファイル（db.json）を data/admin/seed.json の内容に戻します。日次締め・在庫・商品・シフト・清掃・不具合の書き換えはすべて消えます。',
       okLabel: '戻す',
       onOk: function () { AdminData.reset(); },
     });

@@ -24,8 +24,8 @@ const ROOT = path.resolve(__dirname, '..');
 const SEED = path.join(ROOT, 'data', 'admin', 'seed.json');
 const DB = path.join(ROOT, 'data', 'admin', 'db.json');
 
-// 画面から書き換えてよい項目（バックヤード）。増やすときはここに足す
-const WRITABLE = ['goods', 'stock_logs', 'shifts', 'cleaning', 'issues'];
+// 画面から書き換えてよい項目（ダッシュボードの在庫〜清掃タブ・日次締め）。増やすときはここに足す
+const WRITABLE = ['goods', 'stock_logs', 'shifts', 'cleaning', 'issues', 'closings'];
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',

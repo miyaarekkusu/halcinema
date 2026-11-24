@@ -137,6 +137,8 @@
     });
     // admin-common.js のタブ処理が登録されてから実行する
     setTimeout(openTabFromHash, 0);
+    // 同じ画面内のリンク（#stock など）でもタブを切り替える
+    window.addEventListener('hashchange', openTabFromHash);
   });
 
   /* ── フォームのエラー表示 ── */

@@ -98,6 +98,7 @@
       onOk: function () {
         var now = new Date();
         closings[date] = { values: v, by: ADMIN_NAME, at: String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') };
+        AdminData.save('closings');
         O.toast(O.md(date) + ' の売上を確定しました');
         renderClosing();
         renderSettlement();
@@ -112,6 +113,7 @@
       okLabel: '解除する',
       onOk: function () {
         delete closings[date];
+        AdminData.save('closings');
         O.toast(O.md(date) + ' の締めを解除しました');
         renderClosing();
         renderSettlement();
