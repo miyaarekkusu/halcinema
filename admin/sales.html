@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>売上・精算 | HAL CINEMA 管理者画面</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body data-page="sales">
+
+<div class="admin-screen">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <span class="sidebar__brand">HAL CINEMA</span>
+      <span class="sidebar__sub">管理者画面</span>
+    </div>
+    <nav class="sidebar__nav">
+      <p class="sidebar__section-label">概要</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+      </ul>
+      <p class="sidebar__section-label">編成</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="movies" href="movies.html">作品・配給</a></li>
+        <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
+      </ul>
+      <p class="sidebar__section-label">経理</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
+      </ul>
+      <p class="sidebar__section-label">現場</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
+      </ul>
+      <p class="sidebar__section-label">システム</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-col">
+
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__menu-btn" id="sidebar-toggle" aria-label="メニュー">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="topbar__breadcrumb">
+          <span class="topbar__breadcrumb-root">管理者画面</span>
+          <span class="topbar__breadcrumb-sep">›</span>
+          <span class="topbar__breadcrumb-current">売上・精算</span>
+        </nav>
+      </div>
+      <div class="topbar__right">
+        <span class="topbar__user" id="topbar-user">admin</span>
+        <button class="topbar__logout" id="logout-btn">ログアウト</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <section class="page-section">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">売上・精算</h1>
+            <p class="page-desc">日々の売上を締めて確定し、月ごとに配給会社への支払額を計算します。</p>
+          </div>
+        </div>
+
+        <div class="subtab-nav">
+          <button class="subtab-item subtab-item--active" data-tab="closing">日次締め</button>
+          <button class="subtab-item" data-tab="summary">売上集計</button>
+          <button class="subtab-item" data-tab="settlement">配給精算</button>
+        </div>
+
+        <!-- ───────── 日次締め ───────── -->
+        <div class="subtab-pane" data-tab-pane="closing">
+          <div class="toolbar">
+            <span class="toolbar__label">対象月</span>
+            <select class="toolbar__select" id="closing-month"></select>
+            <span class="toolbar__spacer"></span>
+            <span class="toolbar__label" id="closing-unclosed"></span>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>日付</th><th class="numeric">チケット</th><th class="numeric">フード</th><th class="numeric">グッズ</th><th class="numeric">合計</th><th class="numeric">入場 / 販売</th><th>状態</th><th></th></tr>
+              </thead>
+              <tbody id="closing-tbody"></tbody>
+              <tfoot id="closing-tfoot"></tfoot>
+            </table>
+          </div>
+          <p class="note">※ 締め済みの日は確定値、未締めの日はその時点の集計値（灰色）を表示しています。締め解除は支配人のみ。</p>
+        </div>
+
+        <!-- ───────── 売上集計 ───────── -->
+        <div class="subtab-pane" data-tab-pane="summary" hidden>
+          <div class="toolbar">
+            <input class="toolbar__search" style="min-width:0" type="date" id="sum-from">
+            <span class="toolbar__label">〜</span>
+            <input class="toolbar__search" style="min-width:0" type="date" id="sum-to">
+            <div class="segmented" id="sum-group">
+              <button type="button" data-group="day" class="is-active">日別</button>
+              <button type="button" data-group="movie">作品別</button>
+              <button type="button" data-group="screen">スクリーン別</button>
+            </div>
+            <span class="toolbar__spacer"></span>
+            <button class="toolbar__btn" id="sum-csv-btn">CSV出力</button>
+          </div>
+          <div class="stat-grid" id="sum-stats"></div>
+          <div class="chart-card">
+            <div class="chart-card__head"><span id="sum-chart-title">日別売上</span><span class="chart-legend" id="sum-legend"></span></div>
+            <div id="sum-chart"></div>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead id="sum-thead"></thead>
+              <tbody id="sum-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ───────── 配給精算 ───────── -->
+        <div class="subtab-pane" data-tab-pane="settlement" hidden>
+          <div class="toolbar">
+            <span class="toolbar__label">対象月</span>
+            <select class="toolbar__select" id="settle-month"></select>
+            <button class="toolbar__btn toolbar__btn--primary" id="settle-calc-btn">精算を計算する</button>
+            <span class="toolbar__spacer"></span>
+            <button class="toolbar__btn" id="settle-csv-btn">精算書CSVを出力</button>
+          </div>
+          <div class="notice" id="settle-notice" hidden></div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>作品</th><th>配給会社</th><th class="numeric">興収</th><th class="numeric">動員</th><th class="numeric">歩合</th><th class="numeric">興収×歩合</th><th class="numeric">最低保証</th><th class="numeric">支払額</th><th>状態</th><th></th></tr>
+              </thead>
+              <tbody id="settle-tbody"></tbody>
+              <tfoot id="settle-tfoot"></tfoot>
+            </table>
+          </div>
+          <p class="note">※ 支払額 = max(興収 × 歩合率, 最低保証額)。「※」は最低保証を適用した行。再計算で上書きされるのは下書きのみです。</p>
+        </div>
+
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ═════════ 支払済 登録モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="paid-modal" hidden>
+  <div class="ad-modal ad-modal--sm" role="dialog" aria-modal="true" aria-labelledby="paid-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="paid-modal-title">支払済にする</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="paid-form" novalidate>
+      <p id="paid-target" style="margin-bottom:12px;"></p>
+      <div class="form-field">
+        <label for="pf-date">支払日<span class="req">*</span></label>
+        <input id="pf-date" type="date">
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="paid-save-btn">支払済にする</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin-common.js" defer></script>
+<script src="admin-office.js" defer></script>
+<script src="admin-data.js" defer></script>
+<script src="admin-model.js" defer></script>
+<script src="sales.js" defer></script>
+</body>
+</html>
