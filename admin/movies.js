@@ -1,6 +1,6 @@
 /* ============================================================
    HAL CINEMA — movies.js（G03 作品・配給）
-   ※ データは data/admin/seed.json（AdminData 経由）。この画面の編集はまだ保存しない（再読み込みで戻る）
+   ※ データは data/admin/seed.json → db.json（AdminData 経由）。登録・編集・延長・打ち切りは DBファイルに保存する
    API 接続時の置き換え先：
      GET/POST  /api/admin/movies          PATCH /api/admin/movies/{id}
      GET/POST  /api/admin/distributors    PATCH /api/admin/distributors/{id}
@@ -12,7 +12,7 @@
 
   var GENRES = ['アクション / SF', 'アニメ / ミステリー', 'アニメ / スポーツ', 'アニメ / ファミリー', 'ドラマ', 'コメディ', 'ホラー', 'ミュージカル'];
 
-  /* ── データ（data/admin/seed.json → db.json から読み込む。この画面の編集は保存しない） ── */
+  /* ── データ（data/admin/seed.json → db.json から読み込み、変更は AdminData.save で保存） ── */
   var movies, distributors, contracts, assignedShows;
 
   /* ── 参照ヘルパ ── */
@@ -145,6 +145,7 @@
       data.poster = null;
       movies.push(data);
     }
+    AdminData.save('movies');
     O.closeModal('movie-modal');
     O.toast(editingMovieId ? '作品を更新しました' : '作品を登録しました。続けて「契約」タブで上映契約を登録してください');
     renderAll();
@@ -213,6 +214,7 @@
     };
     if (editingDistId) Object.assign(byId(distributors, editingDistId), data);
     else { data.id = Math.max.apply(null, distributors.map(function (d) { return d.id; })) + 1; distributors.push(data); }
+    AdminData.save('distributors');
     O.closeModal('dist-modal');
     O.toast('保存しました');
     renderAll();
@@ -313,6 +315,7 @@
       start: start.value, end: end.value, share: Math.round(sh * 10) / 10, mg: g, status: 0,
       note: form.querySelector('#cf-note').value.trim(),
     });
+    AdminData.save('contracts');
     O.closeModal('contract-modal');
     O.toast('契約を登録しました');
     renderAll();
@@ -357,6 +360,7 @@
     var dup = overlapping(c.movie_id, c.start, input.value, c.id);
     if (dup) { O.setFieldError(input, '期間が既存の契約（' + O.md(dup.start) + '〜' + O.md(dup.end) + '）と重なっています'); return; }
     c.end = input.value;
+    AdminData.save('contracts');
     O.closeModal('extend-modal');
     O.toast('上映期間を ' + O.md(c.end, true) + ' までに変更しました');
     renderAll();
@@ -374,6 +378,7 @@
       okLabel: '打ち切る',
       onOk: function () {
         c.status = 2;
+        AdminData.save('contracts');
         O.toast('契約を打ち切りました');
         renderAll();
       },

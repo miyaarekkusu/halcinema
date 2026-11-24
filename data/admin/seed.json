@@ -222,6 +222,14 @@
     {"at":"12/01 10:05","goods_id":12,"diff":50,"reason":"入荷","by":"田中"},
     {"at":"11/30 21:50","goods_id":3,"diff":-2,"reason":"棚卸し","by":"渡辺"}
   ],
+  "admins": [
+    {"id":1,"code":"admin","name":"山田 太郎","role":"manager","active":true,"last_login_at":"12/02 09:02"},
+    {"id":2,"code":"manager02","name":"中村 光","role":"manager","active":true,"last_login_at":"11/30 18:10"},
+    {"id":3,"code":"acct01","name":"田中 美咲","role":"accounting","active":true,"last_login_at":"11/30 18:40"},
+    {"id":4,"code":"staff01","name":"高橋 翔","role":"staff","active":true,"last_login_at":"12/02 09:55"},
+    {"id":5,"code":"staff02","name":"佐々木 葵","role":"staff","active":true,"last_login_at":"12/01 13:48"},
+    {"id":6,"code":"staff03","name":"伊藤 陽菜","role":"staff","active":false,"last_login_at":null}
+  ],
   "staff": [
     {"id":1,"name":"山田"},
     {"id":2,"name":"田中"},

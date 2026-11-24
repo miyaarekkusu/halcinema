@@ -298,6 +298,7 @@
       var keptIds = kept.map(function (r) { return r.contract_id; });
       settlements[m] = kept.concat(fresh.filter(function (r) { return keptIds.indexOf(r.contract_id) === -1; }))
         .sort(function (a, b) { return a.contract_id - b.contract_id; });
+      saveSettlements();
       O.toast(monthLabel(m) + 'の精算を計算しました（下書き ' + (settlements[m].length - kept.length) + '件）');
       renderSettlement();
     };
@@ -314,6 +315,23 @@
     }
   }
 
+  // 精算データを保存（表示用に付けた作品名・配給会社名は保存しない）
+  function saveSettlements() {
+    var db = AdminData.db;
+    var plain = {};
+    Object.keys(settlements).forEach(function (m) {
+      plain[m] = settlements[m].map(function (r) {
+        var o = Object.assign({}, r);
+        delete o.movie;
+        delete o.dist;
+        return o;
+      });
+    });
+    db.settlements = plain;
+    AdminData.save('settlements');
+    db.settlements = settlements;   // 画面ではこれまでどおり名前つきのデータを使う
+  }
+
   function findRow(id) {
     var m = id.slice(0, 7);
     return (settlements[m] || []).find(function (r) { return r.id === id; });
@@ -325,7 +343,7 @@
       title: '精算の承認',
       html: '<b>' + O.esc(r.movie) + '</b>（' + O.esc(r.dist) + '）<br>支払額 <b>' + O.yen(r.pay) + '</b> で確定します。<br>承認すると再計算できなくなります。よろしいですか？',
       okLabel: '承認する',
-      onOk: function () { r.status = 1; O.toast('承認しました'); renderSettlement(); },
+      onOk: function () { r.status = 1; saveSettlements(); O.toast('承認しました'); renderSettlement(); },
     });
   }
 
@@ -346,6 +364,7 @@
     var r = findRow(payingId);
     r.status = 2;
     r.paid_at = input.value;
+    saveSettlements();
     O.closeModal('paid-modal');
     O.toast('支払済にしました');
     renderSettlement();

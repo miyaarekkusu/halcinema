@@ -987,6 +987,7 @@ body {
 /* 表の最小幅で画面全体が横に広がらないようにする（表は .table-wrap の中で横スクロール） */
 .main-col { min-width: 0; }
 .dash-grid > * { min-width: 0; }
+.sched-layout > * { min-width: 0; }
 .stat-card__sub { display: block; font-size: 11px; color: var(--ad-text-muted); margin-top: 4px; }
 .stat-card__sub--up { color: var(--ad-green); }
 .stat-card__sub--down { color: #fb923c; }
@@ -1017,6 +1018,12 @@ body {
 .data-mode__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ad-green); }
 .data-mode--readonly { color: #facc15; border-color: rgba(250,204,21,0.35); }
 .data-mode--readonly .data-mode__dot { background: #facc15; }
+
+/* 枠割り当て：契約残り日数・契約外の枠 */
+.movie-chip__contract { font-size: 11px; color: var(--ad-text-sub); margin-top: 3px; }
+.movie-chip__contract--warn { color: #fb923c; font-weight: 700; }
+.tl-slot--outside { background-image: repeating-linear-gradient(45deg, rgba(232,33,43,0.28) 0 6px, transparent 6px 12px); }
+.tl-slot__badge { position: absolute; top: 2px; right: 22px; z-index: 2; font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 3px; background: var(--ad-red); color: #fff; }
 
 /* ダッシュボードの表示日 */
 .date-label { font-weight: 700; font-size: 15px; min-width: 130px; text-align: center; font-variant-numeric: tabular-nums; }

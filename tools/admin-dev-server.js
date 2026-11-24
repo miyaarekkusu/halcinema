@@ -24,8 +24,9 @@ const ROOT = path.resolve(__dirname, '..');
 const SEED = path.join(ROOT, 'data', 'admin', 'seed.json');
 const DB = path.join(ROOT, 'data', 'admin', 'db.json');
 
-// 画面から書き換えてよい項目（ダッシュボードの在庫〜清掃タブ・日次締め）。増やすときはここに足す
-const WRITABLE = ['goods', 'stock_logs', 'shifts', 'cleaning', 'issues', 'closings'];
+// 画面から書き換えてよい項目（在庫〜清掃・日次締め・管理者・作品・配給会社・契約・配給精算）。増やすときはここに足す
+const WRITABLE = ['goods', 'stock_logs', 'shifts', 'cleaning', 'issues', 'closings', 'admins',
+  'movies', 'distributors', 'contracts', 'settlements'];
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -39,7 +40,16 @@ function loadDb() {
     fs.copyFileSync(SEED, DB);
     console.log('[db] seed.json から db.json を作成しました');
   }
-  return JSON.parse(fs.readFileSync(DB, 'utf8'));
+  const db = JSON.parse(fs.readFileSync(DB, 'utf8'));
+  // seed.json に後から足した項目（admins など）が db.json に無ければ補う
+  const seed = JSON.parse(fs.readFileSync(SEED, 'utf8'));
+  const missing = Object.keys(seed).filter(k => !(k in db));
+  if (missing.length) {
+    missing.forEach(k => { db[k] = seed[k]; });
+    saveDb(db);
+    console.log('[db] seed.json から項目を追加しました：' + missing.join(', '));
+  }
+  return db;
 }
 
 function saveDb(db) {

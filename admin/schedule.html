@@ -20,16 +20,20 @@
       <ul class="sidebar__list">
         <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
       </ul>
-      <p class="sidebar__section-label">スケジュール</p>
+      <p class="sidebar__section-label">編成</p>
       <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="movies" href="movies.html">作品・配給</a></li>
         <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
       </ul>
-      <p class="sidebar__section-label">端末切り替え</p>
+      <p class="sidebar__section-label">経理</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
+        <li><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
+      </ul>
+      <p class="sidebar__section-label">現場</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
         <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
         <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
-        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
       </ul>
       <p class="sidebar__section-label">システム</p>
       <ul class="sidebar__list">
@@ -74,7 +78,7 @@
 
         <div class="toolbar">
           <label style="font-size:12px; color:var(--ad-text-sub);">上映日</label>
-          <input class="toolbar__search" type="date" id="sched-date" value="2026-07-11" style="min-width:auto;">
+          <input class="toolbar__search" type="date" id="sched-date" style="min-width:auto;">
           <span style="flex:1;"></span>
           <span style="font-size:12px; color:var(--ad-text-muted);">掃除時間：一律 <b style="color:var(--ad-text-sub);">20分</b></span>
         </div>
@@ -102,7 +106,7 @@
 
           <aside class="movie-pool">
             <p class="movie-pool__title">上映する映画</p>
-            <p class="movie-pool__hint">枠へドラッグして割り当て。同じ映画を複数の枠に入れられます。</p>
+            <p class="movie-pool__hint">上映日が契約期間内の作品だけ表示。枠へドラッグして割り当て（同じ映画を複数の枠に入れられます）。</p>
             <div class="movie-pool__list" id="movie-pool-list"></div>
           </aside>
         </div>
@@ -127,28 +131,38 @@
 </div>
 
 <script src="admin-common.js" defer></script>
+<script src="admin-office.js" defer></script>
+<script src="admin-data.js" defer></script>
+<script src="admin-model.js" defer></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+/* 作品・契約・スクリーンは data/admin/seed.json（AdminData 経由）。割り当ての変更はまだ保存しない（再読み込みで戻る） */
+// defer の共通スクリプト（AdminData など）が読み込まれてから動かす
+document.addEventListener('DOMContentLoaded', function () { AdminData.onReady(function (db) {
+  var O = window.Office, M = window.AdminModel;
   var CLEAN = 20;          // 掃除時間（分）一律
   var DAY_START = 9 * 60;  // 09:00
   var DAY_END   = 24 * 60; // 24:00
   var SCALE = 1.2;         // px / 分
   var LABEL_W = 96;        // スクリーン名列の幅
-  var NOW = 15 * 60;       // デモ用「現在時刻」15:00
+  var NOW = M.NOW_MIN;     // モックの「現在時刻」（seed.json の meta.now）
 
   var DAY_MIN = DAY_END - DAY_START;
   var DAY_W = DAY_MIN * SCALE;
   var HOUR_W = 60 * SCALE;
 
-  // ── ダミーデータ ──────────────────────────────
-  var movies = [
-    { id: 1, title: '映画1', dur: 150 }, // 2時間30分
-    { id: 2, title: '映画2', dur: 90 },  // 1時間30分
-    { id: 3, title: '映画3', dur: 60 },  // 1時間
-    { id: 4, title: '映画4（大長編）', dur: 180 }, // 3時間 → 3時間枠には掃除込みで入らない
-  ];
+  // ── 作品・契約（データファイル） ────────────────
+  var TODAY = O.today;
+  var currentDate = TODAY;
+  var movies = db.movies.map(function (m) { return { id: m.id, title: m.title, dur: m.duration }; });
   var movieById = {};
   movies.forEach(function (m) { movieById[m.id] = m; });
+
+  // その日に有効な契約（打ち切り＝status 2 は除く）
+  function contractOn(movieId, date) {
+    return db.contracts.find(function (c) {
+      return c.movie_id === movieId && c.status !== 2 && c.start <= date && date <= c.end;
+    }) || null;
+  }
 
   function toMin(hhmm) { var p = hhmm.split(':'); return (+p[0]) * 60 + (+p[1]); }
   function fmtLen(min) {
@@ -158,36 +172,70 @@ document.addEventListener('DOMContentLoaded', function () {
   function fits(movie, slot) { return movie.dur + CLEAN <= slot.len; }
 
   // type: 0=通常枠 / 1=予備枠  len: 分（180=3時間 / 240=4時間 / 150=2.5時間）
-  // alert: null | { type }
-  var screens = [
-    { id: 1, name: 'スクリーン1', alert: null, slots: [
-      { order: 1, start: '09:30', len: 180, type: 0, movieId: 2 },
-      { order: 2, start: '13:00', len: 180, type: 0, movieId: null },
-      { order: 3, start: '16:30', len: 180, type: 0, movieId: null },
-      { order: 4, start: '20:00', len: 240, type: 0, movieId: 1 },
-    ]},
-    { id: 2, name: 'スクリーン2', alert: null, slots: [
-      { order: 1, start: '10:00', len: 180, type: 0, movieId: 3 },
-      { order: 2, start: '13:30', len: 240, type: 0, movieId: null },
-      { order: 3, start: '18:00', len: 180, type: 0, movieId: null },
-      { order: 4, start: '21:30', len: 150, type: 1, movieId: null }, // 予備枠
-    ]},
-  ];
-  var screenById = {};
-  screens.forEach(function (s) { screenById[s.id] = s; });
+  // 枠の並び（スクリーンごとのテンプレート。サーバー接続後は t_SLOT から取得）
+  var TEMPLATES = {
+    1: [ { start: '09:30', len: 180, type: 0 }, { start: '13:00', len: 180, type: 0 }, { start: '16:30', len: 180, type: 0 }, { start: '20:00', len: 240, type: 0 } ],
+    2: [ { start: '10:00', len: 180, type: 0 }, { start: '13:30', len: 240, type: 0 }, { start: '18:00', len: 180, type: 0 }, { start: '21:30', len: 150, type: 1 } ],
+    3: [ { start: '09:00', len: 180, type: 0 }, { start: '12:30', len: 180, type: 0 }, { start: '16:00', len: 180, type: 0 }, { start: '19:30', len: 180, type: 0 } ],
+  };
+  var alerts = {};          // 障害（スクリーンID → { type }）。日付をまたいで共通
+  var screensByDate = {};   // 上映日ごとの枠（割り当ての変更はメモリ上のみ）
+  var screens, screenById;
+
+  // その日の初期割り当て：日別の上映実績（作品×スクリーン）を通常枠へ順に入れる
+  function buildScreens(date) {
+    var day = db.daily_sales[date] || { shows: [] };
+    return db.screens.map(function (sc) {
+      var slots = (TEMPLATES[sc.id] || TEMPLATES[1]).map(function (t, i) {
+        return { order: i + 1, start: t.start, len: t.len, type: t.type, movieId: null };
+      });
+      day.shows.filter(function (sh) { return sh.screen_id === sc.id; }).forEach(function (sh) {
+        var left = sh.count;
+        slots.forEach(function (sl) {
+          if (left > 0 && sl.type === 0 && !sl.movieId && fits(movieById[sh.movie_id], sl)) { sl.movieId = sh.movie_id; left--; }
+        });
+      });
+      // 打ち切り前に割り当て済みだった枠（契約外の表示確認用のサンプル）
+      if (sc.id === 1) {
+        db.contracts.filter(function (c) { return c.status === 2 && c.start <= date && date <= c.end; }).forEach(function (c) {
+          var normal = slots.filter(function (sl) { return sl.type === 0; });
+          var last = normal[normal.length - 1];
+          if (last && !last.movieId) last.movieId = c.movie_id;
+        });
+      }
+      return {
+        id: sc.id, name: sc.name, slots: slots,
+        get alert() { return alerts[sc.id] || null; },
+        set alert(v) { alerts[sc.id] = v; },
+      };
+    });
+  }
+
+  function useDate(date) {
+    currentDate = date;
+    if (!screensByDate[date]) screensByDate[date] = buildScreens(date);
+    screens = screensByDate[date];
+    screenById = {};
+    screens.forEach(function (s) { screenById[s.id] = s; });
+  }
 
   // ── 映画プール ───────────────────────────────
   var poolEl = document.getElementById('movie-pool-list');
   function renderPool() {
     poolEl.innerHTML = '';
-    movies.forEach(function (m) {
+    var list = movies.filter(function (m) { return contractOn(m.id, currentDate); });
+    if (!list.length) poolEl.innerHTML = '<p class="movie-pool__hint">この日に契約期間内の作品はありません。</p>';
+    list.forEach(function (m) {
+      var c = contractOn(m.id, currentDate);
+      var left = O.daysBetween(currentDate, c.end);
       var chip = document.createElement('div');
       chip.className = 'movie-chip';
       chip.draggable = true;
       chip.dataset.movieId = m.id;
       chip.innerHTML =
         '<div class="movie-chip__title">' + m.title + '</div>' +
-        '<div class="movie-chip__meta">上映 ' + fmtLen(m.dur) + ' ＋ 掃除' + CLEAN + '分 ＝ ' + (m.dur + CLEAN) + '分</div>';
+        '<div class="movie-chip__meta">上映 ' + fmtLen(m.dur) + ' ＋ 掃除' + CLEAN + '分 ＝ ' + (m.dur + CLEAN) + '分</div>' +
+        '<div class="movie-chip__contract' + (left <= 7 ? ' movie-chip__contract--warn' : '') + '">契約残り ' + left + '日（〜' + O.md(c.end) + '）</div>';
       chip.addEventListener('dragstart', function (e) {
         e.dataTransfer.setData('text/plain', String(m.id));
         e.dataTransfer.effectAllowed = 'copy';
@@ -244,11 +292,11 @@ document.addEventListener('DOMContentLoaded', function () {
       track.style.setProperty('--tl-hour', HOUR_W + 'px');
 
       // 現在時刻ライン
-      if (NOW >= DAY_START && NOW <= DAY_END) {
+      if (currentDate === TODAY && NOW >= DAY_START && NOW <= DAY_END) {
         var now = document.createElement('div');
         now.className = 'tl-now';
         now.style.left = ((NOW - DAY_START) * SCALE) + 'px';
-        now.dataset.label = '現在 ' + (NOW / 60) + ':00';
+        now.dataset.label = '現在 ' + M.NOW;
         track.appendChild(now);
       }
 
@@ -271,8 +319,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (slot.movieId) {
       var m = movieById[slot.movieId];
       var idle = slot.len - m.dur - CLEAN;
-      el.className = 'tl-slot' + (slot.type === 1 ? ' tl-slot--reserve' : '') + (screen.alert ? ' tl-slot--incident' : '');
+      var outside = !contractOn(m.id, currentDate);
+      el.className = 'tl-slot' + (slot.type === 1 ? ' tl-slot--reserve' : '') + (screen.alert ? ' tl-slot--incident' : '') + (outside ? ' tl-slot--outside' : '');
       el.innerHTML =
+        (outside ? '<span class="tl-slot__badge">契約外</span>' : '') +
         '<div class="tl-seg tl-seg--show" style="width:' + (m.dur * SCALE) + 'px"></div>' +
         '<div class="tl-seg tl-seg--clean" style="width:' + (CLEAN * SCALE) + 'px"></div>' +
         '<div class="tl-seg tl-seg--idle"></div>' +
@@ -421,6 +471,8 @@ document.addEventListener('DOMContentLoaded', function () {
       rows.push(['掃除時間', CLEAN + '分']);
       rows.push(['飽き枠', idle > 0 ? fmtLen(idle) : '0分']);
       rows.push(['枠種別', slot.type === 1 ? '予備枠' : '通常枠']);
+      var ct = contractOn(m.id, currentDate);
+      rows.push(['契約', ct ? '契約内（〜' + O.md(ct.end) + '）' : '<span style="color:var(--ad-red)">契約外（打ち切り）</span>']);
     } else {
       slotModalTitle.textContent = slot.type === 1 ? '予備枠' : '空き枠';
       rows.push(['スクリーン', screen.name]);
@@ -480,9 +532,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function rerender() { renderTimeline(); renderAlerts(); }
 
+  var dateInput = document.getElementById('sched-date');
+  dateInput.value = TODAY;
+  dateInput.addEventListener('change', function () {
+    if (!dateInput.value) { dateInput.value = currentDate; return; }
+    useDate(dateInput.value);
+    renderPool();
+    rerender();
+  });
+
+  useDate(TODAY);
   renderPool();
   rerender();
-});
+}); });
 </script>
 </body>
 </html>
