@@ -11,6 +11,8 @@
 (function () {
   var O = window.Office;
   var TODAY = O.today;
+  // 締め解除・承認・支払済は支配人のみ（03_screen-design.md G05）。ロールは admin-common.js が決める
+  var IS_MANAGER = !window.HalAdmin || window.HalAdmin.role === 'manager';
   var ADMIN_NAME = sessionStorage.getItem('hal_admin_id') || 'admin';
 
   /* ── マスタ（movies.js と同じサンプル） ── */
@@ -143,7 +145,7 @@
         ? '<span class="badge badge--green">✔ 締め済</span><span class="sub">' + O.esc(cl.by) + ' ' + cl.at + '</span>'
         : (d === TODAY ? '<span class="badge badge--blue">本日・集計中</span>' : '<span class="badge badge--yellow">未締め</span>');
       var action = cl
-        ? '<button class="toolbar__btn toolbar__btn--sm" data-undo="' + d + '">解除</button>'
+        ? (IS_MANAGER ? '<button class="toolbar__btn toolbar__btn--sm" data-undo="' + d + '">解除</button>' : '')
         : '<button class="toolbar__btn toolbar__btn--sm toolbar__btn--primary" data-close="' + d + '">締める</button>';
       return '<tr class="' + (!cl && d < TODAY ? 'row--warn' : '') + '">' +
         '<td>' + O.md(d, true) + '</td>' +
@@ -356,8 +358,8 @@
     csvBtn.disabled = !rows.some(function (r) { return r.status >= 1; });
 
     tbody.innerHTML = rows.map(function (r) {
-      var action = r.status === 0 ? '<button class="toolbar__btn toolbar__btn--sm toolbar__btn--primary" data-approve="' + r.id + '">承認</button>'
-                 : r.status === 1 ? '<button class="toolbar__btn toolbar__btn--sm" data-paid="' + r.id + '">支払済</button>'
+      var action = r.status === 0 ? (IS_MANAGER ? '<button class="toolbar__btn toolbar__btn--sm toolbar__btn--primary" data-approve="' + r.id + '">承認</button>' : '')
+                 : r.status === 1 ? (IS_MANAGER ? '<button class="toolbar__btn toolbar__btn--sm" data-paid="' + r.id + '">支払済</button>' : '')
                  : '<span class="sub">' + O.md(r.paid_at) + ' 支払</span>';
       return '<tr>' +
         '<td><b>' + O.esc(r.movie) + '</b></td><td>' + O.esc(r.dist) + '</td>' +

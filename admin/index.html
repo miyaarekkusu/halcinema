@@ -5,6 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ダッシュボード | HAL CINEMA 管理者画面</title>
   <link rel="stylesheet" href="admin.css">
+  <!--
+    G02 ダッシュボードのモック（docs/admin/03_screen-design.md 準拠）。
+    API 接続時は dashboard.js 内のサンプルを GET /api/admin/dashboard に置き換える。
+    このページ専用のスタイルは下の <style> に db- 接頭辞でまとめている（admin.css は変更しない）。
+  -->
+  <style>
+    .db-date { display: flex; align-items: center; gap: 8px; }
+    .db-date__label { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 150px; text-align: center; }
+    .db-date__today { font-size: 11px; color: var(--ad-text-muted); }
+
+    .db-cards { grid-template-columns: repeat(4, 1fr); }
+    .db-cards .stat-card__value { font-variant-numeric: tabular-nums; }
+    .db-cards .stat-card__value small { font-size: 14px; font-weight: 500; color: var(--ad-text-sub); }
+    .db-card__sub { display: block; font-size: 11px; color: var(--ad-text-muted); margin-top: 6px; }
+    .db-up   { color: var(--ad-green); font-weight: 700; }
+    .db-down { color: var(--ad-red);   font-weight: 700; }
+
+    .db-panel { background: var(--ad-surface); border: 1px solid var(--ad-border); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+    .db-panel__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px; font-size: 13px; font-weight: 700; }
+    .db-panel__note { font-size: 11px; font-weight: 400; color: var(--ad-text-muted); }
+
+    .db-alerts { display: flex; flex-direction: column; }
+    .db-alert { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--ad-border); font-size: 13px; }
+    .db-alert:last-child { border-bottom: none; padding-bottom: 0; }
+    .db-alert:first-child { padding-top: 0; }
+    .db-alert__icon { color: #facc15; flex-shrink: 0; }
+    .db-alert__text { flex: 1; }
+    .db-alert__text b { font-weight: 700; }
+    .db-alert__link { color: var(--ad-text-sub); font-size: 12px; text-decoration: none; white-space: nowrap; }
+    .db-alert__link:hover { color: var(--ad-text); }
+    .db-alerts__none { font-size: 13px; color: var(--ad-text-muted); }
+
+    .db-layout { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
+    .db-layout .db-panel { margin-bottom: 0; }
+    .db-panel .table-wrap .admin-table { min-width: 560px; background: transparent; border: none; }
+
+    .db-rate { display: flex; align-items: center; gap: 10px; }
+    .db-rate__num { font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 64px; text-align: right; }
+    .db-rate__num small { color: var(--ad-text-muted); }
+    .db-rate__track { flex: 1; min-width: 80px; height: 6px; background: var(--ad-surface3); border-radius: 3px; overflow: hidden; }
+    .db-rate__fill { height: 100%; background: var(--ad-green); border-radius: 3px; }
+    .db-time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    .db-close__state { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 13px; }
+    .db-close__btn { width: 100%; padding: 11px; font-size: 13px; }
+    .db-close__hint { font-size: 11px; color: var(--ad-text-muted); margin-top: 10px; line-height: 1.6; }
+
+    @media (max-width: 1100px) {
+      .db-layout { grid-template-columns: 1fr; }
+      .db-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) { .db-cards { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body data-page="dashboard">
 
@@ -18,23 +71,26 @@
     <nav class="sidebar__nav">
       <p class="sidebar__section-label">概要</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+        <li data-roles="manager,accounting,staff"><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
       </ul>
-      <p class="sidebar__section-label">スケジュール</p>
+      <p class="sidebar__section-label">編成</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="movies" href="movies.html">作品・配給</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
       </ul>
-      <p class="sidebar__section-label">端末切り替え</p>
+      <p class="sidebar__section-label">経理</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
-        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
-        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
-        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
-        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+        <li data-roles="manager,accounting"><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
+      </ul>
+      <p class="sidebar__section-label">現場</p>
+      <ul class="sidebar__list">
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
       </ul>
       <p class="sidebar__section-label">システム</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
       </ul>
     </nav>
   </aside>
@@ -60,21 +116,58 @@
 
     <main class="page-content">
       <section class="page-section">
-        <h1 class="page-title">ダッシュボード</h1>
-
-        <div class="stat-grid">
-          <div class="stat-card"><div class="stat-card__body"><span class="stat-card__label">本日の予約数</span><span class="stat-card__value">—</span></div></div>
-          <div class="stat-card"><div class="stat-card__body"><span class="stat-card__label">フード売上</span><span class="stat-card__value">—</span></div></div>
-          <div class="stat-card"><div class="stat-card__body"><span class="stat-card__label">グッズ売上</span><span class="stat-card__value">—</span></div></div>
-          <div class="stat-card"><div class="stat-card__body"><span class="stat-card__label">入場者数</span><span class="stat-card__value">—</span></div></div>
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">ダッシュボード</h1>
+            <p class="page-desc">本日の売上速報・上映状況・アラートを確認します。</p>
+          </div>
+          <div class="db-date">
+            <button class="toolbar__btn toolbar__btn--sm" id="date-prev" aria-label="前の日">◀</button>
+            <span class="db-date__label" id="date-label"></span>
+            <button class="toolbar__btn toolbar__btn--sm" id="date-next" aria-label="次の日">▶</button>
+            <button class="toolbar__btn toolbar__btn--sm" id="date-today">今日</button>
+          </div>
         </div>
 
-        <div class="placeholder-box"><p>集計データはサーバー接続後に表示されます。左のメニューから各機能を選択してください。</p></div>
+        <!-- 売上カード（staff には入場者数のみ） -->
+        <div class="stat-grid db-cards" id="db-cards"></div>
+
+        <!-- アラート -->
+        <div class="db-panel">
+          <div class="db-panel__head"><span>アラート</span></div>
+          <div class="db-alerts" id="db-alerts"></div>
+        </div>
+
+        <div class="db-layout">
+          <!-- 本日の上映 -->
+          <div class="db-panel">
+            <div class="db-panel__head">
+              <span id="shows-title">本日の上映</span>
+              <span class="db-panel__note" id="shows-note"></span>
+            </div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>時刻</th><th>スクリーン</th><th>作品</th><th>販売</th><th>状態</th></tr></thead>
+                <tbody id="shows-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 本日の締め（manager / accounting のみ） -->
+          <div class="db-panel" id="closing-panel">
+            <div class="db-panel__head"><span id="closing-title">本日の締め</span></div>
+            <div id="closing-body"></div>
+          </div>
+        </div>
+
+        <p class="note">※ モック：表示データはサンプル（売上・精算画面と同じ生成ロジック）。締めの操作はメモリ上のみで、再読み込みで戻ります。API 接続時は GET /api/admin/dashboard?date=YYYY-MM-DD に置き換え。ロール別表示は URL に ?role=accounting / ?role=staff を付けて確認できます。</p>
       </section>
     </main>
   </div>
 </div>
 
 <script src="admin-common.js" defer></script>
+<script src="admin-office.js" defer></script>
+<script src="dashboard.js" defer></script>
 </body>
 </html>

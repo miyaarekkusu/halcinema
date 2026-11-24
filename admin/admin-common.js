@@ -10,14 +10,64 @@
   var AUTH_KEY = 'hal_admin_authed';
   var ID_KEY   = 'hal_admin_id';
 
+  /*
   if (sessionStorage.getItem(AUTH_KEY) !== 'true') {
     location.href = '../html/login.html';
+    return;
+  }
+*/
+
+  /* ── ロール（03_screen-design.md のロール別メニュー） ──
+     モック：URL に ?role=manager|accounting|staff を付けると切り替わり、
+     sessionStorage に保持して画面を移っても引き継ぐ（未指定は manager）。
+     API 接続時は GET /api/admin/me の role に置き換える。 */
+  var ROLE_KEY = 'hal_admin_role';
+  var ROLE_LABEL = { manager: '支配人', accounting: '経理', staff: 'スタッフ' };
+  var role = new URLSearchParams(location.search).get('role');
+  try {
+    if (ROLE_LABEL[role]) sessionStorage.setItem(ROLE_KEY, role);
+    else role = sessionStorage.getItem(ROLE_KEY);
+  } catch (e) {}
+  if (!ROLE_LABEL[role]) role = 'manager';
+
+  window.HalAdmin = {
+    role: role,
+    roleLabel: ROLE_LABEL[role],
+    can: function (roles) { return roles.indexOf(role) !== -1; },
+  };
+
+  function allowedRoles(li) {
+    return li && li.dataset.roles ? li.dataset.roles.split(',') : null;
+  }
+
+  // ロール外の画面を開いた場合 → ダッシュボードへ戻して「権限がありません」（M03）
+  // ※ defer で読み込むため、この時点で DOM は組み上がっている
+  var pageItem = document.querySelector('.sidebar__item[data-page="' + document.body.dataset.page + '"]');
+  var pageRoles = allowedRoles(pageItem && pageItem.closest('li'));
+  if (pageRoles && pageRoles.indexOf(role) === -1) {
+    document.documentElement.style.visibility = 'hidden';
+    try { sessionStorage.setItem('hal_admin_flash', 'この画面を開く権限がありません'); } catch (e) {}
+    location.replace('index.html');
     return;
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     var userEl = document.getElementById('topbar-user');
-    if (userEl) userEl.textContent = sessionStorage.getItem(ID_KEY) || 'admin';
+    if (userEl) userEl.textContent = (sessionStorage.getItem(ID_KEY) || 'admin') + '（' + ROLE_LABEL[role] + '）';
+
+    // ロールで見えるメニューを出し分け（項目が1つも残らない見出しも隠す）
+    document.querySelectorAll('.sidebar__list').forEach(function (ul) {
+      var visible = 0;
+      ul.querySelectorAll('li').forEach(function (li) {
+        var roles = allowedRoles(li);
+        var show = !roles || roles.indexOf(role) !== -1;
+        li.hidden = !show;
+        if (show) visible++;
+      });
+      ul.hidden = visible === 0;
+      var label = ul.previousElementSibling;
+      if (label && label.classList.contains('sidebar__section-label')) label.hidden = visible === 0;
+    });
 
     var currentPage = document.body.dataset.page;
     document.querySelectorAll('.sidebar__item').forEach(function (item) {
@@ -29,6 +79,7 @@
       logoutBtn.addEventListener('click', function () {
         sessionStorage.removeItem(AUTH_KEY);
         sessionStorage.removeItem(ID_KEY);
+        sessionStorage.removeItem(ROLE_KEY);
         location.href = '../html/login.html';
       });
     }

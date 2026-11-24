@@ -18,23 +18,26 @@
     <nav class="sidebar__nav">
       <p class="sidebar__section-label">概要</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+        <li data-roles="manager,accounting,staff"><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
       </ul>
-      <p class="sidebar__section-label">スケジュール</p>
+      <p class="sidebar__section-label">編成</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="movies" href="movies.html">作品・配給</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
       </ul>
-      <p class="sidebar__section-label">端末切り替え</p>
+      <p class="sidebar__section-label">経理</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
-        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
-        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
-        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
-        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+        <li data-roles="manager,accounting"><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
+      </ul>
+      <p class="sidebar__section-label">現場</p>
+      <ul class="sidebar__list">
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
       </ul>
       <p class="sidebar__section-label">システム</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
       </ul>
     </nav>
   </aside>
@@ -73,47 +76,47 @@
         <!-- 予約状態確認 -->
         <div class="subtab-pane" data-tab-pane="status">
           <div class="toolbar">
-            <select class="toolbar__select">
-              <option>スクリーンを選択…</option>
-              <option>スクリーン 1</option>
-              <option>スクリーン 2</option>
-              <option>スクリーン 3</option>
+            <select class="toolbar__select" id="gate-screen-filter">
+              <option value="">スクリーンを選択…</option>
+              <option value="1">スクリーン 1</option>
+              <option value="2">スクリーン 2</option>
+              <option value="3">スクリーン 3</option>
             </select>
-            <input class="toolbar__search" type="search" placeholder="予約番号・氏名で検索…">
+            <input class="toolbar__search" type="search" id="gate-search" placeholder="予約番号・氏名で検索…">
           </div>
           <table class="admin-table">
             <thead>
               <tr><th>予約番号</th><th>氏名</th><th>座席</th><th>上映</th><th>状態</th></tr>
             </thead>
-            <tbody>
+            <tbody id="gate-status-tbody">
               <tr><td>HAL-483920</td><td>山田 太郎</td><td>G-5</td><td>12:30 / スクリーン2</td><td><span class="badge badge--gray">未使用</span></td></tr>
               <tr><td>HAL-483915</td><td>佐藤 花子</td><td>D-8</td><td>12:30 / スクリーン2</td><td><span class="badge badge--green">使用済み</span></td></tr>
               <tr><td>HAL-483901</td><td>鈴木 一郎</td><td>H-2</td><td>15:00 / スクリーン1</td><td><span class="badge badge--gray">未使用</span></td></tr>
             </tbody>
           </table>
-          <div class="placeholder-box"><p>実データはサーバー接続後に反映されます</p></div>
+          <p class="note">※ モック：表示データはサンプル。API 接続後は当日の予約を取得して表示します。</p>
         </div>
 
         <!-- 通過管理：ゲート通過後の識別 -->
         <div class="subtab-pane" data-tab-pane="passed" hidden>
           <div class="toolbar">
-            <select class="toolbar__select">
-              <option>すべて表示</option>
-              <option>未使用のみ</option>
-              <option>使用済みのみ</option>
+            <select class="toolbar__select" id="gate-passed-filter">
+              <option value="">すべて表示</option>
+              <option value="未通過">未使用のみ</option>
+              <option value="通過済み">使用済みのみ</option>
             </select>
           </div>
           <table class="admin-table">
             <thead>
               <tr><th>予約番号</th><th>座席</th><th>通過時刻</th><th>スクリーン</th><th>状態</th></tr>
             </thead>
-            <tbody>
+            <tbody id="gate-passed-tbody">
               <tr><td>HAL-483915</td><td>D-8</td><td>12:24</td><td>スクリーン2</td><td><span class="badge badge--green">通過済み</span></td></tr>
               <tr><td>HAL-483902</td><td>C-3</td><td>12:19</td><td>スクリーン2</td><td><span class="badge badge--green">通過済み</span></td></tr>
               <tr><td>HAL-483920</td><td>G-5</td><td>—</td><td>スクリーン2</td><td><span class="badge badge--gray">未通過</span></td></tr>
             </tbody>
           </table>
-          <div class="placeholder-box"><p>ゲート通過ログの自動記録はサーバー接続後に実装されます</p></div>
+          <p class="note">※ モック：表示データはサンプル。API 接続後は QR 読み取り時に通過時刻を自動で記録します。</p>
         </div>
 
         <!-- 座席変更：座席選択画面のように直感的に操作 -->
@@ -182,6 +185,50 @@
 
     searchBtn.addEventListener('click', loadReservation);
     loadReservation();
+
+    // ── 予約状態確認・通過管理の絞り込み（モック：表示中のサンプル行を絞り込む） ──
+    function filterRows(tbody, test) {
+      var rows = tbody.querySelectorAll('tr[data-row]');
+      var hit = 0;
+      rows.forEach(function (tr) {
+        var show = test(tr);
+        tr.hidden = !show;
+        if (show) hit++;
+      });
+      var empty = tbody.querySelector('.js-empty');
+      if (!empty) {
+        empty = document.createElement('tr');
+        empty.className = 'js-empty';
+        empty.innerHTML = '<td colspan="5" class="empty-state">該当する予約がありません</td>';
+        tbody.appendChild(empty);
+      }
+      empty.hidden = hit > 0;
+    }
+
+    var statusTbody = document.getElementById('gate-status-tbody');
+    var screenSel = document.getElementById('gate-screen-filter');
+    var gateSearch = document.getElementById('gate-search');
+    statusTbody.querySelectorAll('tr').forEach(function (tr) { tr.dataset.row = '1'; });
+    function filterStatus() {
+      var sc = screenSel.value;
+      var q = gateSearch.value.replace(/\s/g, '');
+      filterRows(statusTbody, function (tr) {
+        var c = tr.children;
+        if (sc && c[3].textContent.indexOf('スクリーン' + sc) === -1) return false;
+        if (q && (c[0].textContent + c[1].textContent.replace(/\s/g, '')).indexOf(q) === -1) return false;
+        return true;
+      });
+    }
+    screenSel.addEventListener('change', filterStatus);
+    gateSearch.addEventListener('input', filterStatus);
+
+    var passedTbody = document.getElementById('gate-passed-tbody');
+    var passedSel = document.getElementById('gate-passed-filter');
+    passedTbody.querySelectorAll('tr').forEach(function (tr) { tr.dataset.row = '1'; });
+    passedSel.addEventListener('change', function () {
+      var v = passedSel.value;
+      filterRows(passedTbody, function (tr) { return !v || tr.children[4].textContent.trim() === v; });
+    });
   });
 </script>
 </body>

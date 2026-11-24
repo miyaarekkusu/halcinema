@@ -107,16 +107,66 @@
       var period = c ? O.md(c.start) + '〜' + O.md(c.end) + '<span class="sub">' + O.esc(byId(distributors, c.dist_id).name) + '</span>'
                      : '<span class="sub sub--warn">契約なし</span>';
       var poster = m.poster ? '<img class="poster-thumb" src="../images/poster/' + m.poster + '.jpg" alt="">' : '<span class="poster-thumb"></span>';
-      return '<tr>' +
+      // 上映実績がある作品は「削除」を出さず「非表示にする」（03 要相談2 で決定）
+      var extra = hasShown(m.id)
+        ? (m.hidden ? '<button class="toolbar__btn toolbar__btn--sm" data-unhide-movie="' + m.id + '">表示に戻す</button>'
+                    : '<button class="toolbar__btn toolbar__btn--sm" data-hide-movie="' + m.id + '">非表示にする</button>')
+        : '<button class="toolbar__btn toolbar__btn--sm toolbar__btn--ghost-red" data-delete-movie="' + m.id + '">削除</button>';
+      return '<tr class="' + (m.hidden ? 'row--muted' : '') + '">' +
         '<td style="width:52px">' + poster + '</td>' +
         '<td><b>' + O.esc(m.title) + '</b>' + (m.title_en ? '<span class="sub">' + O.esc(m.title_en) + '</span>' : '') + '</td>' +
         '<td class="numeric">' + m.duration + '分</td>' +
         '<td>' + m.rating + '</td>' +
-        '<td>' + STATUS_BADGE[movieStatus(m.id)] + '</td>' +
+        '<td>' + STATUS_BADGE[movieStatus(m.id)] + (m.hidden ? ' <span class="badge badge--gray">非表示</span>' : '') + '</td>' +
         '<td>' + period + '</td>' +
-        '<td class="actions"><button class="toolbar__btn toolbar__btn--sm" data-edit-movie="' + m.id + '">編集</button></td>' +
+        '<td class="actions"><button class="toolbar__btn toolbar__btn--sm" data-edit-movie="' + m.id + '">編集</button> ' + extra + '</td>' +
       '</tr>';
     }).join('');
+  }
+
+  // 上映実績あり＝上映開始日が今日以前の契約がある（API 接続後は t_SCHEDULE の上映済みの回の有無で判定）
+  function hasShown(movieId) {
+    return movieContracts(movieId).some(function (c) { return c.start <= TODAY; });
+  }
+
+  // 実績のない作品だけ削除できる（戻せない操作なので確認ダイアログを出す）
+  function deleteMovie(id) {
+    var m = byId(movies, id);
+    var cs = movieContracts(id);
+    O.confirm({
+      title: '作品の削除',
+      html: '<b>' + O.esc(m.title) + '</b> を削除します。' +
+            (cs.length ? '<br>登録済みの契約 ' + cs.length + '件 も削除されます。' : '') +
+            '<br>削除すると元に戻せません。よろしいですか？',
+      okLabel: '削除する',
+      onOk: function () {
+        movies = movies.filter(function (x) { return x.id !== id; });
+        contracts = contracts.filter(function (c) { return c.movie_id !== id; });
+        O.toast('作品を削除しました');
+        renderAll();
+      },
+    });
+  }
+
+  // 上映実績のある作品は非表示にする（利用者側の一覧に出さなくなる。データは残す）
+  function hideMovie(id, hidden) {
+    var m = byId(movies, id);
+    if (!hidden) {
+      m.hidden = false;
+      O.toast('「' + m.title + '」を表示に戻しました');
+      renderAll();
+      return;
+    }
+    O.confirm({
+      title: '作品を非表示にする',
+      html: '<b>' + O.esc(m.title) + '</b> は上映実績があるため削除できません。<br>非表示にすると利用者側の作品一覧に表示されなくなります（売上・精算のデータは残ります）。よろしいですか？',
+      okLabel: '非表示にする',
+      onOk: function () {
+        m.hidden = true;
+        O.toast('「' + m.title + '」を非表示にしました');
+        renderAll();
+      },
+    });
   }
 
   var editingMovieId = null;
@@ -466,6 +516,9 @@
     document.addEventListener('click', function (e) {
       var t = e.target;
       if (t.dataset.editMovie) openMovieModal(Number(t.dataset.editMovie));
+      else if (t.dataset.deleteMovie) deleteMovie(Number(t.dataset.deleteMovie));
+      else if (t.dataset.hideMovie) hideMovie(Number(t.dataset.hideMovie), true);
+      else if (t.dataset.unhideMovie) hideMovie(Number(t.dataset.unhideMovie), false);
       else if (t.dataset.editDist) openDistModal(Number(t.dataset.editDist));
       else if (t.dataset.extend) openExtendModal(Number(t.dataset.extend));
       else if (t.dataset.cancel) cancelContract(Number(t.dataset.cancel));

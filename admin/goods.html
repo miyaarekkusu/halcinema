@@ -18,23 +18,26 @@
     <nav class="sidebar__nav">
       <p class="sidebar__section-label">概要</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+        <li data-roles="manager,accounting,staff"><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
       </ul>
-      <p class="sidebar__section-label">スケジュール</p>
+      <p class="sidebar__section-label">編成</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="movies" href="movies.html">作品・配給</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
       </ul>
-      <p class="sidebar__section-label">端末切り替え</p>
+      <p class="sidebar__section-label">経理</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
-        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
-        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
-        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
-        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+        <li data-roles="manager,accounting"><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
+      </ul>
+      <p class="sidebar__section-label">現場</p>
+      <ul class="sidebar__list">
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
       </ul>
       <p class="sidebar__section-label">システム</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
       </ul>
     </nav>
   </aside>
@@ -75,13 +78,13 @@
         <!-- 受付：事前注文の受け渡し -->
         <div class="subtab-pane" data-tab-pane="reception">
           <div class="toolbar">
-            <input class="toolbar__search" type="search" placeholder="注文番号で検索…">
+            <input class="toolbar__search" type="search" id="goods-order-search" placeholder="注文番号で検索…">
           </div>
           <table class="admin-table">
             <thead>
               <tr><th>注文番号</th><th>内容</th><th>金額</th><th>状態</th><th></th></tr>
             </thead>
-            <tbody>
+            <tbody id="goods-reception-tbody">
               <tr>
                 <td>G-102934</td>
                 <td>アクリルスタンド ×1 / パンフレット ×1</td>
@@ -105,7 +108,7 @@
               </tr>
             </tbody>
           </table>
-          <div class="placeholder-box"><p>実データ・受け渡し操作はサーバー接続後に反映されます</p></div>
+          <p class="note">※ モック：表示データはサンプル。「受け渡し」を押すと受け渡し済みになり、履歴に追加されます（メモリ上のみ・再読み込みで戻ります）。</p>
         </div>
 
         <!-- 受理中注文 -->
@@ -120,7 +123,7 @@
               <tr><td>G-102934</td><td>アクリルスタンド ×1 / パンフレット ×1</td><td>14:10</td><td><span class="badge badge--green">準備完了</span></td></tr>
             </tbody>
           </table>
-          <div class="placeholder-box"><p>注文の受理〜梱包状況の更新はサーバー接続後に実装されます</p></div>
+          <p class="note">※ モック：表示データはサンプル。API 接続後は注文の受理〜梱包状況を更新します。</p>
         </div>
 
         <!-- 在庫 -->
@@ -136,7 +139,7 @@
               <tr><td>キーホルダー</td><td class="numeric">0</td><td><span class="badge badge--red">欠品</span></td></tr>
             </tbody>
           </table>
-          <div class="placeholder-box"><p>在庫の増減・発注管理はサーバー接続後に実装されます</p></div>
+          <p class="note">※ モック：表示データはサンプル。API 接続後は販売に合わせて在庫数が減ります。</p>
         </div>
 
         <!-- POS：店頭で直接購入する人向け -->
@@ -166,13 +169,13 @@
             <thead>
               <tr><th>伝票番号</th><th>日時</th><th>内容</th><th>金額</th><th>担当</th></tr>
             </thead>
-            <tbody>
+            <tbody id="goods-history-tbody">
               <tr><td>G-102890</td><td>13:35</td><td>キーホルダー ×1</td><td class="numeric">¥800</td><td>admin</td></tr>
               <tr><td>G-102882</td><td>13:20</td><td>ポスター ×1</td><td class="numeric">¥1,000</td><td>admin</td></tr>
               <tr><td>G-102870</td><td>12:50</td><td>アクリルスタンド ×2</td><td class="numeric">¥3,000</td><td>admin</td></tr>
             </tbody>
           </table>
-          <div class="placeholder-box"><p>過去の販売履歴はサーバー接続後にすべて表示されます</p></div>
+          <p class="note">※ モック：表示データはサンプル。API 接続後は過去の販売履歴をすべて表示します。</p>
         </div>
       </section>
     </main>
@@ -197,6 +200,46 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     window.AdminUI.initPosCart(document.getElementById('goods-pos-pane'));
+
+    // ── 受付：注文番号で検索・受け渡し（モック：表示中のサンプル行を操作） ──
+    var recTbody = document.getElementById('goods-reception-tbody');
+    var histTbody = document.getElementById('goods-history-tbody');
+    var orderSearch = document.getElementById('goods-order-search');
+    var orderRows = Array.prototype.slice.call(recTbody.querySelectorAll('tr'));
+    var emptyRow = document.createElement('tr');
+    emptyRow.hidden = true;
+    emptyRow.innerHTML = '<td colspan="5" class="empty-state">該当する注文がありません</td>';
+    recTbody.appendChild(emptyRow);
+
+    orderSearch.addEventListener('input', function () {
+      var q = orderSearch.value.trim().toUpperCase();
+      var hit = 0;
+      orderRows.forEach(function (tr) {
+        var show = !q || tr.children[0].textContent.toUpperCase().indexOf(q) !== -1;
+        tr.hidden = !show;
+        if (show) hit++;
+      });
+      emptyRow.hidden = hit > 0;
+    });
+
+    orderRows.forEach(function (tr) {
+      var btn = tr.querySelector('button');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        var c = tr.children;
+        c[3].innerHTML = '<span class="badge badge--gray">受け渡し済み</span>';
+        btn.disabled = true;
+        btn.classList.remove('toolbar__btn--primary');
+        btn.textContent = '受け渡し済み';
+        var now = new Date();
+        var hhmm = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        var staff = sessionStorage.getItem('hal_admin_id') || 'admin';
+        var row = document.createElement('tr');
+        row.innerHTML = '<td>' + c[0].textContent + '</td><td>' + hhmm + '</td><td>' + c[1].textContent + '</td><td class="numeric">' + c[2].textContent + '</td><td>' + staff + '</td>';
+        histTbody.insertBefore(row, histTbody.firstChild);
+      });
+    });
   });
 </script>
 </body>

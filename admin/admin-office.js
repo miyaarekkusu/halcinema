@@ -133,6 +133,15 @@
     });
     // admin-common.js のタブ処理が登録されてから実行する
     setTimeout(openTabFromHash, 0);
+
+    // ロール外の画面から戻されたとき（M03）のメッセージ
+    try {
+      var flash = sessionStorage.getItem('hal_admin_flash');
+      if (flash) {
+        sessionStorage.removeItem('hal_admin_flash');
+        toast(flash, 'error');
+      }
+    } catch (e) {}
   });
 
   /* ── フォームのエラー表示 ── */

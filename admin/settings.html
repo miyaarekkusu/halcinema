@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>設定 | HAL CINEMA 管理者画面</title>
   <link rel="stylesheet" href="admin.css">
+  <!--
+    G06 設定のモック（docs/admin/03_screen-design.md 準拠）。
+    このページ専用のスタイルは下の <style> に st- 接頭辞でまとめている（admin.css は変更しない）。
+  -->
+  <style>
+    .st-self { font-size: 10px; color: var(--ad-text-muted); margin-left: 6px; font-weight: 400; }
+    .st-mono { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .form-field select:disabled, .form-checks label.is-disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
 </head>
 <body data-page="settings">
 
@@ -18,23 +27,26 @@
     <nav class="sidebar__nav">
       <p class="sidebar__section-label">概要</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
+        <li data-roles="manager,accounting,staff"><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
       </ul>
-      <p class="sidebar__section-label">スケジュール</p>
+      <p class="sidebar__section-label">編成</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="movies" href="movies.html">作品・配給</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
       </ul>
-      <p class="sidebar__section-label">端末切り替え</p>
+      <p class="sidebar__section-label">経理</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
-        <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
-        <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
-        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
-        <li><a class="sidebar__item" data-page="backyard" href="backyard.html">バックヤード</a></li>
+        <li data-roles="manager,accounting"><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
+      </ul>
+      <p class="sidebar__section-label">現場</p>
+      <ul class="sidebar__list">
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
+        <li data-roles="manager,staff"><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
       </ul>
       <p class="sidebar__section-label">システム</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
+        <li data-roles="manager"><a class="sidebar__item" data-page="settings" href="settings.html">設定</a></li>
       </ul>
     </nav>
   </aside>
@@ -60,13 +72,84 @@
 
     <main class="page-content">
       <section class="page-section">
-        <h1 class="page-title">設定</h1>
-        <div class="placeholder-box"><p>端末設定はサーバー接続後に実装されます</p></div>
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">設定</h1>
+            <p class="page-desc">管理者アカウントの追加・ロール変更・無効化を行います。</p>
+          </div>
+        </div>
+
+        <!-- ───────── 管理者アカウント ───────── -->
+        <!-- 操作ログは記録のみ（画面は作らない：03 要相談3 で決定） -->
+        <div>
+          <div class="toolbar">
+            <span class="toolbar__spacer"></span>
+            <button class="toolbar__btn toolbar__btn--primary" id="admin-add-btn">＋ アカウントを追加</button>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>管理者ID</th><th>名前</th><th>ロール</th><th>最終ログイン</th><th>状態</th><th></th></tr>
+              </thead>
+              <tbody id="admin-tbody"></tbody>
+            </table>
+          </div>
+          <p class="note">※ 自分自身のロール変更・無効化はできません。有効な支配人が1人だけのとき、その人を無効化・降格することはできません。</p>
+        </div>
+
+        <p class="note">※ モック：表示データはサンプル。保存はメモリ上のみで、再読み込みで戻ります。一覧の「（自分）」はログイン中の管理者を manager01（山田）とした場合の表示です。API 接続時は GET/POST/PATCH /api/admin/admins に置き換え。</p>
       </section>
     </main>
   </div>
 </div>
 
+<!-- ═════════ 管理者アカウント 追加・編集モーダル ═════════ -->
+<div class="ad-modal-backdrop" id="admin-modal" hidden>
+  <div class="ad-modal" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="admin-modal-title">アカウントを追加</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="admin-form" novalidate>
+      <div class="form-alert" id="admin-form-alert" hidden></div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="af-code">管理者ID<span class="req">*</span></label>
+          <input id="af-code" maxlength="20" autocomplete="off">
+          <span class="form-field__hint" id="af-code-hint">半角英数4〜20文字</span>
+        </div>
+        <div class="form-field">
+          <label for="af-name">名前<span class="req">*</span></label>
+          <input id="af-name" maxlength="50">
+        </div>
+        <div class="form-field">
+          <label for="af-role">ロール<span class="req">*</span></label>
+          <select id="af-role">
+            <option value="">選択してください</option>
+            <option value="manager">支配人</option>
+            <option value="accounting">経理</option>
+            <option value="staff">スタッフ</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="af-password">パスワード<span class="req" id="af-password-req">*</span></label>
+          <input id="af-password" type="password" autocomplete="new-password">
+          <span class="form-field__hint" id="af-password-hint">8文字以上・英字と数字を混在</span>
+        </div>
+        <div class="form-field form-field--full">
+          <div class="form-checks"><label><input type="checkbox" id="af-active" checked>有効（ログインできる）</label></div>
+        </div>
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="admin-save-btn">保存</button>
+    </div>
+  </div>
+</div>
+
 <script src="admin-common.js" defer></script>
+<script src="admin-office.js" defer></script>
+<script src="settings.js" defer></script>
 </body>
 </html>
