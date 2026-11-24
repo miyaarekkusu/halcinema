@@ -20,16 +20,20 @@
       <ul class="sidebar__list">
         <li><a class="sidebar__item" data-page="dashboard" href="index.html">ダッシュボード</a></li>
       </ul>
-      <p class="sidebar__section-label">スケジュール</p>
+      <p class="sidebar__section-label">編成</p>
       <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="movies" href="movies.html">作品・配給</a></li>
         <li><a class="sidebar__item" data-page="schedule" href="schedule.html">枠割り当て</a></li>
       </ul>
-      <p class="sidebar__section-label">端末切り替え</p>
+      <p class="sidebar__section-label">経理</p>
       <ul class="sidebar__list">
-        <li><a class="sidebar__item" data-page="ticket" href="ticket.html">発券</a></li>
+        <li><a class="sidebar__item" data-page="sales" href="sales.html">売上・精算</a></li>
+      </ul>
+      <p class="sidebar__section-label">現場</p>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
         <li><a class="sidebar__item" data-page="food" href="food.html">フード</a></li>
         <li><a class="sidebar__item" data-page="goods" href="goods.html">グッズ</a></li>
-        <li><a class="sidebar__item" data-page="gate" href="gate.html">入場ゲート</a></li>
       </ul>
       <p class="sidebar__section-label">システム</p>
       <ul class="sidebar__list">
@@ -59,13 +63,79 @@
 
     <main class="page-content">
       <section class="page-section">
-        <h1 class="page-title">設定</h1>
-        <div class="placeholder-box"><p>端末設定はサーバー接続後に実装されます</p></div>
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">設定</h1>
+            <p class="page-desc">管理画面にログインできるアカウントの追加・編集（ロール変更・無効化）を行います。</p>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <span class="toolbar__label" id="admin-count"></span>
+          <span class="toolbar__spacer"></span>
+          <button class="toolbar__btn toolbar__btn--primary" id="admin-add-btn">＋ アカウントを追加</button>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>管理者ID</th><th>名前</th><th>ロール</th><th>最終ログイン</th><th>状態</th><th></th></tr></thead>
+            <tbody id="admin-tbody"></tbody>
+          </table>
+        </div>
+        <p class="note">※ 自分自身のロール変更・無効化はできません。有効な支配人が1人だけのときは、その人を無効化・降格できません。<br>
+          ※ ロールの種類（支配人／経理／スタッフ）は仮です。ログイン方式・ロールの見直しは別途。<br>
+          ※ モックではパスワードはチェックのみで保存しません（サーバー接続後にハッシュ化して保存）。</p>
       </section>
     </main>
   </div>
 </div>
 
+<!-- ═════════ 追加・編集モーダル（画面設計書 No.13〜20） ═════════ -->
+<div class="ad-modal-backdrop" id="admin-modal" hidden>
+  <div class="ad-modal ad-modal--sm" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+    <div class="ad-modal__head">
+      <span class="ad-modal__title" id="admin-modal-title">アカウントを追加</span>
+      <button class="ad-modal__close" data-close-modal aria-label="閉じる">×</button>
+    </div>
+    <form class="ad-modal__body" id="admin-form" novalidate>
+      <div class="form-alert" id="admin-form-alert" hidden></div>
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="af-code">管理者ID<span class="req">*</span></label>
+          <input id="af-code" maxlength="20" autocomplete="off" placeholder="半角英数4〜20文字">
+        </div>
+        <div class="form-field form-field--full">
+          <label for="af-name">名前<span class="req">*</span></label>
+          <input id="af-name" maxlength="50" autocomplete="off">
+        </div>
+        <div class="form-field form-field--full">
+          <label for="af-role">ロール<span class="req">*</span></label>
+          <select id="af-role">
+            <option value="">選択してください</option>
+            <option value="manager">支配人</option>
+            <option value="accounting">経理</option>
+            <option value="staff">スタッフ</option>
+          </select>
+        </div>
+        <div class="form-field form-field--full">
+          <label for="af-password">パスワード<span class="req" id="af-password-req">*</span></label>
+          <input id="af-password" type="password" autocomplete="new-password">
+          <span class="form-field__hint" id="af-password-hint">8文字以上・英字と数字を混在</span>
+        </div>
+        <div class="form-field form-field--full">
+          <div class="form-checks"><label><input type="checkbox" id="af-active" checked>有効（ログインできる）</label></div>
+        </div>
+      </div>
+    </form>
+    <div class="ad-modal__foot">
+      <button class="toolbar__btn" data-close-modal>キャンセル</button>
+      <button class="toolbar__btn toolbar__btn--primary" id="admin-save-btn">保存</button>
+    </div>
+  </div>
+</div>
+
 <script src="admin-common.js" defer></script>
+<script src="admin-office.js" defer></script>
+<script src="admin-data.js" defer></script>
+<script src="settings.js" defer></script>
 </body>
 </html>
